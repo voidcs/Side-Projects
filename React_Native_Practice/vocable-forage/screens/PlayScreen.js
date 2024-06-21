@@ -11,11 +11,30 @@ import LETTER_DIST from "../data/letter-distribution";
 
 function PlayScreen({ navigation, route }) {
   const { boardLength } = route.params;
+  const { height } = Dimensions.get("window");
+  const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
   const [layoutsReady, setLayoutsReady] = useState(false); // State to check if layouts are ready
 
   const cellLayoutsRef = useRef({});
   const boardLayoutRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const boardRef = useRef(board); // Ref to store the latest board state
+  const lastActiveRef = useRef([-1, -1]); // Ref to store the last active cell
+  const wordRef = useRef(""); // Ref to store the current word
+
+  const [word, setWord] = useState("");
+
+  const setWordHandler = (ch) => {
+    setWord((prevString) => {
+      return prevString + ch;
+    });
+    wordRef.current += ch;
+  };
+
+  useEffect(() => {
+    // Update the ref whenever the board state changes
+    boardRef.current = board;
+  }, [board]);
 
   useEffect(() => {
     // Generate letters
@@ -45,6 +64,15 @@ function PlayScreen({ navigation, route }) {
           randomIndex = Math.floor(Math.random() * letters.length);
         }
         newBoard[i][j] = letters[randomIndex];
+        // let r = Math.floor(Math.random() * 3);
+        // if (r == 0) {
+        //   newBoard[i][j] = "E";
+        // } else if (r == 1) {
+        //   newBoard[i][j] = "R";
+        // } else {
+        //   newBoard[i][j] = "S";
+        // }
+        // newBoard[i][j] = "?";
         freq[letters[randomIndex]]++;
       }
     }
@@ -69,10 +97,7 @@ function PlayScreen({ navigation, route }) {
       setTimeout(() => {
         board.measure((x, y, width, height, pageX, pageY) => {
           boardLayoutRef.current = { x: pageX, y: pageY, width, height };
-          // Set layoutsReady to true after the board layout is measured
-          // console.log(
-          //   `Board - x: ${pageX}, y: ${pageY}, width: ${width}, height: ${height}`
-          // );
+          // console.log("asdasd: ", width, height); It's a fucking square man
         });
       }, 0);
     });
@@ -94,11 +119,8 @@ function PlayScreen({ navigation, route }) {
             width,
             height,
           };
-          // console.log(
-          //   `Cell ${key} - x: ${pageX}, y: ${pageY}, width: ${width}, height: ${height}`
-          // );
           cnt++;
-          if (cnt == boardLength * boardLength) {
+          if (cnt === boardLength * boardLength) {
             setLayoutsReady(true);
           }
         });
@@ -110,50 +132,88 @@ function PlayScreen({ navigation, route }) {
     const key = `${rowIndex}-${cellIndex}`;
     return cellLayoutsRef.current[key];
   };
+
   const findCell = (touchX, touchY) => {
-    for (let i = 0; i < boardLength; i++) {
-      for (let j = 0; j < boardLength; j++) {
-        let layout = getCellLayout(i, j);
+    for (let x = 0; x < boardLength; x++) {
+      for (let y = 0; y < boardLength; y++) {
+        let layout = getCellLayout(x, y);
         if (layout) {
           if (
-            touchX >= layout["x"] &&
-            touchX <= layout["x"] + layout["width"] &&
-            touchY >= layout["y"] &&
-            touchY <= layout["y"] + layout["height"]
+            touchX - buffer >= layout.x &&
+            touchX + buffer <= layout.x + layout.width &&
+            touchY - buffer >= layout.y &&
+            touchY + buffer <= layout.y + layout.height
           ) {
-            return { i, j };
+            return { x, y };
           }
         }
       }
     }
     return -1;
   };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: (e, gestureState) => {
+        // When we initially press an element
         const touchX = e.nativeEvent.pageX;
         const touchY = e.nativeEvent.pageY;
         const cell = findCell(touchX, touchY);
-        console.log(cell);
+        if (cell === -1) {
+          return;
+        }
+        const { x, y } = cell;
+        lastActiveRef.current = [x, y];
+        setWordHandler(boardRef.current[x][y]);
+        // console.log(boardRef.current[x][y]);
+        // console.log("Starting at: ", [x, y]);
       },
       onPanResponderMove: (e, gestureState) => {
+        // When we drag to an element
         const touchX = e.nativeEvent.pageX;
         const touchY = e.nativeEvent.pageY;
-        // console.log(`Finger moved to x: ${touchX}, y: ${touchY}`);
         const cell = findCell(touchX, touchY);
-        console.log(cell);
+        if (cell === -1) {
+          return;
+        }
+        const { x, y } = cell;
+        // console.log("on hold last: ", lastActiveRef.current);
+        if (x === lastActiveRef.current[0] && y === lastActiveRef.current[1]) {
+          return;
+        }
+        // Check if (x, y) is adjacent
+        // console.log("x y: ", x, y);
+        // console.log("lastActive: ", lastActiveRef.current);
+        let dist = Math.sqrt(
+          Math.abs(lastActiveRef.current[0] - x) ** 2 +
+            Math.abs(lastActiveRef.current[1] - y) ** 2
+        );
+        // console.log("dist: ", dist);
+        if (dist < 2) {
+          setWordHandler(boardRef.current[x][y]);
+          lastActiveRef.current = [x, y];
+        }
+        // console.log(
+        //   "word: ",
+        //   wordRef.current,
+        //   "lastActive: ",
+        //   lastActiveRef.current
+        // );
+        // console.log(cell);
       },
       onPanResponderRelease: (e, gestureState) => {
         const touchX = e.nativeEvent.pageX;
         const touchY = e.nativeEvent.pageY;
         const cell = findCell(touchX, touchY);
-        console.log(`Finger released at`, cell);
+        // console.log(`Finger released at`, cell);
+        setWord("");
+        wordRef.current = ""; // Reset wordRef
+        lastActiveRef.current = [-1, -1]; // Reset last active cell
       },
     })
   ).current;
 
-  const { height } = Dimensions.get("window");
   const styles = createStyles(boardLength, height);
 
   return (
@@ -161,8 +221,8 @@ function PlayScreen({ navigation, route }) {
       source={require("../assets/morocco-blue.png")}
       style={styles.background}
     >
-      <View>
-        <Text>Play Screen with size {boardLength}</Text>
+      <View style={styles.wordContainer}>
+        <Text style={styles.wordText}>{word}</Text>
       </View>
       <View
         style={styles.board}
@@ -190,7 +250,6 @@ export default PlayScreen;
 
 const createStyles = (boardLength, height) => {
   const cellSize = (height * 0.4) / boardLength;
-
   return StyleSheet.create({
     background: {
       flex: 1,
@@ -207,20 +266,36 @@ const createStyles = (boardLength, height) => {
       color: "white",
       marginBottom: 20,
     },
+    wordContainer: {
+      marginTop: height * 0.1,
+      marginBottom: height * 0.02,
+      height: 50, // Fixed height for the word container
+      width: "80%",
+      backgroundColor: "rgba(255, 255, 255, 0.7)",
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+    },
+    wordText: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: "#333",
+    },
     board: {
       padding: 5,
       backgroundColor: "#1b3620",
-      marginTop: height * 0.25,
+      marginTop: height * 0.05,
       justifyContent: "center",
       alignItems: "center",
       alignSelf: "center",
-      borderRadius: 16,
+      borderRadius: 8,
     },
     row: {
       flexDirection: "row",
     },
     cell: {
-      margin: 3,
+      margin: 1.5,
       width: cellSize,
       height: cellSize,
       justifyContent: "center",
@@ -228,9 +303,10 @@ const createStyles = (boardLength, height) => {
       borderWidth: 1,
       borderColor: "#000",
       backgroundColor: "#ffffff",
-      borderRadius: 12,
+      borderRadius: 8,
     },
     cellText: {
+      // 0.65
       fontSize: cellSize * 0.65,
       color: "#000",
       fontWeight: "800",
