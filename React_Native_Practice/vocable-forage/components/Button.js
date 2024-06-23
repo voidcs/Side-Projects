@@ -21,7 +21,7 @@ const Button = ({ navigation, title }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#a02f58",
     padding: 20,
     borderRadius: 8,
     alignItems: "center",

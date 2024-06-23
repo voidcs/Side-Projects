@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import HomeScreen from "./screens/HomeScreen";
 import PlayScreen from "./screens/PlayScreen";
 
@@ -15,17 +15,18 @@ export default function App() {
   useEffect(() => {
     const readWordList = async () => {
       try {
-        const s3Url = 'https://my-word-list-bucket.s3.amazonaws.com/filtered-word-list.txt'; // Replace with your S3 URL
+        const s3Url =
+          "https://my-word-list-bucket.s3.amazonaws.com/filtered-word-list.txt"; // Replace with your S3 URL
         const response = await fetch(s3Url);
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const fileContent = await response.text();
-        const wordsArray = fileContent.split(/\r?\n/).filter(word => word);
+        const wordsArray = fileContent.split(/\r?\n/).filter((word) => word);
         setWords(wordsArray);
         // console.log('Words length:', wordsArray.length);
       } catch (error) {
-        console.error('Error fetching file', error);
+        console.error("Error fetching file", error);
       } finally {
         setLoading(false);
       }
@@ -48,7 +49,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
-            headerStyle: { backgroundColor: "#2196F3" },
+            headerStyle: { backgroundColor: "#a02f58" },
             headerTintColor: "white",
           }}
         >
@@ -56,15 +57,16 @@ export default function App() {
             name="HomeScreen"
             component={HomeScreen}
             options={{
-              title: "Vocable Forage",
+              title: "",
             }}
           />
           <Stack.Screen
             name="PlayScreen"
             component={PlayScreen}
             options={{
-              title: "Hunt Words I Guess",
-              headerBackTitle: "Back",
+              title: "",
+              headerBackTitleVisible: false, // Hide the back title
+              headerBackTitle: "back",
               gestureEnabled: false, // Disable the swipe-to-go-back gesture
             }}
             initialParams={{ words }} // Pass words as initialParams
