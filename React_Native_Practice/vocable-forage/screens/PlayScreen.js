@@ -15,10 +15,13 @@ import * as Haptics from "expo-haptics";
 function PlayScreen({ navigation, route }) {
   const { words, boardLength } = route.params;
   const { height } = Dimensions.get("window");
+
   // Buff multiplier of 0.1 works pretty good
-  const buffer = ((height * 0.4) / boardLength) * 0.07;
+  const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
   const [layoutsReady, setLayoutsReady] = useState(false);
+
+  const [showDelayEffect, setShowDelayEffect] = useState(false);
 
   const cellLayoutsRef = useRef({});
   const boardLayoutRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
@@ -438,6 +441,7 @@ const createStyles = (boardLength, height) => {
     },
     alreadyFound: {
       backgroundColor: "#660000",
+      backgroundColor: "#FFD700",
     },
     cellText: {
       // 0.65
