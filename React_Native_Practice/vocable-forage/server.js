@@ -19,15 +19,6 @@ const s3Client = new S3Client({
   },
 });
 
-const streamToString = (stream) => {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("error", reject);
-    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-  });
-};
-
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   console.log("Generating signed URL...");
@@ -45,26 +36,66 @@ const getObjectFromS3 = async (bucket, key) => {
   return fileContent;
 };
 
+// Custom serializer for Aho-Corasick automaton
+const serializeAutomaton = (automaton) => {
+  const queue = [automaton];
+  const seen = new Set();
+  const serialized = [];
+
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (seen.has(node)) continue;
+    seen.add(node);
+
+    const serializedNode = {
+      outputs: node.outputs,
+      transitions: {},
+      fail: node.fail ? node.fail.id : null,
+      id: node.id,
+    };
+
+    for (const [key, value] of Object.entries(node.next)) {
+      serializedNode.transitions[key] = value.id;
+      queue.push(value);
+    }
+
+    serialized.push(serializedNode);
+  }
+
+  return JSON.stringify(serialized);
+};
+
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
     const bucket = "my-word-list-bucket";
     const key = "filtered-word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
-
-    console.log("Creating automaton...");
-    const automaton = new AhoCorasick(
-      fileContent.split(/\r?\n/).filter((word) => word)
-    );
-    console.log("Automaton created.");
-
-    const serializedAutomaton = JSON.stringify(automaton);
-    console.log("Serialized Automaton:", serializedAutomaton);
-
-    res.json(serializedAutomaton);
+    res.send(fileContent);
   } catch (error) {
     console.error("Error fetching file", error);
     res.status(500).send("Error fetching file");
+  }
+});
+
+app.get("/automaton", async (req, res) => {
+  try {
+    console.log("Received request to /automaton");
+    const bucket = "my-word-list-bucket";
+    const key = "filtered-word-list.txt";
+    const fileContent = await getObjectFromS3(bucket, key);
+
+    const words = fileContent.split(/\r?\n/).filter((word) => word);
+    const automaton = new AhoCorasick(words);
+    words.forEach((word) => automaton.add(word, word));
+    automaton.build_fail();
+
+    const serializedAutomaton = serializeAutomaton(automaton);
+    console.log("Serialized automaton:", serializedAutomaton);
+    res.send(serializedAutomaton);
+  } catch (error) {
+    console.error("Error creating automaton", error);
+    res.status(500).send("Error creating automaton");
   }
 });
 
