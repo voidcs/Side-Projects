@@ -4,65 +4,33 @@ import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import HomeScreen from "./screens/HomeScreen";
 import PlayScreen from "./screens/PlayScreen";
-import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "@env";
 
 const Stack = createNativeStackNavigator();
-
-// Initialize the S3 client
-const s3Client = new S3Client({
-  region: "us-east-2", // Replace with your S3 bucket region
-  credentials: {
-    accessKeyId: AWS_ACCESS_KEY_ID, // Replace with your access key ID
-    secretAccessKey: AWS_SECRET_ACCESS_KEY, // Replace with your secret access key
-  },
-});
-
-const getObjectFromS3 = async (bucket, key) => {
-  const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-  const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-
-  const response = await fetch(signedUrl);
-  const fileContent = await response.text();
-  return fileContent;
-};
 
 export default function App() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [serverMessage, setServerMessage] = useState("");
 
   useEffect(() => {
-    const readWordList = async () => {
+    const fetchWordList = async () => {
       try {
-        const bucket = "my-word-list-bucket"; // Replace with your S3 bucket name
-        const key = "filtered-word-list.txt"; // Replace with your S3 object key
-        const fileContent = await getObjectFromS3(bucket, key);
-        const wordsArray = fileContent.split(/\r?\n/).filter((word) => word);
+        const response = await fetch("http://172.31.1.36:3000");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const result = await response.text(); // Use response.text() to handle plain text
+        const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
         setWords(wordsArray);
       } catch (error) {
-        console.error("Error fetching file", error);
+        console.error("Error fetching word list", error);
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchServerMessage = async () => {
-      try {
-        //http://172.31.1.36:3000
-        const response = await fetch("http://172.31.1.36:3000");
-        const result = await response.text();
-        setServerMessage(result);
-      } catch (error) {
-        console.error("Error fetching server message", error);
-      }
-    };
-
-    readWordList();
-    fetchServerMessage();
+    fetchWordList();
   }, []);
 
   if (loading) {
@@ -103,9 +71,6 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-      <View style={styles.messageContainer}>
-        <Text>{serverMessage}</Text>
-      </View>
     </>
   );
 }
