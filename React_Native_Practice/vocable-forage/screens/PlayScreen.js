@@ -121,6 +121,7 @@ function PlayScreen({ navigation, route }) {
     }
 
     const newBoard = [];
+    const flatBoard = [];
     for (let i = 0; i < boardLength; i++) {
       newBoard[i] = [];
       for (let j = 0; j < boardLength; j++) {
@@ -128,8 +129,24 @@ function PlayScreen({ navigation, route }) {
         while (freq[letters[randomIndex]] >= 2) {
           randomIndex = Math.floor(Math.random() * letters.length);
         }
+        flatBoard.push(letters[randomIndex]);
         newBoard[i][j] = letters[randomIndex];
         freq[letters[randomIndex]]++;
+      }
+    }
+    const shuffleArray = (array) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    };
+    shuffleArray(flatBoard);
+
+    // Put the shuffled items back into newBoard
+    let index = 0;
+    for (let i = 0; i < boardLength; i++) {
+      for (let j = 0; j < boardLength; j++) {
+        newBoard[i][j] = flatBoard[index++];
       }
     }
     setBoard(newBoard);
