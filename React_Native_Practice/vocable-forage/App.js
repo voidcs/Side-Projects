@@ -34,6 +34,26 @@ export default function App() {
     fetchWordList();
   }, []);
 
+  useEffect(() => {
+    const fetchAutomaton = async () => {
+      try {
+        const response = await fetch("http://18.222.167.11:3000/automaton");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const serializedAutomaton = await response.text();
+        const automaton = AhoCorasick.deserialize(
+          JSON.parse(serializedAutomaton)
+        );
+        console.log(automaton);
+      } catch (error) {
+        console.error("Error fetching automaton", error);
+      }
+    };
+
+    fetchAutomaton();
+  }, []);
+
   if (loading) {
     return (
       <View style={styles.container}>
