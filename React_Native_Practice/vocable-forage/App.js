@@ -44,7 +44,7 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
@@ -66,6 +66,7 @@ export default function App() {
               title: "",
               headerBackTitleVisible: false,
               headerBackTitle: "back",
+              headerShown: false,
               gestureEnabled: false,
             }}
             initialParams={{ words }}

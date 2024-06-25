@@ -7,21 +7,21 @@ import {
   PanResponder,
   Vibration,
 } from "react-native";
+import Svg, { Line } from "react-native-svg";
 import LETTER_DIST from "../data/letter-distribution";
 import POINTS from "../data/point-distribution";
 import AhoCorasick from "aho-corasick";
 import * as Haptics from "expo-haptics";
+import { getStatusBarHeight } from "react-native-status-bar-height";
 
 function PlayScreen({ navigation, route }) {
   const { words, boardLength } = route.params;
-  const { height } = Dimensions.get("window");
+  const statusBarHeight = getStatusBarHeight();
+  const { height, width } = Dimensions.get("window");
 
   // Buff multiplier of 0.1 works pretty good
   const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
-  const [layoutsReady, setLayoutsReady] = useState(false);
-
-  const [showDelayEffect, setShowDelayEffect] = useState(false);
 
   const cellLayoutsRef = useRef({});
   const boardLayoutRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
@@ -33,6 +33,17 @@ function PlayScreen({ navigation, route }) {
 
   const activeTilesRef = useRef([]);
   const [activeTiles, setActiveTiles] = useState([]);
+
+  useEffect(() => {
+    activeTilesRef.current = activeTiles;
+  }, [activeTiles]);
+
+  const activeTilesLocRef = useRef([]);
+  const [activeTilesLoc, setActiveTilesLoc] = useState([]);
+
+  useEffect(() => {
+    activeTilesLocRef.current = activeTilesLoc;
+  }, [activeTilesLoc]);
 
   const [validWord, setValidWord] = useState(false);
   const validWordRef = useRef(validWord);
@@ -93,10 +104,6 @@ function PlayScreen({ navigation, route }) {
   }, [board]);
 
   useEffect(() => {
-    activeTilesRef.current = activeTiles;
-  }, [activeTiles]);
-
-  useEffect(() => {
     const letters = [];
     for (let i = 0; i < 26; i++) {
       let letter = String.fromCharCode("A".charCodeAt(0) + i);
@@ -126,16 +133,6 @@ function PlayScreen({ navigation, route }) {
     setBoard(newBoard);
   }, [boardLength]);
 
-  useEffect(() => {
-    if (layoutsReady) {
-      for (let i = 0; i < boardLength; i++) {
-        for (let j = 0; j < boardLength; j++) {
-          let layout = getCellLayout(i, j);
-        }
-      }
-    }
-  }, [layoutsReady]);
-
   const onLayoutBoard = (event) => {
     const board = event.target;
     requestAnimationFrame(() => {
@@ -164,9 +161,6 @@ function PlayScreen({ navigation, route }) {
             height,
           };
           cnt++;
-          if (cnt === boardLength * boardLength) {
-            setLayoutsReady(true);
-          }
         });
       }, 0);
     });
@@ -196,6 +190,18 @@ function PlayScreen({ navigation, route }) {
     return -1;
   };
 
+  const updateActiveTilesLoc = (a, b) => {
+    let layout = getCellLayout(a, b);
+    if (layout) {
+      const newActiveTilesLoc = [
+        ...activeTilesLocRef.current,
+        { x: layout.x + layout.width / 2, y: layout.y + layout.height / 2 },
+      ];
+      setActiveTilesLoc(newActiveTilesLoc);
+      activeTilesLocRef.current = newActiveTilesLoc;
+    }
+  };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -209,10 +215,13 @@ function PlayScreen({ navigation, route }) {
         const { x, y } = cell;
         lastActiveRef.current = [x, y];
         setWordHandler(boardRef.current[x][y], { x, y });
+        updateActiveTilesLoc(x, y); // Update the location
+        // console.log(activeTilesLocRef.current);
       },
       onPanResponderMove: (e, gestureState) => {
         const touchX = e.nativeEvent.pageX;
         const touchY = e.nativeEvent.pageY;
+
         const cell = findCell(touchX, touchY);
         if (cell === -1) {
           return;
@@ -229,6 +238,7 @@ function PlayScreen({ navigation, route }) {
         if (activeTilesRef.current.length === 0) {
           lastActiveRef.current = [x, y];
           setWordHandler(boardRef.current[x][y], { x, y });
+          updateActiveTilesLoc(x, y); // Update the location
           return;
         }
         let dist = Math.sqrt(
@@ -237,8 +247,10 @@ function PlayScreen({ navigation, route }) {
         );
         if (dist < 2) {
           setWordHandler(boardRef.current[x][y], { x, y });
+          updateActiveTilesLoc(x, y); // Update the location
           lastActiveRef.current = [x, y];
         }
+        // console.log("current locs: ", activeTilesLocRef.current);
         let found = false;
         automatonRef.current.search(wordRef.current, (word, data, offset) => {
           if (word === wordRef.current) {
@@ -284,6 +296,8 @@ function PlayScreen({ navigation, route }) {
         validWordRef.current = false;
         setAlreadyFoundWord(false);
         alreadyFoundWordRef.current = false;
+        setActiveTilesLoc([]);
+        activeTilesLocRef.current = [];
       },
     })
   ).current;
@@ -291,60 +305,82 @@ function PlayScreen({ navigation, route }) {
   const styles = createStyles(boardLength, height);
 
   return (
-    <>
-      <View style={styles.background}>
-        <View style={[styles.scoreContainer]}>
-          <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
-          <Text style={styles.scoreWordsText}>
-            Words: {wordsFoundRef.current.length}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.wordContainer,
-            validWordRef.current
-              ? styles.validCell
-              : styles.defaultWordContainerColor,
-          ]}
-        >
-          <Text style={styles.wordText}>{word}</Text>
-        </View>
-        <View
-          style={styles.board}
-          {...panResponder.panHandlers}
-          onLayout={onLayoutBoard}
-        >
-          {board.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.row}>
-              {row.map((cell, cellIndex) => {
-                const isActive = activeTiles.some(
-                  (tile) => tile.x === rowIndex && tile.y === cellIndex
-                );
-                return (
-                  <View
-                    key={cellIndex}
-                    style={[
-                      styles.cell,
-                      isActive &&
-                        (alreadyFoundWordRef.current
-                          ? styles.alreadyFound
-                          : validWordRef.current
-                          ? styles.validCell
-                          : styles.activeCell),
-                    ]}
-                    onLayout={(event) =>
-                      onLayoutCell(event, rowIndex, cellIndex)
-                    }
-                  >
-                    <Text style={styles.cellText}>{cell}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          ))}
-        </View>
+    <View style={styles.background}>
+      <Svg
+        style={styles.svgOverlay}
+        height={height}
+        width={width}
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        {activeTilesLocRef.current.map((point, index) => {
+          if (index < activeTilesLocRef.current.length - 1) {
+            const nextPoint = activeTilesLocRef.current[index + 1];
+            return (
+              <Line
+                key={index}
+                x1={point.x}
+                y1={point.y}
+                x2={nextPoint.x}
+                y2={nextPoint.y}
+                stroke="red"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeOpacity="0.5"
+              />
+            );
+          }
+          return null;
+        })}
+      </Svg>
+      <View style={[styles.scoreContainer]}>
+        <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
+        <Text style={styles.scoreWordsText}>
+          Words: {wordsFoundRef.current.length}
+        </Text>
       </View>
-    </>
+      <View
+        style={[
+          styles.wordContainer,
+          validWordRef.current
+            ? styles.validCell
+            : styles.defaultWordContainerColor,
+        ]}
+      >
+        <Text style={styles.wordText}>{word}</Text>
+      </View>
+      <View
+        style={styles.board}
+        {...panResponder.panHandlers}
+        onLayout={onLayoutBoard}
+      >
+        {board.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((cell, cellIndex) => {
+              const isActive = activeTiles.some(
+                (tile) => tile.x === rowIndex && tile.y === cellIndex
+              );
+              return (
+                <View
+                  key={cellIndex}
+                  style={[
+                    styles.cell,
+                    isActive &&
+                      (alreadyFoundWordRef.current
+                        ? styles.alreadyFound
+                        : validWordRef.current
+                        ? styles.validCell
+                        : styles.activeCell),
+                  ]}
+                  onLayout={(event) => onLayoutCell(event, rowIndex, cellIndex)}
+                >
+                  <Text style={styles.cellText}>{cell}</Text>
+                </View>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 export default PlayScreen;
@@ -352,8 +388,21 @@ export default PlayScreen;
 const createStyles = (boardLength, height) => {
   const cellSize = (height * 0.4) / boardLength;
   return StyleSheet.create({
+    container: {
+      flex: 1,
+      position: "relative",
+    },
+    svgOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+      pointerEvents: "none", // Ensure the SVG doesn't intercept touch events
+    },
     scoreContainer: {
-      marginTop: height * 0.05,
+      marginTop: height * 0.1,
       height: 50,
       // width: "80%", Originally had length of word container as 80% of screen
       width: "80%",
@@ -376,6 +425,7 @@ const createStyles = (boardLength, height) => {
       flex: 1,
       resizeMode: "cover",
       backgroundColor: "#FBF4F6",
+      position: "relative",
     },
     container: {
       flex: 1,
@@ -448,6 +498,14 @@ const createStyles = (boardLength, height) => {
       fontSize: cellSize * 0.65,
       color: "#000",
       fontWeight: "800",
+    },
+    svgContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1, // Ensure the SVG is on top
     },
   });
 };
