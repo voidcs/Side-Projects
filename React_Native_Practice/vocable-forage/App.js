@@ -16,7 +16,8 @@ export default function App() {
   useEffect(() => {
     const fetchWordList = async () => {
       try {
-        const response = await fetch("http://172.31.1.36:3000");
+        //http://172.16.102.180:3000
+        const response = await fetch("http://18.222.167.11:3000");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }

@@ -47,8 +47,8 @@ const getObjectFromS3 = async (bucket, key) => {
 app.get("/", async (req, res) => {
   try {
     console.log("Received request to /");
-    const bucket = "my-word-list-bucket"; // Replace with your S3 bucket name
-    const key = "filtered-word-list.txt"; // Replace with your S3 object key
+    const bucket = "my-word-list-bucket";
+    const key = "filtered-word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
     res.send(fileContent);
   } catch (error) {
@@ -58,5 +58,5 @@ app.get("/", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://172.31.1.36:${port}`);
+  console.log(`Server is running on http://18.222.167.11:${port}`);
 });
