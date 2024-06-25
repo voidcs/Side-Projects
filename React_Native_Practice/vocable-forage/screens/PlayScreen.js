@@ -14,6 +14,7 @@ import POINTS from "../data/point-distribution";
 import AhoCorasick from "aho-corasick";
 import * as Haptics from "expo-haptics";
 import { getStatusBarHeight } from "react-native-status-bar-height";
+import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
   const { words, boardLength } = route.params;
@@ -381,6 +382,9 @@ function PlayScreen({ navigation, route }) {
           </View>
         ))}
       </View>
+      <View style={styles.navContainer}>
+        <BottomNavBar navigation={navigation} />
+      </View>
     </View>
   );
 }
@@ -392,6 +396,12 @@ const createStyles = (boardLength, height) => {
     container: {
       flex: 1,
       position: "relative",
+    },
+    navContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
     },
     svgOverlay: {
       position: "absolute",

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import Button from "../components/Button";
-
+import BottomNavBar from "../components/BottomNavBar";
 function HomeScreen({ navigation }) {
   return (
     <>
@@ -12,6 +12,9 @@ function HomeScreen({ navigation }) {
           <Button title={"History"} />
           <Button title={"Stats"} />
         </View>
+        <View style={styles.navContainer}>
+          <BottomNavBar navigation={navigation} />
+        </View>
       </View>
     </>
   );
@@ -22,6 +25,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
+  },
+  navContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   container: {
     flex: 1,
