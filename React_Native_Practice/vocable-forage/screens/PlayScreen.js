@@ -6,6 +6,7 @@ import {
   Dimensions,
   PanResponder,
   Vibration,
+  Animated,
 } from "react-native";
 import Svg, { Line } from "react-native-svg";
 import LETTER_DIST from "../data/letter-distribution";
@@ -323,7 +324,7 @@ function PlayScreen({ navigation, route }) {
                 x2={nextPoint.x}
                 y2={nextPoint.y}
                 stroke="red"
-                strokeWidth="10"
+                strokeWidth="12"
                 strokeLinecap="round"
                 strokeOpacity="0.5"
               />
