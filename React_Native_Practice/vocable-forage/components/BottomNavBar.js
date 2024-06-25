@@ -23,29 +23,29 @@ const BottomNavBar = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("MessageScreen")}
+        onPress={() => navigation.navigate("PlayScreen", { boardLength: 5 })}
       >
-        <Icon name="message" size={28} color={getColor("MessageScreen")} />
-        <Text style={[styles.navText, { color: getColor("MessageScreen") }]}>
-          Messages
+        <Icon name="play-arrow" size={28} color={getColor("PlayScreen")} />
+        <Text style={[styles.navText, { color: getColor("PlayScreen") }]}>
+          Play
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("SearchScreen")}
+        onPress={() => navigation.navigate("HomeScreen")}
       >
-        <Icon name="search" size={28} color={getColor("SearchScreen")} />
-        <Text style={[styles.navText, { color: getColor("SearchScreen") }]}>
-          Search
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navItem}
-        onPress={() => navigation.navigate("ProfileScreen")}
-      >
-        <Icon name="person" size={28} color={getColor("ProfileScreen")} />
+        <Icon name="home" size={28} color={getColor("ProfileScreen")} />
         <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
-          Profile
+          Home
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.navItem}
+        onPress={() => navigation.navigate("HomeScreen")}
+      >
+        <Icon name="home" size={28} color={getColor("ProfileScreen")} />
+        <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
+          Home
         </Text>
       </TouchableOpacity>
     </View>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     height: 80,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FBF4F6",
     paddingTop: 10,
     borderTopWidth: 0,
     elevation: 0,

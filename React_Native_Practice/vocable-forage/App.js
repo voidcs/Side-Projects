@@ -17,7 +17,7 @@ export default function App() {
     const fetchWordList = async () => {
       try {
         //http://172.16.102.180:3000
-        const response = await fetch("http://18.222.167.11:3000");
+        const response = await fetch("http://18.222.167.11:3000/words");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
