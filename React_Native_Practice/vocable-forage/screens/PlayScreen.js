@@ -12,6 +12,7 @@ import Svg, { Line } from "react-native-svg";
 import LETTER_DIST from "../data/letter-distribution";
 import POINTS from "../data/point-distribution";
 import AhoCorasick from "aho-corasick";
+import createTrie from "trie-prefix-tree";
 import * as Haptics from "expo-haptics";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
@@ -20,6 +21,7 @@ function PlayScreen({ navigation, route }) {
   const { words, boardLength } = route.params;
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
+
   // Buff multiplier of 0.1 works pretty good
   const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
@@ -81,15 +83,23 @@ function PlayScreen({ navigation, route }) {
     wordsFoundRef.current = wordsFound;
   }, [wordsFound]);
 
+  const trieRef = useRef(createTrie([]));
   const automatonRef = useRef(null);
 
   useEffect(() => {
-    if (!automatonRef.current) {
-      const automaton = new AhoCorasick(words);
-      words.forEach((word) => automaton.add(word, word));
-      automaton.build_fail();
-      automatonRef.current = automaton;
-    }
+    const startTime = performance.now();
+
+    trieRef.current = createTrie(words);
+
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    console.log(duration);
+    // if (!automatonRef.current) {
+    //   const automaton = new AhoCorasick(words);
+    //   words.forEach((word) => automaton.add(word, word));
+    //   automaton.build_fail();
+    //   automatonRef.current = automaton;
+    // }
   }, [words]);
 
   const setWordHandler = (ch, tile) => {
@@ -150,28 +160,6 @@ function PlayScreen({ navigation, route }) {
     }
     setBoard(newBoard);
   }, [boardLength]);
-
-  async function checkWordInTrie(word) {
-    try {
-      const response = await fetch("http://18.222.167.11:3000/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query: word }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const result = await response.json();
-      return result.result; // true if word found, false otherwise
-    } catch (error) {
-      console.error("Error checking word in trie", error);
-      return false;
-    }
-  }
 
   const onLayoutBoard = (event) => {
     const board = event.target;
@@ -291,13 +279,12 @@ function PlayScreen({ navigation, route }) {
           lastActiveRef.current = [x, y];
         }
         // console.log("current locs: ", activeTilesLocRef.current);
-        let found = false;
-
-        checkWordInTrie(wordRef.current).then((isFound) => {
-          if (isFound) {
-            found = true;
-          }
-        });
+        let found = trieRef.current.hasWord(wordRef.current.toLowerCase());
+        // automatonRef.current.search(wordRef.current, (word, data, offset) => {
+        //   if (word === wordRef.current) {
+        //     found = true;
+        //   }
+        // });
 
         if (found) {
           if (!wordsFoundRef.current.includes(wordRef.current)) {
