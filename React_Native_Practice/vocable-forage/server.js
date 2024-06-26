@@ -67,6 +67,9 @@ let automaton;
     automaton = await createAutomaton();
     console.log("Automaton built successfully");
     console.log(automaton);
+    const query = "cat";
+    const results = automaton.search(query);
+    console.log(`Results for '${query}':`, results);
   } catch (error) {
     console.error("Error building automaton:", error);
   }
