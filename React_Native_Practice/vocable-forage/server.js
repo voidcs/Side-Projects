@@ -49,14 +49,28 @@ app.get("/words", async (req, res) => {
   }
 });
 
-const bucket = "my-word-list-bucket";
-const key = "filtered-word-list.txt";
-const fileContent = await getObjectFromS3(bucket, key);
-const words = fileContent.split(/\r?\n/).filter((word) => word);
-const automaton = new AhoCorasick(words);
-words.forEach((word) => automaton.add(word, word));
-automaton.build_fail();
-console.log(automaton);
+async function createAutomaton() {
+  const bucket = "my-word-list-bucket";
+  const key = "filtered-word-list.txt";
+  const fileContent = await getObjectFromS3(bucket, key);
+  const words = fileContent.split(/\r?\n/).filter((word) => word);
+  const automaton = new AhoCorasick(words);
+  words.forEach((word) => automaton.add(word, word));
+  automaton.build_fail();
+  return automaton;
+}
+
+let automaton;
+
+(async () => {
+  try {
+    automaton = await createAutomaton();
+    console.log("Automaton built successfully");
+    console.log(automaton);
+  } catch (error) {
+    console.error("Error building automaton:", error);
+  }
+})();
 
 app.get("/query", async (req, res) => {
   try {
