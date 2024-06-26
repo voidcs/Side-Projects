@@ -1,11 +1,12 @@
 import "react-native-get-random-values"; // Add this import
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, ActivityIndicator, View } from "react-native";
+import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import HomeScreen from "./screens/HomeScreen";
 import PlayScreen from "./screens/PlayScreen";
+import Trie from "trie-prefix-tree";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,38 +18,27 @@ export default function App() {
   useEffect(() => {
     const fetchWordList = async () => {
       try {
+        //http://172.16.102.180:3000
         const response = await fetch("http://18.222.167.11:3000/words");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const result = await response.text();
-        const wordsArray = result.split(/\r?\n/).filter((word) => word);
+        const result = await response.text(); // Use response.text() to handle plain text
+        const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
         setWords(wordsArray);
       } catch (error) {
         console.error("Error fetching word list", error);
-      }
-    };
-
-    const fetchTrie = async () => {
-      try {
-        const response = await fetch("http://18.222.167.11:3000/trie");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const result = await response.json();
-        console.log("result: ", result);
-        setTrie(result);
-        console.log("Trie: ", trie);
-      } catch (error) {
-        console.error("Error fetching trie", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchWordList();
-    fetchTrie();
   }, []);
+  useEffect(() => {
+    const tempTrie = Trie(words);
+    setTrie(tempTrie);
+  }, [words]);
 
   if (loading) {
     return (
@@ -67,12 +57,12 @@ export default function App() {
             headerStyle: { backgroundColor: "#a02f58" },
             headerTintColor: "white",
             headerShown: false,
+            animation: "none",
           }}
         >
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
-            initialParams={{ words }}
             options={{
               title: "",
             }}
@@ -86,7 +76,7 @@ export default function App() {
               headerBackTitle: "back",
               gestureEnabled: false,
             }}
-            initialParams={{ words, trie }}
+            initialParams={{ words }}
           />
         </Stack.Navigator>
       </NavigationContainer>

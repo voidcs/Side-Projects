@@ -17,10 +17,10 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const { words, boardLength } = route.params;
+  const { words, trie, boardLength } = route.params;
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
-
+  console.log(trie.tree());
   // Buff multiplier of 0.1 works pretty good
   const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
