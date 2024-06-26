@@ -48,6 +48,14 @@ export default function App() {
     );
   }
 
+  const removeFunctions = (obj) => {
+    const clone = JSON.parse(JSON.stringify(obj));
+    const removeFn = (key, value) =>
+      typeof value === "function" ? undefined : value;
+    return JSON.parse(JSON.stringify(clone, removeFn));
+  };
+  const cleanTrie = removeFunctions(trie.tree());
+
   return (
     <>
       <StatusBar style="dark" />
@@ -76,7 +84,7 @@ export default function App() {
               headerBackTitle: "back",
               gestureEnabled: false,
             }}
-            initialParams={{ words }}
+            initialParams={{ words, cleanTrie }}
           />
         </Stack.Navigator>
       </NavigationContainer>

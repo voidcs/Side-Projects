@@ -18,7 +18,8 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const { words, boardLength } = route.params;
+  const { words, cleanTrie, boardLength } = route.params;
+  // console.log(trie.tree());
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
 
@@ -84,16 +85,10 @@ function PlayScreen({ navigation, route }) {
   }, [wordsFound]);
 
   const trieRef = useRef(createTrie([]));
-  const automatonRef = useRef(null);
 
   useEffect(() => {
-    const startTime = performance.now();
-
     trieRef.current = createTrie(words);
-
-    const endTime = performance.now();
-    const duration = endTime - startTime;
-    console.log(duration);
+    // aho corasick automaton, it's slower and not needed lol
     // if (!automatonRef.current) {
     //   const automaton = new AhoCorasick(words);
     //   words.forEach((word) => automaton.add(word, word));
@@ -174,23 +169,19 @@ function PlayScreen({ navigation, route }) {
   let cnt = 0;
 
   const onLayoutCell = (event, rowIndex, cellIndex) => {
-    const { width, height } = event.nativeEvent.layout;
     const key = `${rowIndex}-${cellIndex}`;
     const cell = event.target;
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        cell.measure((x, y, width, height, pageX, pageY) => {
-          const boardX = boardLayoutRef.current.x;
-          const boardY = boardLayoutRef.current.y;
-          cellLayoutsRef.current[key] = {
-            x: pageX,
-            y: pageY,
-            width,
-            height,
-          };
-          cnt++;
-        });
-      }, 0);
+
+    cell.measure((x, y, width, height, pageX, pageY) => {
+      const boardX = boardLayoutRef.current.x;
+      const boardY = boardLayoutRef.current.y;
+      cellLayoutsRef.current[key] = {
+        x: pageX,
+        y: pageY,
+        width,
+        height,
+      };
+      cnt++;
     });
   };
 
