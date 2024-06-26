@@ -17,10 +17,9 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const { words, trie, boardLength } = route.params;
+  const { words, boardLength } = route.params;
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
-  console.log(trie.tree());
   // Buff multiplier of 0.1 works pretty good
   const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
@@ -152,6 +151,28 @@ function PlayScreen({ navigation, route }) {
     setBoard(newBoard);
   }, [boardLength]);
 
+  async function checkWordInTrie(word) {
+    try {
+      const response = await fetch("http://18.222.167.11:3000/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: word }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      return result.result; // true if word found, false otherwise
+    } catch (error) {
+      console.error("Error checking word in trie", error);
+      return false;
+    }
+  }
+
   const onLayoutBoard = (event) => {
     const board = event.target;
     requestAnimationFrame(() => {
@@ -271,8 +292,9 @@ function PlayScreen({ navigation, route }) {
         }
         // console.log("current locs: ", activeTilesLocRef.current);
         let found = false;
-        automatonRef.current.search(wordRef.current, (word, data, offset) => {
-          if (word === wordRef.current) {
+
+        checkWordInTrie(wordRef.current).then((isFound) => {
+          if (isFound) {
             found = true;
           }
         });

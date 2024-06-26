@@ -3,6 +3,7 @@ const cors = require("cors");
 const fetch = require("node-fetch");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const AhoCorasick = require("aho-corasick");
 const Trie = require("trie-prefix-tree");
 require("dotenv").config(); // Load environment variables from .env file
 
@@ -11,6 +12,8 @@ const port = 3000;
 
 let trie;
 
+// Middleware to parse JSON bodies
+app.use(express.json());
 app.use(cors());
 
 const s3Client = new S3Client({
@@ -69,13 +72,8 @@ app.get("/words", async (req, res) => {
   }
 });
 
-// Function to start the server
-async function startServer() {
-  await buildTrie(); // Build the trie before starting the server
+buildTrie().then(() => {
   app.listen(port, () => {
     console.log(`Server is running on http://18.222.167.11:${port}`);
   });
-}
-
-// Start the server
-startServer();
+});
