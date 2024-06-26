@@ -35,23 +35,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const fetchAutomaton = async () => {
+    const fetchTrie = async () => {
       try {
-        const response = await fetch("http://18.222.167.11:3000/automaton");
+        const response = await fetch("http://18.222.167.11:3000/trie");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const serializedAutomaton = await response.text();
-        const automaton = AhoCorasick.deserialize(
-          JSON.parse(serializedAutomaton)
-        );
-        console.log(automaton);
+        const serializedTrie = await response.json(); // Parse the JSON response
+        console.log("The trie:", serializedTrie);
+        setTrie(serializedTrie);
       } catch (error) {
-        console.error("Error fetching automaton", error);
+        console.error("Error fetching trie", error);
       }
     };
 
-    fetchAutomaton();
+    fetchWordList();
+    fetchTrie();
   }, []);
 
   if (loading) {

@@ -18,30 +18,6 @@ const s3Client = new S3Client({
   },
 });
 
-class TrieNode {
-  constructor() {
-    this.children = {};
-    this.isEndOfWord = false;
-  }
-}
-
-class Trie {
-  constructor() {
-    this.root = new TrieNode();
-  }
-
-  insert(word) {
-    let node = this.root;
-    for (const char of word) {
-      if (!node.children[char]) {
-        node.children[char] = new TrieNode();
-      }
-      node = node.children[char];
-    }
-    node.isEndOfWord = true;
-  }
-}
-
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   console.log("Generating signed URL...");
@@ -59,23 +35,75 @@ const getObjectFromS3 = async (bucket, key) => {
   return fileContent;
 };
 
+// Trie Node
+class TrieNode {
+  constructor() {
+    this.children = {};
+    this.isEndOfWord = false;
+  }
+}
+
+// Trie
+class Trie {
+  constructor() {
+    this.root = new TrieNode();
+  }
+
+  insert(word) {
+    let node = this.root;
+    for (const char of word) {
+      if (!node.children[char]) {
+        node.children[char] = new TrieNode();
+      }
+      node = node.children[char];
+    }
+    node.isEndOfWord = true;
+  }
+
+  serialize() {
+    const serializeNode = (node) => {
+      const children = {};
+      for (const [char, childNode] of Object.entries(node.children)) {
+        children[char] = serializeNode(childNode);
+      }
+      return {
+        children,
+        isEndOfWord: node.isEndOfWord,
+      };
+    };
+    return JSON.stringify(serializeNode(this.root));
+  }
+}
+
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
     const bucket = "my-word-list-bucket";
     const key = "filtered-word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
-    const wordsArray = fileContent.split(/\r?\n/).filter((word) => word);
-
-    // Build Trie
-    const trie = new Trie();
-    wordsArray.forEach((word) => trie.insert(word));
-
-    const serializedTrie = JSON.stringify(trie);
-    res.send(serializedTrie);
+    res.send(fileContent);
   } catch (error) {
     console.error("Error fetching file", error);
     res.status(500).send("Error fetching file");
+  }
+});
+
+app.get("/trie", async (req, res) => {
+  try {
+    console.log("Received request to /trie");
+    const bucket = "my-word-list-bucket";
+    const key = "filtered-word-list.txt";
+    const fileContent = await getObjectFromS3(bucket, key);
+
+    const words = fileContent.split(/\r?\n/).filter((word) => word);
+    const trie = new Trie();
+    words.forEach((word) => trie.insert(word));
+    const serializedTrie = trie.serialize();
+    console.log("Serialized Trie:", serializedTrie);
+    res.send(serializedTrie);
+  } catch (error) {
+    console.error("Error creating trie", error);
+    res.status(500).send("Error creating trie");
   }
 });
 
