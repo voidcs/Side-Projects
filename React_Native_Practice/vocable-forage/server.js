@@ -66,6 +66,7 @@ app.get("/trie", async (req, res) => {
     const fileContent = await getObjectFromS3(bucket, key);
 
     const words = fileContent.split(/\r?\n/).filter((word) => word);
+    console.log("testing words: ", words.length);
     const trieInstance = trie(words);
 
     // You can now use trieInstance to check for words and prefixes

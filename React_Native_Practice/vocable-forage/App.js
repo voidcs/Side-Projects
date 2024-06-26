@@ -36,7 +36,7 @@ export default function App() {
           throw new Error("Network response was not ok");
         }
         const result = await response.json();
-        console.log("Trie: ", trie);
+        console.log("result: ", result);
         setTrie(result);
         console.log("Trie: ", trie);
       } catch (error) {
