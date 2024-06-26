@@ -3,7 +3,6 @@ const cors = require("cors");
 const fetch = require("node-fetch");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const AhoCorasick = require("aho-corasick");
 require("dotenv").config(); // Load environment variables from .env file
 
 const app = express();
@@ -18,6 +17,30 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+class TrieNode {
+  constructor() {
+    this.children = {};
+    this.isEndOfWord = false;
+  }
+}
+
+class Trie {
+  constructor() {
+    this.root = new TrieNode();
+  }
+
+  insert(word) {
+    let node = this.root;
+    for (const char of word) {
+      if (!node.children[char]) {
+        node.children[char] = new TrieNode();
+      }
+      node = node.children[char];
+    }
+    node.isEndOfWord = true;
+  }
+}
 
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
@@ -36,66 +59,23 @@ const getObjectFromS3 = async (bucket, key) => {
   return fileContent;
 };
 
-// Custom serializer for Aho-Corasick automaton
-const serializeAutomaton = (automaton) => {
-  const queue = [automaton];
-  const seen = new Set();
-  const serialized = [];
-
-  while (queue.length > 0) {
-    const node = queue.shift();
-    if (seen.has(node)) continue;
-    seen.add(node);
-
-    const serializedNode = {
-      outputs: node.outputs,
-      transitions: {},
-      fail: node.fail ? node.fail.id : null,
-      id: node.id,
-    };
-
-    for (const [key, value] of Object.entries(node.next)) {
-      serializedNode.transitions[key] = value.id;
-      queue.push(value);
-    }
-
-    serialized.push(serializedNode);
-  }
-
-  return JSON.stringify(serialized);
-};
-
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
     const bucket = "my-word-list-bucket";
     const key = "filtered-word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
-    res.send(fileContent);
+    const wordsArray = fileContent.split(/\r?\n/).filter((word) => word);
+
+    // Build Trie
+    const trie = new Trie();
+    wordsArray.forEach((word) => trie.insert(word));
+
+    const serializedTrie = JSON.stringify(trie);
+    res.send(serializedTrie);
   } catch (error) {
     console.error("Error fetching file", error);
     res.status(500).send("Error fetching file");
-  }
-});
-
-app.get("/automaton", async (req, res) => {
-  try {
-    console.log("Received request to /automaton");
-    const bucket = "my-word-list-bucket";
-    const key = "filtered-word-list.txt";
-    const fileContent = await getObjectFromS3(bucket, key);
-
-    const words = fileContent.split(/\r?\n/).filter((word) => word);
-    const automaton = new AhoCorasick(words);
-    words.forEach((word) => automaton.add(word, word));
-    automaton.build_fail();
-
-    const serializedAutomaton = serializeAutomaton(automaton);
-    console.log("Serialized automaton:", serializedAutomaton);
-    res.send(serializedAutomaton);
-  } catch (error) {
-    console.error("Error creating automaton", error);
-    res.status(500).send("Error creating automaton");
   }
 });
 
