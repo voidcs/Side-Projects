@@ -68,7 +68,7 @@ app.get("/trie", async (req, res) => {
     const words = fileContent.split(/\r?\n/).filter((word) => word);
     console.log("testing words: ", words.length);
     const trieInstance = trie(words);
-
+    console.log(trieInstance);
     // You can now use trieInstance to check for words and prefixes
     res.json(trieInstance);
   } catch (error) {
