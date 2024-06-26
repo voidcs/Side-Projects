@@ -1,4 +1,5 @@
 const express = require("express");
+const createTrie = require("trie-prefix-tree/dist/create");
 const cors = require("cors");
 const fetch = require("node-fetch");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
@@ -67,10 +68,11 @@ app.get("/trie", async (req, res) => {
 
     const words = fileContent.split(/\r?\n/).filter((word) => word);
     console.log("testing words: ", words.length);
-    const trieInstance = trie(words);
-    console.log(trieInstance);
-    // You can now use trieInstance to check for words and prefixes
-    res.json(trieInstance);
+    const trie = createTrie(words);
+    console.log("trie: ", trie);
+    const serializedTrie = JSON.stringify(trie);
+    console.log("trie: ", serializedTrie);
+    res.send(serializedTrie);
   } catch (error) {
     console.error("Error creating trie", error);
     res.status(500).send("Error creating trie");
