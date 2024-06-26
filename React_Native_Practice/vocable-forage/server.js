@@ -3,6 +3,7 @@ const cors = require("cors");
 const fetch = require("node-fetch");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const trie = require("trie-prefix-tree");
 require("dotenv").config(); // Load environment variables from .env file
 
 const app = express();
@@ -17,6 +18,15 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+const streamToString = (stream) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("error", reject);
+    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+  });
+};
 
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
@@ -34,46 +44,6 @@ const getObjectFromS3 = async (bucket, key) => {
   console.log("File content length:", fileContent.length);
   return fileContent;
 };
-
-// Trie Node
-class TrieNode {
-  constructor() {
-    this.children = {};
-    this.isEndOfWord = false;
-  }
-}
-
-// Trie
-class Trie {
-  constructor() {
-    this.root = new TrieNode();
-  }
-
-  insert(word) {
-    let node = this.root;
-    for (const char of word) {
-      if (!node.children[char]) {
-        node.children[char] = new TrieNode();
-      }
-      node = node.children[char];
-    }
-    node.isEndOfWord = true;
-  }
-
-  serialize() {
-    const serializeNode = (node) => {
-      const children = {};
-      for (const [char, childNode] of Object.entries(node.children)) {
-        children[char] = serializeNode(childNode);
-      }
-      return {
-        children,
-        isEndOfWord: node.isEndOfWord,
-      };
-    };
-    return JSON.stringify(serializeNode(this.root));
-  }
-}
 
 app.get("/words", async (req, res) => {
   try {
@@ -96,11 +66,10 @@ app.get("/trie", async (req, res) => {
     const fileContent = await getObjectFromS3(bucket, key);
 
     const words = fileContent.split(/\r?\n/).filter((word) => word);
-    const trie = new Trie();
-    words.forEach((word) => trie.insert(word));
-    const serializedTrie = trie.serialize();
-    console.log("Serialized Trie:", serializedTrie);
-    res.send(serializedTrie);
+    const trieInstance = trie(words);
+
+    // You can now use trieInstance to check for words and prefixes
+    res.json(trieInstance);
   } catch (error) {
     console.error("Error creating trie", error);
     res.status(500).send("Error creating trie");

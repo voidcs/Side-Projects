@@ -31,21 +31,19 @@ export default function App() {
       }
     };
 
-    fetchWordList();
-  }, []);
-
-  useEffect(() => {
     const fetchTrie = async () => {
       try {
         const response = await fetch("http://18.222.167.11:3000/trie");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const serializedTrie = await response.json(); // Parse the JSON response
-        console.log("The trie:", serializedTrie);
-        setTrie(serializedTrie);
+        const trieData = await response.json();
+        setTrie(trieData);
+        console.log("Trie: ", trieData);
       } catch (error) {
         console.error("Error fetching trie", error);
+      } finally {
+        setLoading(false);
       }
     };
 
