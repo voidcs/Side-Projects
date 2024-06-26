@@ -1,6 +1,6 @@
 import "react-native-get-random-values"; // Add this import
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
+import { StyleSheet, ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
@@ -12,22 +12,20 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [trie, setTrie] = useState(null);
 
   useEffect(() => {
     const fetchWordList = async () => {
       try {
-        //http://172.16.102.180:3000
         const response = await fetch("http://18.222.167.11:3000/words");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const result = await response.text(); // Use response.text() to handle plain text
-        const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
+        const result = await response.text();
+        const wordsArray = result.split(/\r?\n/).filter((word) => word);
         setWords(wordsArray);
       } catch (error) {
         console.error("Error fetching word list", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -37,9 +35,10 @@ export default function App() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const trieData = await response.json();
-        setTrie(trieData);
-        console.log("Trie: ", trieData);
+        const result = await response.json();
+        console.log("Trie: ", trie);
+        setTrie(result);
+        console.log("Trie: ", trie);
       } catch (error) {
         console.error("Error fetching trie", error);
       } finally {
@@ -68,12 +67,12 @@ export default function App() {
             headerStyle: { backgroundColor: "#a02f58" },
             headerTintColor: "white",
             headerShown: false,
-            animation: "none",
           }}
         >
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
+            initialParams={{ words }}
             options={{
               title: "",
             }}
@@ -87,7 +86,7 @@ export default function App() {
               headerBackTitle: "back",
               gestureEnabled: false,
             }}
-            initialParams={{ words }}
+            initialParams={{ words, trie }}
           />
         </Stack.Navigator>
       </NavigationContainer>
