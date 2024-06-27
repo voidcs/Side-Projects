@@ -7,7 +7,13 @@ const BottomNavBar = ({ navigation }) => {
   const route = useRoute();
 
   const getColor = (screenName) => {
-    return route.name === screenName ? "#a02f58" : "gray";
+    if (route.name === screenName) {
+      return "#a02f58";
+    }
+    if (screenName === "PlayScreen" && route.name === "EndGameScreen") {
+      return "#a02f58";
+    }
+    return "gray";
   };
 
   return (

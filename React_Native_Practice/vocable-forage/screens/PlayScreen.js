@@ -18,7 +18,8 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const [timer, setTimer] = useState(90);
+  const gameTime = 5;
+  const [timer, setTimer] = useState(gameTime);
   useEffect(() => {
     if (timer > 0) {
       const intervalId = setInterval(() => {
@@ -27,7 +28,7 @@ function PlayScreen({ navigation, route }) {
 
       return () => clearInterval(intervalId);
     } else {
-      navigation.navigate("HomeScreen"); // Replace 'NextScreen' with the name of your destination screen
+      navigation.navigate("EndGameScreen", { allWords: Array.from(allWords) });
     }
   }, [timer, navigation]);
   const { words, boardLength } = route.params;
@@ -212,10 +213,9 @@ function PlayScreen({ navigation, route }) {
         vis[i][j] = false;
       }
     }
-    setWordsFound(new Set(allWordsRef.current));
-    console.log("func calls: ", cnt);
-    console.log("num words: ", allWordsRef.current.size);
-    console.log(Array.from(allWordsRef.current));
+    // console.log("func calls: ", cnt);
+    // console.log("num words: ", allWordsRef.current.size);
+    // console.log(Array.from(allWordsRef.current));
   }, [boardLength]);
 
   const onLayoutBoard = (event) => {

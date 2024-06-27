@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import HomeScreen from "./screens/HomeScreen";
 import PlayScreen from "./screens/PlayScreen";
+import EndGameScreen from "./screens/EndGameScreen";
 import Trie from "trie-prefix-tree";
 
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,13 @@ export default function App() {
               gestureEnabled: false,
             }}
             initialParams={{ words }}
+          />
+          <Stack.Screen
+            name="EndGameScreen"
+            component={EndGameScreen}
+            options={{
+              title: "",
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

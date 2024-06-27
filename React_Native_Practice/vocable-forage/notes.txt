@@ -3,3 +3,8 @@
     - nvm use 14
 
 - Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76
+
+- Colors:
+    Main: #a02f58
+    Secondary: #FBF4F6
+    Accent: #82267E
