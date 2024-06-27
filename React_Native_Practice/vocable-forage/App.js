@@ -35,10 +35,6 @@ export default function App() {
 
     fetchWordList();
   }, []);
-  useEffect(() => {
-    const tempTrie = Trie(words);
-    setTrie(tempTrie);
-  }, [words]);
 
   if (loading) {
     return (
@@ -47,14 +43,6 @@ export default function App() {
       </View>
     );
   }
-
-  const removeFunctions = (obj) => {
-    const clone = JSON.parse(JSON.stringify(obj));
-    const removeFn = (key, value) =>
-      typeof value === "function" ? undefined : value;
-    return JSON.parse(JSON.stringify(clone, removeFn));
-  };
-  const cleanTrie = removeFunctions(trie.tree());
 
   return (
     <>
@@ -84,7 +72,7 @@ export default function App() {
               headerBackTitle: "back",
               gestureEnabled: false,
             }}
-            initialParams={{ words, cleanTrie }}
+            initialParams={{ words }}
           />
         </Stack.Navigator>
       </NavigationContainer>

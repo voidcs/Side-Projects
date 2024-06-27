@@ -1,0 +1,5 @@
+-Use node 14 for the EC2 server
+    - install with nvm install 14
+    - nvm use 14
+
+- Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76

@@ -18,7 +18,19 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const { words, cleanTrie, boardLength } = route.params;
+  const [timer, setTimer] = useState(90);
+  useEffect(() => {
+    if (timer > 0) {
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    } else {
+      navigation.navigate("HomeScreen"); // Replace 'NextScreen' with the name of your destination screen
+    }
+  }, [timer, navigation]);
+  const { words, boardLength } = route.params;
   // console.log(trie.tree());
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
@@ -109,6 +121,15 @@ function PlayScreen({ navigation, route }) {
     boardRef.current = board;
   }, [board]);
 
+  const [allWords, setAllWords] = useState(new Set());
+  const vis = useRef(
+    Array.from({ length: boardLength }, () => Array(boardLength).fill(false))
+  ).current;
+  const allWordsRef = useRef(allWords);
+  useEffect(() => {
+    allWordsRef.current = allWords;
+  }, [allWords]);
+  const foundWordsRef = useRef(new Set());
   useEffect(() => {
     const letters = [];
     for (let i = 0; i < 26; i++) {
@@ -154,6 +175,47 @@ function PlayScreen({ navigation, route }) {
       }
     }
     setBoard(newBoard);
+    const dir = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    const valid = (x, y) =>
+      x >= 0 && x < boardLength && y >= 0 && y < boardLength;
+    let cnt = 0;
+    const dfs = (x, y, s) => {
+      if (s.length > 9) return;
+      if (!trieRef.current.isPrefix(s)) return;
+      cnt++;
+      if (trieRef.current.hasWord(s)) allWordsRef.current.add(s);
+      for (let i = 0; i < dir.length; i++) {
+        const nx = x + dir[i][0];
+        const ny = y + dir[i][1];
+        if (valid(nx, ny) && !vis[nx][ny]) {
+          vis[nx][ny] = true;
+          dfs(nx, ny, s + newBoard[nx][ny]);
+          vis[nx][ny] = false;
+        }
+      }
+    };
+    for (let i = 0; i < boardLength; i++) {
+      for (let j = 0; j < boardLength; j++) {
+        let s = newBoard[i][j];
+        vis[i][j] = true;
+        dfs(i, j, s);
+        vis[i][j] = false;
+      }
+    }
+    setWordsFound(new Set(allWordsRef.current));
+    console.log("func calls: ", cnt);
+    console.log("num words: ", allWordsRef.current.size);
+    console.log(Array.from(allWordsRef.current));
   }, [boardLength]);
 
   const onLayoutBoard = (event) => {
@@ -322,7 +384,8 @@ function PlayScreen({ navigation, route }) {
   ).current;
 
   const styles = createStyles(boardLength, height);
-
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
   return (
     <View style={styles.background}>
       <Svg
@@ -355,6 +418,10 @@ function PlayScreen({ navigation, route }) {
         <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
         <Text style={styles.scoreWordsText}>
           Words: {wordsFoundRef.current.length}
+        </Text>
+        <Text style={styles.timerText}>
+          {minutes < 10 ? `0${minutes}` : minutes}:
+          {seconds < 10 ? `0${seconds}` : seconds}
         </Text>
       </View>
       <View
@@ -438,6 +505,12 @@ const createStyles = (boardLength, height) => {
       alignItems: "center",
       justifyContent: "center",
       alignSelf: "center",
+    },
+    timerText: {
+      marginTop: 10,
+      color: "#a02f58",
+      fontSize: 24,
+      fontWeight: "800",
     },
     scoreText: {
       color: "#a02f58",
