@@ -43,14 +43,14 @@ const getObjectFromS3 = async (bucket, key) => {
 
 async function buildTrie() {
   const bucket = "my-word-list-bucket";
-  const key = "word-list.txt";
+  const key = "filtered-word-list.txt";
   const fileContent = await getObjectFromS3(bucket, key);
   const words = fileContent.split(/\r?\n/).filter((word) => word);
   trie = Trie(words);
   console.log("Trie built successfully");
 }
 
-app.post("/search", (req, res) => {
+app.post("/containsPrefix", (req, res) => {
   const { query } = req.body;
   if (!trie) {
     return res.status(500).json({ error: "Trie not ready" });
@@ -63,7 +63,7 @@ app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
     const bucket = "my-word-list-bucket";
-    const key = "word-list.txt";
+    const key = "filtered-word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
     res.send(fileContent);
   } catch (error) {
