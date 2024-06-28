@@ -43,7 +43,7 @@ const getObjectFromS3 = async (bucket, key) => {
 
 async function buildTrie() {
   const bucket = "my-word-list-bucket";
-  const key = "filtered-word-list.txt";
+  const key = "word-list.txt";
   const fileContent = await getObjectFromS3(bucket, key);
   const words = fileContent.split(/\r?\n/).filter((word) => word);
   trie = Trie(words);

@@ -32,11 +32,18 @@ function PlayScreen({ navigation, route }) {
       navigation.navigate("EndGameScreen", {
         allWords: Array.from(allWords),
         foundWords: wordsFoundRef.current,
+        score: scoreRef.current,
+        words: wordsFoundRef.current.length,
       });
     }
   }, [timer, navigation]);
   function navigateHandler() {
-    navigation.navigate("EndGameScreen", { allWords: Array.from(allWords) });
+    navigation.navigate("EndGameScreen", {
+      allWords: Array.from(allWords),
+      foundWords: wordsFoundRef.current,
+      score: scoreRef.current,
+      words: wordsFoundRef.current.length,
+    });
   }
   const { words, boardLength } = route.params;
   // console.log(trie.tree());
@@ -333,6 +340,8 @@ function PlayScreen({ navigation, route }) {
           Math.abs(lastActiveRef.current[0] - x) ** 2 +
             Math.abs(lastActiveRef.current[1] - y) ** 2
         );
+        // console.log("here x: ", x, " y: ", y, boardRef.current[x][y]);
+
         if (dist < 2) {
           setWordHandler(boardRef.current[x][y], { x, y });
           updateActiveTilesLoc(x, y); // Update the location
@@ -512,7 +521,7 @@ const createStyles = (boardLength, height) => {
       pointerEvents: "none", // Ensure the SVG doesn't intercept touch events
     },
     scoreContainer: {
-      marginTop: height * 0.1,
+      marginTop: height * 0.12,
       height: 50,
       // width: "80%", Originally had length of word container as 80% of screen
       width: "80%",
@@ -555,7 +564,7 @@ const createStyles = (boardLength, height) => {
       marginBottom: 20,
     },
     wordContainer: {
-      marginTop: height * 0.1,
+      marginTop: height * 0.08,
       marginBottom: height * 0.02,
       height: 50,
       // width: "80%", Originally had length of word container as 80% of screen
