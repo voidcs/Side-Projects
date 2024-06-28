@@ -63,7 +63,7 @@ app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
     const bucket = "my-word-list-bucket";
-    const key = "filtered-word-list.txt";
+    const key = "word-list.txt";
     const fileContent = await getObjectFromS3(bucket, key);
     res.send(fileContent);
   } catch (error) {
