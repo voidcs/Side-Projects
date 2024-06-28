@@ -7,6 +7,7 @@ import {
   PanResponder,
   Vibration,
   Animated,
+  TouchableOpacity,
 } from "react-native";
 import Svg, { Line } from "react-native-svg";
 import LETTER_DIST from "../data/letter-distribution";
@@ -18,7 +19,7 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
-  const gameTime = 5;
+  const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
   useEffect(() => {
     if (timer > 0) {
@@ -28,9 +29,15 @@ function PlayScreen({ navigation, route }) {
 
       return () => clearInterval(intervalId);
     } else {
-      navigation.navigate("EndGameScreen", { allWords: Array.from(allWords) });
+      navigation.navigate("EndGameScreen", {
+        allWords: Array.from(allWords),
+        foundWords: wordsFoundRef.current,
+      });
     }
   }, [timer, navigation]);
+  function navigateHandler() {
+    navigation.navigate("EndGameScreen", { allWords: Array.from(allWords) });
+  }
   const { words, boardLength } = route.params;
   // console.log(trie.tree());
   const statusBarHeight = getStatusBarHeight();
@@ -419,10 +426,12 @@ function PlayScreen({ navigation, route }) {
         <Text style={styles.scoreWordsText}>
           Words: {wordsFoundRef.current.length}
         </Text>
-        <Text style={styles.timerText}>
-          {minutes < 10 ? `0${minutes}` : minutes}:
-          {seconds < 10 ? `0${seconds}` : seconds}
-        </Text>
+        <TouchableOpacity onPress={navigateHandler}>
+          <Text style={styles.timerText}>
+            {minutes < 10 ? `0${minutes}` : minutes}:
+            {seconds < 10 ? `0${seconds}` : seconds}
+          </Text>
+        </TouchableOpacity>
       </View>
       <View
         style={[
@@ -432,7 +441,13 @@ function PlayScreen({ navigation, route }) {
             : styles.defaultWordContainerColor,
         ]}
       >
-        <Text style={styles.wordText}>{word}</Text>
+        <Text style={styles.wordText}>
+          {word}
+          {alreadyFoundWordRef.current === false &&
+          validWordRef.current === true
+            ? ` (+${POINTS[word.length]})`
+            : ""}
+        </Text>
       </View>
       <View
         style={styles.board}

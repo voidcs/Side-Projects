@@ -29,7 +29,12 @@ const BottomNavBar = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("PlayScreen", { boardLength: 5 })}
+        onPress={() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "PlayScreen", params: { boardLength: 5 } }],
+          });
+        }}
       >
         <Icon name="play-arrow" size={28} color={getColor("PlayScreen")} />
         <Text style={[styles.navText, { color: getColor("PlayScreen") }]}>

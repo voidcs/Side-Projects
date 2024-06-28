@@ -38,7 +38,8 @@
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^15.2.0",
     "react-native-vector-icons": "^10.1.0",
-    "trie-prefix-tree": "^1.5.1"
+    "trie-prefix-tree": "^1.5.1",
+    "expo-font": "~12.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

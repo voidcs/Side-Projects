@@ -5,7 +5,7 @@ function HomeScreen({ navigation }) {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.title}>Hello Borpa The Title Screen</Text>
+        <Text style={styles.title}>Hello Borpa The Home Screen Lol</Text>
         <View style={styles.buttonContainer}>
           <Button title={"4x4"} navigation={navigation} />
           <Button title={"5x5"} navigation={navigation} />
