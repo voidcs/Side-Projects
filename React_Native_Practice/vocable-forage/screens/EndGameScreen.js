@@ -9,7 +9,7 @@ import {
   FlatList,
 } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
-import POINTS from "../data/point-distribution"; // Import the POINTS array
+import POINTS from "../data/point-distribution";
 
 function EndGameScreen({ navigation, route }) {
   const { allWords, foundWords, words, score } = route.params;
@@ -45,7 +45,7 @@ function EndGameScreen({ navigation, route }) {
     activeTab === "Found" ? sortedFoundWords : sortedAllWords;
 
   const renderItem = ({ item }) => {
-    const points = POINTS[item.length] || 0; // Get the point value for the word length
+    const points = POINTS[item.length] || 0;
     return (
       <View style={styles.wordContainer}>
         <Text style={styles.wordText}>{item}</Text>
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "#FBF4F6",
-    paddingTop: 40, // Add padding to the top to prevent title from going above the screen
+    paddingTop: 40,
     marginTop: height * 0.03,
   },
   title: {
@@ -224,13 +224,13 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: "60%",
-    height: "50%", // Set height to 50% of the parent container
+    height: "50%",
     backgroundColor: "#ffffff",
     marginTop: height * 0.05,
     borderRadius: 10,
     padding: 10,
-    borderWidth: 1, // Add border width
-    borderColor: "#a02f58", // Add border color
+    borderWidth: 1,
+    borderColor: "#a02f58",
     position: "relative",
   },
   scrollContent: {
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   wordContainer: {
     flexDirection: "row",
     justifyContent: "space-between", // Ensure words are left aligned and points are right aligned
-    paddingVertical: 2, // Reduced padding to make words closer together
+    paddingVertical: 2,
   },
   wordText: {
     fontSize: 18,

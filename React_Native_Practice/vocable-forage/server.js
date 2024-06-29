@@ -5,14 +5,13 @@ const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const AhoCorasick = require("aho-corasick");
 const Trie = require("trie-prefix-tree");
-require("dotenv").config(); // Load environment variables from .env file
+require("dotenv").config();
 
 const app = express();
 const port = 3000;
 
 let trie;
 
-// Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cors());
 

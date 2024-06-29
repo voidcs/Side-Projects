@@ -63,6 +63,7 @@ export default function App() {
             options={{
               title: "",
             }}
+            initialParams={{ preferredBoardSize: 5 }}
           />
           <Stack.Screen
             name="PlayScreen"

@@ -3,9 +3,8 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Icon } from "react-native-elements";
 import { useRoute } from "@react-navigation/native";
 
-const BottomNavBar = ({ navigation }) => {
+const BottomNavBar = ({ navigation, preferredBoardSize }) => {
   const route = useRoute();
-
   const getColor = (screenName) => {
     if (route.name === screenName) {
       return "#a02f58";
@@ -20,7 +19,11 @@ const BottomNavBar = ({ navigation }) => {
     <View style={styles.navBar}>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("HomeScreen")}
+        onPress={() =>
+          navigation.navigate("HomeScreen", {
+            preferredBoardSize: preferredBoardSize,
+          })
+        }
       >
         <Icon name="home" size={28} color={getColor("HomeScreen")} />
         <Text style={[styles.navText, { color: getColor("HomeScreen") }]}>
@@ -32,7 +35,15 @@ const BottomNavBar = ({ navigation }) => {
         onPress={() => {
           navigation.reset({
             index: 0,
-            routes: [{ name: "PlayScreen", params: { boardLength: 5 } }],
+            routes: [
+              {
+                name: "PlayScreen",
+                params: {
+                  boardLength: preferredBoardSize,
+                  preferredBoardSize: preferredBoardSize,
+                },
+              },
+            ],
           });
         }}
       >

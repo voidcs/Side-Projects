@@ -45,7 +45,8 @@ function PlayScreen({ navigation, route }) {
       words: wordsFoundRef.current.length,
     });
   }
-  const { words, boardLength } = route.params;
+  const { words, boardLength, preferredBoardSize } = route.params;
+
   // console.log(trie.tree());
   const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
@@ -137,9 +138,9 @@ function PlayScreen({ navigation, route }) {
   }, [board]);
 
   const [allWords, setAllWords] = useState(new Set());
-  const vis = useRef(
-    Array.from({ length: boardLength }, () => Array(boardLength).fill(false))
-  ).current;
+  const vis = Array.from({ length: boardLength }, () =>
+    Array(boardLength).fill(false)
+  );
   const allWordsRef = useRef(allWords);
   useEffect(() => {
     allWordsRef.current = allWords;
@@ -182,7 +183,6 @@ function PlayScreen({ navigation, route }) {
     };
     shuffleArray(flatBoard);
 
-    // Put the shuffled items back into newBoard
     let index = 0;
     for (let i = 0; i < boardLength; i++) {
       for (let j = 0; j < boardLength; j++) {
@@ -310,7 +310,7 @@ function PlayScreen({ navigation, route }) {
         const { x, y } = cell;
         lastActiveRef.current = [x, y];
         setWordHandler(boardRef.current[x][y], { x, y });
-        updateActiveTilesLoc(x, y); // Update the location
+        updateActiveTilesLoc(x, y);
         // console.log(activeTilesLocRef.current);
       },
       onPanResponderMove: (e, gestureState) => {
@@ -333,7 +333,7 @@ function PlayScreen({ navigation, route }) {
         if (activeTilesRef.current.length === 0) {
           lastActiveRef.current = [x, y];
           setWordHandler(boardRef.current[x][y], { x, y });
-          updateActiveTilesLoc(x, y); // Update the location
+          updateActiveTilesLoc(x, y);
           return;
         }
         let dist = Math.sqrt(
@@ -344,7 +344,7 @@ function PlayScreen({ navigation, route }) {
 
         if (dist < 2) {
           setWordHandler(boardRef.current[x][y], { x, y });
-          updateActiveTilesLoc(x, y); // Update the location
+          updateActiveTilesLoc(x, y);
           lastActiveRef.current = [x, y];
         }
         // console.log("current locs: ", activeTilesLocRef.current);
@@ -491,7 +491,10 @@ function PlayScreen({ navigation, route }) {
         ))}
       </View>
       <View style={styles.navContainer}>
-        <BottomNavBar navigation={navigation} />
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+        />
       </View>
     </View>
   );
@@ -518,7 +521,7 @@ const createStyles = (boardLength, height) => {
       right: 0,
       bottom: 0,
       zIndex: 1,
-      pointerEvents: "none", // Ensure the SVG doesn't intercept touch events
+      pointerEvents: "none",
     },
     scoreContainer: {
       marginTop: height * 0.12,

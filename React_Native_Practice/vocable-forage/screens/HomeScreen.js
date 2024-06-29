@@ -1,19 +1,31 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import Button from "../components/Button";
 import BottomNavBar from "../components/BottomNavBar";
-function HomeScreen({ navigation }) {
+function HomeScreen({ navigation, route }) {
+  const { preferredBoardSize } = route.params;
   return (
     <>
       <View style={styles.container}>
         <Text style={styles.title}>Hello Borpa The Home Screen Lol</Text>
         <View style={styles.buttonContainer}>
-          <Button title={"4x4"} navigation={navigation} />
-          <Button title={"5x5"} navigation={navigation} />
+          <Button
+            title={"4x4"}
+            navigation={navigation}
+            preferredBoardSize={4}
+          />
+          <Button
+            title={"5x5"}
+            navigation={navigation}
+            preferredBoardSize={5}
+          />
           <Button title={"History"} />
           <Button title={"Stats"} />
         </View>
         <View style={styles.navContainer}>
-          <BottomNavBar navigation={navigation} />
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+          />
         </View>
       </View>
     </>

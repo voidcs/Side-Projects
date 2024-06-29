@@ -2,7 +2,7 @@
     - install with nvm install 14
     - nvm use 14
 
-- Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76 ms
+- Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76 calls
 - Using fetch requests from server took about 202.95 ms on average
 - Building Trie takes 425.399 ms on average
 - Flatlist is significantly faster, it speed up the all words list tab in the results page
@@ -11,3 +11,5 @@
     Main: #a02f58
     Secondary: #FBF4F6
     Accent: #82267E
+
+- Google Vision API
