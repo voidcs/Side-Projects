@@ -1,9 +1,17 @@
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { Icon } from "react-native-elements";
 import { useRoute } from "@react-navigation/native";
 
 const BottomNavBar = ({ navigation, preferredBoardSize }) => {
+  const { height, width } = Dimensions.get("window");
+  const styles = createStyles(height, width);
   const route = useRoute();
   const getColor = (screenName) => {
     if (route.name === screenName) {
@@ -74,28 +82,31 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  navBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    height: 80,
-    backgroundColor: "#FBF4F6",
-    paddingTop: 10,
-    borderTopWidth: 0,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navText: {
-    fontSize: 12,
-    color: "gray",
-  },
-});
+const createStyles = (height, width) => {
+  return StyleSheet.create({
+    navBar: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      flexDirection: "row",
+      justifyContent: "space-around",
+      height: height * 0.1,
+
+      backgroundColor: "#FBF4F6",
+      paddingTop: 10,
+      borderTopWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    navItem: {
+      alignItems: "center",
+    },
+    navText: {
+      fontSize: 12,
+      color: "gray",
+    },
+  });
+};
 
 export default BottomNavBar;

@@ -37,6 +37,9 @@ function PlayScreen({ navigation, route }) {
         preferredBoardSize: preferredBoardSize,
         board: boardRef.current,
         boardLength: boardLength,
+        wordsPerCell: wordsPerCellRef.current.map((row) =>
+          row.map((cell) => Array.from(cell))
+        ),
       });
     }
   }, [timer, navigation]);
@@ -49,6 +52,9 @@ function PlayScreen({ navigation, route }) {
       preferredBoardSize: preferredBoardSize,
       board: boardRef.current,
       boardLength: boardLength,
+      wordsPerCell: wordsPerCellRef.current.map((row) =>
+        row.map((cell) => Array.from(cell))
+      ),
     });
   }
   const { words, boardLength, preferredBoardSize } = route.params;
@@ -142,6 +148,15 @@ function PlayScreen({ navigation, route }) {
     boardRef.current = board;
   }, [board]);
 
+  const [wordsPerCell, setWordsPerCell] = useState(
+    Array.from({ length: boardLength }, () =>
+      Array.from({ length: boardLength }, () => new Set())
+    )
+  );
+  const wordsPerCellRef = useRef(wordsPerCell);
+  useEffect(() => {
+    wordsPerCell.current = wordsPerCell;
+  }, [wordsPerCell]);
   const [allWords, setAllWords] = useState(new Set());
   const vis = Array.from({ length: boardLength }, () =>
     Array(boardLength).fill(false)
@@ -209,11 +224,17 @@ function PlayScreen({ navigation, route }) {
     const valid = (x, y) =>
       x >= 0 && x < boardLength && y >= 0 && y < boardLength;
     let cnt = 0;
+
+    let curRow = -1,
+      curCol = -1;
     const dfs = (x, y, s) => {
       if (s.length > 9) return;
       if (!trieRef.current.isPrefix(s)) return;
       cnt++;
-      if (trieRef.current.hasWord(s)) allWordsRef.current.add(s);
+      if (trieRef.current.hasWord(s)) {
+        allWordsRef.current.add(s);
+        wordsPerCellRef.current[curRow][curCol].add(s);
+      }
       for (let i = 0; i < dir.length; i++) {
         const nx = x + dir[i][0];
         const ny = y + dir[i][1];
@@ -228,10 +249,16 @@ function PlayScreen({ navigation, route }) {
       for (let j = 0; j < boardLength; j++) {
         let s = newBoard[i][j];
         vis[i][j] = true;
+        (curRow = i), (curCol = j);
         dfs(i, j, s);
         vis[i][j] = false;
       }
     }
+    // for (let i = 0; i < boardLength; i++) {
+    //   for (let j = 0; j < boardLength; j++) {
+    //     wordsPerCell[i][j] = Array.from(wordsPerCell[i][j]);
+    //   }
+    // }
     // console.log("func calls: ", cnt);
     // console.log("num words: ", allWordsRef.current.size);
     // console.log(Array.from(allWordsRef.current));

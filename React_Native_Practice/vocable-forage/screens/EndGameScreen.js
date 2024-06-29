@@ -22,6 +22,7 @@ function EndGameScreen({ navigation, route }) {
     preferredBoardSize,
     board,
     boardLength,
+    wordsPerCell,
   } = route.params;
   const { height, width } = Dimensions.get("window");
 
@@ -29,7 +30,6 @@ function EndGameScreen({ navigation, route }) {
   const [activeTab, setActiveTab] = useState("Found");
   const [currentPage, setCurrentPage] = useState("Results");
   const [pointSum, setPointSum] = useState(0);
-  console.log(board);
   useEffect(() => {
     let totalPoints = 0;
 
@@ -49,7 +49,11 @@ function EndGameScreen({ navigation, route }) {
       return b.length - a.length;
     });
   };
-
+  for (let i = 0; i < boardLength; i++) {
+    for (let j = 0; j < boardLength; j++) {
+      wordsPerCell[i][j] = sortWords(wordsPerCell[i][j]);
+    }
+  }
   const sortedAllWords = sortWords(allWords);
   const sortedFoundWords = sortWords(foundWords);
 
@@ -203,74 +207,93 @@ function EndGameScreen({ navigation, route }) {
         </>
       )}
       {currentPage === "Review" && (
-        <View style={styles.background}>
-          <Svg
-            style={styles.svgOverlay}
-            height={height}
-            width={width}
-            viewBox={`0 0 ${width} ${height}`}
-          >
-            {activeTilesLocRef.current.map((point, index) => {
-              if (index < activeTilesLocRef.current.length - 1) {
-                const nextPoint = activeTilesLocRef.current[index + 1];
-                return (
-                  <Line
-                    key={index}
-                    x1={point.x}
-                    y1={point.y}
-                    x2={nextPoint.x}
-                    y2={nextPoint.y}
-                    stroke="red"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                    strokeOpacity="0.5"
-                  />
-                );
-              }
-              return null;
-            })}
-          </Svg>
-          <View style={styles.board} onLayout={onLayoutBoard}>
-            {board.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.row}>
-                {row.map((cell, cellIndex) => {
-                  const isActive = activeTiles.some(
-                    (tile) => tile.x === rowIndex && tile.y === cellIndex
-                  );
+        <>
+          <View style={styles.reviewScrollContainer}>
+            {activeCell.row === null && activeCell.col === null ? (
+              <Text style={styles.noWordsFound}>Click a cell for words</Text>
+            ) : Array.from(wordsPerCell[activeCell.row][activeCell.col])
+                .length === 0 ? (
+              <Text style={styles.noWordsFound}>No words found</Text>
+            ) : (
+              <FlatList
+                data={Array.from(wordsPerCell[activeCell.row][activeCell.col])}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+                style={styles.wordsList}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
+          <View style={styles.background}>
+            <Svg
+              style={styles.svgOverlay}
+              height={height}
+              width={width}
+              viewBox={`0 0 ${width} ${height}`}
+            >
+              {activeTilesLocRef.current.map((point, index) => {
+                if (index < activeTilesLocRef.current.length - 1) {
+                  const nextPoint = activeTilesLocRef.current[index + 1];
                   return (
-                    <Pressable
-                      key={`${rowIndex}-${cellIndex}`}
-                      style={styles.touchable}
-                      onPress={() => handleCellPress(rowIndex, cellIndex)}
-                    >
-                      <View
-                        key={cellIndex}
-                        style={[
-                          styles.cell,
-                          isActive && styles.validCell,
-                          activeCell.row === rowIndex &&
-                            activeCell.col === cellIndex &&
-                            styles.clickedCell,
-                        ]}
-                        onLayout={(event) =>
-                          onLayoutCell(event, rowIndex, cellIndex)
-                        }
-                      >
-                        <Text style={styles.cellText}>{cell}</Text>
-                      </View>
-                    </Pressable>
+                    <Line
+                      key={index}
+                      x1={point.x}
+                      y1={point.y}
+                      x2={nextPoint.x}
+                      y2={nextPoint.y}
+                      stroke="red"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      strokeOpacity="0.5"
+                    />
                   );
-                })}
-              </View>
-            ))}
+                }
+                return null;
+              })}
+            </Svg>
+
+            <View style={styles.board} onLayout={onLayoutBoard}>
+              {board.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.row}>
+                  {row.map((cell, cellIndex) => {
+                    const isActive = activeTiles.some(
+                      (tile) => tile.x === rowIndex && tile.y === cellIndex
+                    );
+                    return (
+                      <Pressable
+                        key={`${rowIndex}-${cellIndex}`}
+                        style={styles.touchable}
+                        onPress={() => handleCellPress(rowIndex, cellIndex)}
+                      >
+                        <View
+                          key={cellIndex}
+                          style={[
+                            styles.cell,
+                            isActive && styles.validCell,
+                            activeCell.row === rowIndex &&
+                              activeCell.col === cellIndex &&
+                              styles.clickedCell,
+                          ]}
+                          onLayout={(event) =>
+                            onLayoutCell(event, rowIndex, cellIndex)
+                          }
+                        >
+                          <Text style={styles.cellText}>{cell}</Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+            <View style={styles.navContainer}>
+              <BottomNavBar
+                navigation={navigation}
+                preferredBoardSize={preferredBoardSize}
+              />
+            </View>
           </View>
-          <View style={styles.navContainer}>
-            <BottomNavBar
-              navigation={navigation}
-              preferredBoardSize={preferredBoardSize}
-            />
-          </View>
-        </View>
+        </>
       )}
       <View style={styles.navContainer}>
         <BottomNavBar
@@ -370,6 +393,17 @@ const createStyles = (boardLength, height) => {
       borderColor: "#a02f58",
       position: "relative",
     },
+    reviewScrollContainer: {
+      width: "60%",
+      height: "30%",
+      backgroundColor: "#ffffff",
+      marginTop: height * 0.01,
+      borderRadius: 10,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: "#a02f58",
+      position: "relative",
+    },
     scrollContent: {
       flexGrow: 1,
     },
@@ -381,6 +415,12 @@ const createStyles = (boardLength, height) => {
     wordText: {
       fontSize: 18,
       textAlign: "left",
+      fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
+      flex: 1,
+    },
+    noWordsFound: {
+      fontSize: 18,
+      textAlign: "center",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
       flex: 1,
     },
