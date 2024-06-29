@@ -34,6 +34,9 @@ function PlayScreen({ navigation, route }) {
         foundWords: wordsFoundRef.current,
         score: scoreRef.current,
         words: wordsFoundRef.current.length,
+        preferredBoardSize: preferredBoardSize,
+        board: boardRef.current,
+        boardLength: boardLength,
       });
     }
   }, [timer, navigation]);
@@ -43,12 +46,14 @@ function PlayScreen({ navigation, route }) {
       foundWords: wordsFoundRef.current,
       score: scoreRef.current,
       words: wordsFoundRef.current.length,
+      preferredBoardSize: preferredBoardSize,
+      board: boardRef.current,
+      boardLength: boardLength,
     });
   }
   const { words, boardLength, preferredBoardSize } = route.params;
 
   // console.log(trie.tree());
-  const statusBarHeight = getStatusBarHeight();
   const { height, width } = Dimensions.get("window");
 
   // Buff multiplier of 0.1 works pretty good
@@ -623,7 +628,7 @@ const createStyles = (boardLength, height) => {
     },
     cellText: {
       // 0.65
-      fontSize: cellSize * 0.65,
+      fontSize: cellSize * 0.6,
       color: "#000",
       fontWeight: "800",
     },
