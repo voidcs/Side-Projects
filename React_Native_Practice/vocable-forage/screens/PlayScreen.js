@@ -21,6 +21,32 @@ import BottomNavBar from "../components/BottomNavBar";
 function PlayScreen({ navigation, route }) {
   const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
+
+  const wordsRef = useRef([]);
+  const boardLengthRef = useRef(0);
+  const preferredBoardSizeRef = useRef(0);
+  const [words, setWords] = useState([]);
+  const [boardLength, setBoardLength] = useState(0);
+  const [preferredBoardSize, setPreferredBoardSize] = useState(0);
+  const [buffer, setBuffer] = useState(0);
+
+  useEffect(() => {
+    const {
+      words: routeWords,
+      boardLength: routeBoardLength,
+      preferredBoardSize: routePreferredBoardSize,
+    } = route.params;
+    setWords(routeWords);
+    setBoardLength(routeBoardLength);
+    setPreferredBoardSize(routePreferredBoardSize);
+
+    wordsRef.current = routeWords;
+    boardLengthRef.current = routeBoardLength;
+    preferredBoardSizeRef.current = routePreferredBoardSize;
+    const { height, width } = Dimensions.get("window");
+    setBuffer(((height * 0.4) / boardLengthRef.current) * 0.1);
+  }, [route.params]);
+
   useEffect(() => {
     if (timer > 0) {
       const intervalId = setInterval(() => {
@@ -57,15 +83,11 @@ function PlayScreen({ navigation, route }) {
       ),
     });
   }
-  const { words, boardLength, preferredBoardSize } = route.params;
-
   // console.log(trie.tree());
   const { height, width } = Dimensions.get("window");
 
   // Buff multiplier of 0.1 works pretty good
-  const buffer = ((height * 0.4) / boardLength) * 0.1;
   const [board, setBoard] = useState([]);
-
   const cellLayoutsRef = useRef({});
   const boardLayoutRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const boardRef = useRef(board);
@@ -158,15 +180,21 @@ function PlayScreen({ navigation, route }) {
     wordsPerCell.current = wordsPerCell;
   }, [wordsPerCell]);
   const [allWords, setAllWords] = useState(new Set());
+  const allWordsRef = useRef(new Set());
   const vis = Array.from({ length: boardLength }, () =>
     Array(boardLength).fill(false)
   );
-  const allWordsRef = useRef(allWords);
+  // setAllWords(new Set()); causes infinite re-renders
   useEffect(() => {
     allWordsRef.current = allWords;
   }, [allWords]);
   const foundWordsRef = useRef(new Set());
   useEffect(() => {
+    const initializeWordsPerCell = Array.from({ length: boardLength }, () =>
+      Array.from({ length: boardLength }, () => new Set())
+    );
+    setWordsPerCell(initializeWordsPerCell);
+    wordsPerCellRef.current = initializeWordsPerCell;
     const letters = [];
     for (let i = 0; i < 26; i++) {
       let letter = String.fromCharCode("A".charCodeAt(0) + i);
@@ -299,9 +327,17 @@ function PlayScreen({ navigation, route }) {
   };
 
   const findCell = (touchX, touchY) => {
-    for (let x = 0; x < boardLength; x++) {
-      for (let y = 0; y < boardLength; y++) {
+    for (let x = 0; x < boardLengthRef.current; x++) {
+      for (let y = 0; y < boardLengthRef.current; y++) {
         let layout = getCellLayout(x, y);
+        // console.log(
+        //   "touchX: ",
+        //   touchX,
+        //   " touchY: ",
+        //   touchY,
+        //   " buffer: ",
+        //   buffer
+        // );
         if (layout) {
           if (
             touchX - buffer >= layout.x &&
@@ -354,6 +390,7 @@ function PlayScreen({ navigation, route }) {
           return;
         }
         const { x, y } = cell;
+
         if (x === lastActiveRef.current[0] && y === lastActiveRef.current[1]) {
           return;
         }
@@ -372,7 +409,6 @@ function PlayScreen({ navigation, route }) {
           Math.abs(lastActiveRef.current[0] - x) ** 2 +
             Math.abs(lastActiveRef.current[1] - y) ** 2
         );
-        // console.log("here x: ", x, " y: ", y, boardRef.current[x][y]);
 
         if (dist < 2) {
           setWordHandler(boardRef.current[x][y], { x, y });

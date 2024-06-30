@@ -5,10 +5,8 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 const Button = ({ navigation, title, preferredBoardSize }) => {
   function nextPage() {
     if (title == "4x4" || title == "5x5") {
-      navigation.navigate("PlayScreen", {
-        boardLength: parseInt(title[0]),
-        preferredBoardSize: parseInt(title[0]),
-      });
+      const boardLength = parseInt(title[0]);
+      navigation.replace("PlayScreen", { boardLength, preferredBoardSize });
     }
   }
   return (
