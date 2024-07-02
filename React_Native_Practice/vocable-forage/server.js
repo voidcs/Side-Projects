@@ -9,6 +9,8 @@ require("dotenv").config();
 
 const app = express();
 const port = 3000;
+const AWS = require("aws-sdk");
+const bcrypt = require("bcrypt");
 
 let trie;
 
@@ -22,6 +24,9 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const TABLE_NAME = "vocable-forage-userdata"; // Update to your DynamoDB table name
 
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });

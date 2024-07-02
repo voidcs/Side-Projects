@@ -21,20 +21,6 @@ function ProfileScreen({ navigation, route }) {
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {
-    Alert.alert("Form Submitted", `Username: ${username}`);
-    if (isLogin) {
-      return;
-    } else {
-      createAccount();
-    }
-    Keyboard.dismiss(); // Dismiss the keyboard
-  };
-
-  const toggleForm = () => {
-    setIsLogin((prevIsLogin) => !prevIsLogin);
-    setUsername("");
-    setPassword("");
-
     const createAccount = async () => {
       try {
         const response = await fetch(
@@ -55,6 +41,19 @@ function ProfileScreen({ navigation, route }) {
         console.error("User Already Exists", error);
       }
     };
+    Alert.alert("Form Submitted", `Username: ${username}`);
+    if (isLogin) {
+      return;
+    } else {
+      createAccount();
+    }
+    Keyboard.dismiss(); // Dismiss the keyboard
+  };
+
+  const toggleForm = () => {
+    setIsLogin((prevIsLogin) => !prevIsLogin);
+    setUsername("");
+    setPassword("");
   };
 
   return (
