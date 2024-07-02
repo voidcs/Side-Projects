@@ -79,9 +79,9 @@ app.post("/createAccount", async (req, res) => {
         gameIds: [],
       },
     };
-
+    console.log("we made it past the params");
     await dynamoDB.put(params).promise();
-
+    console.log("after the dynamoDb");
     res.status(200).json({ message: "Account created successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
