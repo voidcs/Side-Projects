@@ -32,18 +32,15 @@ function ProfileScreen({ navigation, route }) {
             body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
           }
         );
-        if (!response.ok) {
-          throw new Error(data.message || "Network response was not ok");
-        }
         const data = await response.json(); // Parse the JSON response
         console.log("Data: ", data);
         if (data.success) {
           console.log("Added account");
         } else {
-          console.error("Error:", error.message);
+          throw new Error(data.message || "Network response was not ok");
         }
       } catch (error) {
-        console.error("Caught error", error.message);
+        console.error(error);
       }
     };
     Alert.alert("Form Submitted", `Username: ${username}`);
