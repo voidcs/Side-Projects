@@ -36,7 +36,13 @@ function ProfileScreen({ navigation, route }) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        console.log("Response: ", response);
+        const data = await response.json(); // Parse the JSON response
+        console.log("Data: ", data);
+        if (data.success) {
+          console.log("Added account");
+        } else {
+          console.log("failed miserably lol");
+        }
       } catch (error) {
         console.error("User Already Exists", error);
       }

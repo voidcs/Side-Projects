@@ -88,10 +88,14 @@ app.post("/createAccount", async (req, res) => {
     };
     console.log("we made it past the params", params);
     await dynamoDB.put(params).promise();
-    console.log("after the dynamoDb");
-    res.status(200).json({ message: "Account created successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Account created successfully" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error in creating account:", error);
+
+    // Return false to indicate failure
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
