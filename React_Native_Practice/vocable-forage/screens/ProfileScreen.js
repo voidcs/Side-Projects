@@ -43,7 +43,7 @@ function ProfileScreen({ navigation, route }) {
           console.log("failed miserably lol");
         }
       } catch (error) {
-        console.error("User Already Exists", error);
+        console.error("Caught an error", error.message);
       }
     };
     Alert.alert("Form Submitted", `Username: ${username}`);
