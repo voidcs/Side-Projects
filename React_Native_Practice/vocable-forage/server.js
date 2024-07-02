@@ -68,18 +68,21 @@ app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    const userId = username; // This can be any unique identifier. Here, we are using the username for simplicity.
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const params = {
       TableName: TABLE_NAME,
       Item: {
-        username,
+        userId, // Partition key
+        dataType: "userAccount", // Sort key, using 'userAccount' as a constant value for account data
+        username, // Additional attributes
         password: hashedPassword,
         friends: [],
         gameIds: [],
       },
     };
-    console.log("we made it past the params");
+    console.log("we made it past the params", params);
     await dynamoDB.put(params).promise();
     console.log("after the dynamoDb");
     res.status(200).json({ message: "Account created successfully" });
