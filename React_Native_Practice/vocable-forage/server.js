@@ -68,6 +68,53 @@ app.post("/containsPrefix", (req, res) => {
   res.json({ result });
 });
 
+app.post("/attemptLogin", async (req, res) => {
+  const { username, password } = req.body;
+
+  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  if (!validUsernameRegex.test(username)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid characters in username" });
+  }
+
+  const normalizedUsername = username.toLowerCase();
+
+  const queryParams = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+      ":userId": normalizedUsername,
+    },
+  };
+
+  try {
+    const userResult = await dynamoDB.query(queryParams).promise();
+
+    if (userResult.Items.length === 0) {
+      // If user does not exist, return an error
+      return res
+        .status(404)
+        .json({ success: false, message: "Username does not exist." });
+    }
+
+    const user = userResult.Items[0];
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Incorrect password." });
+    }
+
+    // Return user data if login is successful
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("Error in attempting login:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
 app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
   const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;

@@ -20,6 +20,36 @@ function ProfileScreen({ navigation, route }) {
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {
+    const attemptLogin = async () => {
+      try {
+        const response = await fetch("http://18.222.167.11:3000/attemptLogin", {
+          method: "POST", // Use POST method
+          headers: {
+            "Content-Type": "application/json", // Set the content type to JSON
+          },
+          body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
+        });
+        const data = await response.json(); // Parse the JSON response
+
+        if (!response.ok) {
+          const message = data.message || "Network response was not ok";
+          throw new Error(message);
+        }
+
+        if (data.success) {
+          console.log("Login successful", data.user);
+          setErrorMessage(""); // Clear any previous error message
+          // Handle successful login, e.g., navigate to the next screen
+        } else {
+          console.error("Error:", data.message);
+          setErrorMessage(data.message); // Set the error message
+        }
+      } catch (error) {
+        console.error("Caught error", error.message);
+        setErrorMessage(error.message); // Set the error message
+      }
+    };
+
     const createAccount = async () => {
       try {
         const response = await fetch(
@@ -45,7 +75,8 @@ function ProfileScreen({ navigation, route }) {
     };
     Alert.alert("Form Submitted", `Username: ${username}`);
     if (isLogin) {
-      return;
+      console.log("WE ON LOG IN PAGE");
+      attemptLogin();
     } else {
       createAccount();
     }
