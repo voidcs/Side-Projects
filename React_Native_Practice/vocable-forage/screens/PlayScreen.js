@@ -25,10 +25,11 @@ function PlayScreen({ navigation, route }) {
   const wordsRef = useRef([]);
   const boardLengthRef = useRef(0);
   const preferredBoardSizeRef = useRef(0);
+  const bufferRef = useRef(0);
+
   const [words, setWords] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
   const [preferredBoardSize, setPreferredBoardSize] = useState(0);
-  const [buffer, setBuffer] = useState(0);
 
   useEffect(() => {
     const {
@@ -44,7 +45,9 @@ function PlayScreen({ navigation, route }) {
     boardLengthRef.current = routeBoardLength;
     preferredBoardSizeRef.current = routePreferredBoardSize;
     const { height, width } = Dimensions.get("window");
-    setBuffer(((height * 0.4) / boardLengthRef.current) * 0.1);
+    bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
+
+    console.log("Buffer: ", bufferRef.current);
   }, [route.params]);
 
   useEffect(() => {
@@ -55,7 +58,7 @@ function PlayScreen({ navigation, route }) {
 
       return () => clearInterval(intervalId);
     } else {
-      navigation.navigate("EndGameScreen", {
+      navigation.replace("EndGameScreen", {
         allWords: Array.from(allWords),
         foundWords: wordsFoundRef.current,
         score: scoreRef.current,
@@ -70,7 +73,7 @@ function PlayScreen({ navigation, route }) {
     }
   }, [timer, navigation]);
   function navigateHandler() {
-    navigation.navigate("EndGameScreen", {
+    navigation.replace("EndGameScreen", {
       allWords: Array.from(allWords),
       foundWords: wordsFoundRef.current,
       score: scoreRef.current,
@@ -148,6 +151,7 @@ function PlayScreen({ navigation, route }) {
   const trieRef = useRef(createTrie([]));
 
   useEffect(() => {
+    const start = performance.now();
     trieRef.current = createTrie(words);
     // aho corasick automaton, it's slower and not needed lol
     // if (!automatonRef.current) {
@@ -156,6 +160,8 @@ function PlayScreen({ navigation, route }) {
     //   automaton.build_fail();
     //   automatonRef.current = automaton;
     // }
+    const end = performance.now();
+    console.log(`Creating the trie took ${end - start} ms`);
   }, [words]);
 
   const setWordHandler = (ch, tile) => {
@@ -340,10 +346,10 @@ function PlayScreen({ navigation, route }) {
         // );
         if (layout) {
           if (
-            touchX - buffer >= layout.x &&
-            touchX + buffer <= layout.x + layout.width &&
-            touchY - buffer >= layout.y &&
-            touchY + buffer <= layout.y + layout.height
+            touchX - bufferRef.current >= layout.x &&
+            touchX + bufferRef.current <= layout.x + layout.width &&
+            touchY - bufferRef.current >= layout.y &&
+            touchY + bufferRef.current <= layout.y + layout.height
           ) {
             return { x, y };
           }
@@ -430,7 +436,7 @@ function PlayScreen({ navigation, route }) {
             setValidWord(true);
             validWordRef.current = true;
             // Vibration.vibrate(10000);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
           } else {
             setAlreadyFoundWord(true);
             alreadyFoundWordRef.current = true;

@@ -28,7 +28,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
       <TouchableOpacity
         style={styles.navItem}
         onPress={() =>
-          navigation.navigate("HomeScreen", {
+          navigation.replace("HomeScreen", {
             preferredBoardSize: preferredBoardSize,
           })
         }
@@ -62,7 +62,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("HomeScreen")}
+        onPress={() => navigation.replace("HomeScreen")}
       >
         <Icon name="home" size={28} color={getColor("ProfileScreen")} />
         <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
@@ -71,7 +71,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.navigate("HomeScreen")}
+        onPress={() => navigation.replace("HomeScreen")}
       >
         <Icon name="home" size={28} color={getColor("ProfileScreen")} />
         <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>

@@ -9,16 +9,20 @@ function HomeScreen({ navigation, route }) {
         <Text style={styles.title}>Hello Borpa The Home Screen Lol</Text>
         <View style={styles.buttonContainer}>
           <Button
+            title={"2x2"}
+            navigation={navigation}
+            preferredBoardSize={2}
+          />
+          <Button
             title={"4x4"}
             navigation={navigation}
-            preferredBoardSize={4}
+            preferredBoardSize={2}
           />
           <Button
             title={"5x5"}
             navigation={navigation}
             preferredBoardSize={5}
           />
-          <Button title={"History"} />
           <Button title={"Stats"} />
         </View>
         <View style={styles.navContainer}>

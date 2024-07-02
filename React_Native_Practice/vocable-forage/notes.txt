@@ -1,6 +1,7 @@
--Use node 14 for the EC2 server
+-Use node 14 for the EC2 server server.js
     - install with nvm install 14
     - nvm use 14
+    - use nvm 16 for the expo go server on EC2 lol
 
 - Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76 calls
 - Using fetch requests from server took about 202.95 ms on average
