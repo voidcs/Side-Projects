@@ -71,7 +71,22 @@ app.post("/containsPrefix", (req, res) => {
 app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
 
+  const queryParams = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+      ":userId": username,
+    },
+  };
+
   try {
+    const existingUser = await dynamoDB.query(queryParams).promise();
+    if (existingUser.Items.length > 0) {
+      // If user exists, return an error
+      return res
+        .status(409)
+        .json({ success: false, message: "Username already exists." });
+    }
     const userId = username; // This can be any unique identifier. Here, we are using the username for simplicity.
     const hashedPassword = await bcrypt.hash(password, 10);
 

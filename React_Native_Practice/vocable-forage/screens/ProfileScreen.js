@@ -4,11 +4,10 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  Button,
+  TouchableOpacity,
   Alert,
   Keyboard,
   TouchableWithoutFeedback,
-  TouchableOpacity,
 } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 
@@ -73,26 +72,29 @@ function ProfileScreen({ navigation, route }) {
           onChangeText={setUsername}
           autoCorrect={false}
           spellCheck={false}
-          autoComplete="off"
-          textContentType="none"
+          autoComplete="off" // Explicitly turn off autocomplete
+          textContentType="none" // Ensure no content type association for autofill
+          keyboardType="default" // Use default keyboard without any smart suggestions
           placeholderTextColor="#999"
-          returnKeyType="next"
-          onSubmitEditing={() => passwordInputRef.current.focus()}
+          returnKeyType="next" // Sets the return key to 'Next'
+          onSubmitEditing={() => passwordInputRef.current.focus()} // Focus the password input on submit
         />
+
         <TextInput
           ref={passwordInputRef}
           style={styles.input}
           placeholder="Enter your password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
-          autoCorrect={false}
-          spellCheck={false}
-          autoComplete="off"
-          textContentType="none"
+          secureTextEntry // Ensures the text entry is obscured
+          autoCorrect={false} // Turn off autocorrect
+          spellCheck={false} // Disable spell checking
+          autoComplete="off" // Explicitly turn off autocomplete
+          textContentType="none" // Ensure no content type association for autofill
+          keyboardType="default" // Use default keyboard which does not adapt to context
           placeholderTextColor="#999"
-          returnKeyType="done"
-          onSubmitEditing={handleUsernameSubmit}
+          returnKeyType="done" // Sets the return key to 'Done'
+          onSubmitEditing={handleUsernameSubmit} // Handle the form submission on submit
         />
         <TouchableOpacity style={styles.button} onPress={handleUsernameSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
