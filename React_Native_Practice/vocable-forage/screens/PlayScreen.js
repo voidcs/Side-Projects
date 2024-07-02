@@ -456,6 +456,7 @@ function PlayScreen({ navigation, route }) {
         ) {
           updateWordsFound(wordRef.current);
           updateScore(wordRef.current.length);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         }
 
         // Reset everything when we let go
@@ -494,7 +495,7 @@ function PlayScreen({ navigation, route }) {
                 y1={point.y}
                 x2={nextPoint.x}
                 y2={nextPoint.y}
-                stroke="red"
+                stroke={validWordRef.current ? "white" : "red"}
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeOpacity="0.5"

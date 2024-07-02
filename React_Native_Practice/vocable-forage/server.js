@@ -70,6 +70,12 @@ app.post("/containsPrefix", (req, res) => {
 
 app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
+  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  if (!validUsernameRegex.test(username)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Make a valid username idiot" });
+  }
   const normalizedUsername = username.toLowerCase();
 
   const queryParams = {
@@ -102,7 +108,6 @@ app.post("/createAccount", async (req, res) => {
         gameIds: [],
       },
     };
-    console.log("we made it past the params", params);
     await dynamoDB.put(params).promise();
     res
       .status(200)
