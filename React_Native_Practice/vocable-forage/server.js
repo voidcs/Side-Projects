@@ -108,7 +108,14 @@ app.post("/attemptLogin", async (req, res) => {
     }
 
     // Return user data if login is successful
-    res.status(200).json({ success: true, user });
+    res.status(200).json({
+      success: true,
+      user: {
+        username: user.username,
+        friends: user.friends,
+        gameIds: user.gameIds,
+      },
+    });
   } catch (error) {
     console.error("Error in attempting login:", error);
     res.status(500).json({ success: false, message: "Internal server error." });
