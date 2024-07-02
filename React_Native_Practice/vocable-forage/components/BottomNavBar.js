@@ -62,20 +62,28 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.replace("HomeScreen")}
+        // onPress={() => navigation.replace("HomeScreen")}
       >
-        <Icon name="home" size={28} color={getColor("ProfileScreen")} />
-        <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
+        <Icon name="home" size={28} color={getColor("StatsScreen")} />
+        <Text style={[styles.navText, { color: getColor("StatsScreen") }]}>
           Home
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => navigation.replace("HomeScreen")}
+        onPress={() =>
+          navigation.replace("ProfileScreen", {
+            preferredBoardSize: preferredBoardSize,
+          })
+        }
       >
-        <Icon name="home" size={28} color={getColor("ProfileScreen")} />
+        <Icon
+          name="account-circle"
+          size={28}
+          color={getColor("ProfileScreen")}
+        />
         <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
-          Home
+          Profile
         </Text>
       </TouchableOpacity>
     </View>

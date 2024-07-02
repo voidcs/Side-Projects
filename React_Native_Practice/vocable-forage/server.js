@@ -49,6 +49,7 @@ async function buildTrie() {
   console.log("Trie built successfully");
 }
 
+// I tried this but the request is just too slow to use during gameplay
 app.post("/containsPrefix", (req, res) => {
   const { query } = req.body;
   if (!trie) {
@@ -56,6 +57,30 @@ app.post("/containsPrefix", (req, res) => {
   }
   const result = trie.hasWord(query);
   res.json({ result });
+});
+
+app.post("/createAccount", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const params = {
+      TableName: TABLE_NAME,
+      Item: {
+        username,
+        password: hashedPassword,
+        friends: [],
+        gameIds: [],
+      },
+    };
+
+    await dynamoDB.put(params).promise();
+
+    res.status(200).json({ message: "Account created successfully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 app.get("/words", async (req, res) => {
