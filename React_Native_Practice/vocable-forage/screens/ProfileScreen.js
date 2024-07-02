@@ -38,15 +38,11 @@ function ProfileScreen({ navigation, route }) {
 
         if (data.success) {
           console.log("Login successful", data.user);
-          setErrorMessage(""); // Clear any previous error message
-          // Handle successful login, e.g., navigate to the next screen
         } else {
-          console.error("Error:", data.message);
-          setErrorMessage(data.message); // Set the error message
+          throw new Error(data.message || "Network response was not ok");
         }
       } catch (error) {
         console.error("Caught error", error.message);
-        setErrorMessage(error.message); // Set the error message
       }
     };
 
