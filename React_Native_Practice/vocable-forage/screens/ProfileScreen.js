@@ -33,7 +33,7 @@ function ProfileScreen({ navigation, route }) {
           }
         );
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(data.message || "Network response was not ok");
         }
         const data = await response.json(); // Parse the JSON response
         console.log("Data: ", data);
