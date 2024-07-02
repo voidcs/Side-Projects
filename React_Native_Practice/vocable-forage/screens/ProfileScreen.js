@@ -40,10 +40,10 @@ function ProfileScreen({ navigation, route }) {
         if (data.success) {
           console.log("Added account");
         } else {
-          console.log("failed miserably lol");
+          console.error("Error:", error.message);
         }
       } catch (error) {
-        console.error("Caught an error", error.message);
+        console.error("Caught error", error.message);
       }
     };
     Alert.alert("Form Submitted", `Username: ${username}`);

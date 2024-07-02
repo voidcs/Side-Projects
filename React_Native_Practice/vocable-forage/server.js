@@ -116,7 +116,7 @@ app.post("/createAccount", async (req, res) => {
     console.error("Error in creating account:", error);
 
     // Return false to indicate failure
-    res.status(400).json({ success: false, error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
