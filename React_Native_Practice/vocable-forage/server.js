@@ -25,7 +25,11 @@ const s3Client = new S3Client({
   },
 });
 
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const dynamoDB = new AWS.DynamoDB.DocumentClient({
+  region: "us-east-2",
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 const TABLE_NAME = "vocable-forage-userdata"; // Update to your DynamoDB table name
 
 const getObjectFromS3 = async (bucket, key) => {
