@@ -138,6 +138,7 @@ function ProfileScreen({ navigation, route }) {
           autoCapitalize="none"
           returnKeyType="next" // Sets the return key to 'Next'
           onSubmitEditing={() => passwordInputRef.current.focus()} // Focus the password input on submit
+          clearButtonMode="while-editing"
         />
 
         <TextInput
@@ -155,6 +156,7 @@ function ProfileScreen({ navigation, route }) {
           placeholderTextColor="#999"
           returnKeyType="done" // Sets the return key to 'Done'
           onSubmitEditing={handleUsernameSubmit} // Handle the form submission on submit
+          clearButtonMode="while-editing"
         />
         <TouchableOpacity style={styles.button} onPress={handleUsernameSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
     borderColor: "#a02f58",
     borderWidth: 1,
     borderRadius: 10,
-    width: "80%",
+    width: "70%",
     paddingHorizontal: 15,
     marginBottom: 20,
     backgroundColor: "#fff",
