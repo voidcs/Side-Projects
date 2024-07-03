@@ -66,7 +66,7 @@ function PlayScreen({ navigation, route }) {
           },
           body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
         });
-
+        console.log("response: ", response);
         if (!response.ok) {
           const message = `The getGameData failed or something: ${response.statusText}`;
           throw new Error(message);
