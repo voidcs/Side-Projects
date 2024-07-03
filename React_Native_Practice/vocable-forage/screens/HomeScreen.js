@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import Button from "../components/Button";
 import BottomNavBar from "../components/BottomNavBar";
 function HomeScreen({ navigation, route }) {
-  const { preferredBoardSize } = route.params;
+  const { preferredBoardSize, user } = route.params;
   return (
     <>
       <View style={styles.container}>
@@ -12,16 +12,19 @@ function HomeScreen({ navigation, route }) {
             title={"2x2"}
             navigation={navigation}
             preferredBoardSize={2}
+            user={user}
           />
           <Button
             title={"4x4"}
             navigation={navigation}
-            preferredBoardSize={2}
+            preferredBoardSize={4}
+            user={user}
           />
           <Button
             title={"5x5"}
             navigation={navigation}
             preferredBoardSize={5}
+            user={user}
           />
           <Button title={"Stats"} />
         </View>
@@ -29,6 +32,7 @@ function HomeScreen({ navigation, route }) {
           <BottomNavBar
             navigation={navigation}
             preferredBoardSize={preferredBoardSize}
+            user={user}
           />
         </View>
       </View>

@@ -14,3 +14,14 @@
     Accent: #82267E
 
 - Google Vision API
+
+- The userdata table stores
+    - username
+    - password
+    - friends array
+    - gameID array
+
+- The gamedata table
+    - Users and their word list and when they played it
+    - the 2d array for the board
+    - all words in the board

@@ -1,12 +1,20 @@
 // components/CustomButton.js
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { v4 as uuidv4 } from "uuid";
 
-const Button = ({ navigation, title, preferredBoardSize }) => {
+const Button = ({ navigation, title, preferredBoardSize, user }) => {
   function nextPage() {
     if (title == "4x4" || title == "5x5" || title == "2x2") {
       const boardLength = parseInt(title[0]);
-      navigation.replace("PlayScreen", { boardLength, preferredBoardSize });
+      const gameId = uuidv4(); // Generate a 128-bit UUID string
+
+      navigation.replace("PlayScreen", {
+        boardLength,
+        preferredBoardSize,
+        user,
+        gameId,
+      });
     }
   }
   return (

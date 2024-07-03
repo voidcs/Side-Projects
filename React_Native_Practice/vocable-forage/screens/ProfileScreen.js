@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,11 +12,16 @@ import {
 import BottomNavBar from "../components/BottomNavBar";
 
 function ProfileScreen({ navigation, route }) {
-  const { preferredBoardSize } = route.params;
+  const { preferredBoardSize, user } = route.params;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-
+  const [userData, setUserData] = useState(null);
+  useEffect(() => {
+    if (user) {
+      setUserData(user);
+    }
+  }, [user]);
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {
@@ -38,6 +43,7 @@ function ProfileScreen({ navigation, route }) {
 
         if (data.success) {
           console.log("Login successful", data.user);
+          setUserData(data.user);
         } else {
           throw new Error(data.message || "Network response was not ok");
         }
@@ -85,6 +91,33 @@ function ProfileScreen({ navigation, route }) {
     setPassword("");
   };
 
+  if (userData) {
+    // Render a different component or page when userData is not null
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome, {userData.username}</Text>
+        <Text style={styles.subtitle}>
+          Friends: {userData.friends.join(", ")}
+        </Text>
+        <Text style={styles.subtitle}>
+          Game IDs: {userData.gameIds.join(", ")}
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setUserData(null)} // Log out button to clear userData
+        >
+          <Text style={styles.buttonText}>Log Out</Text>
+        </TouchableOpacity>
+        <View style={styles.navContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={userData}
+          />
+        </View>
+      </View>
+    );
+  }
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -134,6 +167,7 @@ function ProfileScreen({ navigation, route }) {
           <BottomNavBar
             navigation={navigation}
             preferredBoardSize={preferredBoardSize}
+            user={userData}
           />
         </View>
       </View>

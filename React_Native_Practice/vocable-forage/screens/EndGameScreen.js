@@ -14,6 +14,8 @@ import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 
 function EndGameScreen({ navigation, route }) {
+  // if user is null, then we just use this old code
+  // otherwise, we should print all players who played this board
   const {
     allWords,
     foundWords,
@@ -23,6 +25,7 @@ function EndGameScreen({ navigation, route }) {
     board,
     boardLength,
     wordsPerCell,
+    user,
   } = route.params;
   const { height, width } = Dimensions.get("window");
 
@@ -290,6 +293,7 @@ function EndGameScreen({ navigation, route }) {
               <BottomNavBar
                 navigation={navigation}
                 preferredBoardSize={preferredBoardSize}
+                user={user}
               />
             </View>
           </View>
@@ -299,6 +303,7 @@ function EndGameScreen({ navigation, route }) {
         <BottomNavBar
           navigation={navigation}
           preferredBoardSize={preferredBoardSize}
+          user={user}
         />
       </View>
     </View>

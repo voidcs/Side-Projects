@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { useRoute } from "@react-navigation/native";
+import { v4 as uuidv4 } from "uuid";
 
-const BottomNavBar = ({ navigation, preferredBoardSize }) => {
+const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
   const route = useRoute();
@@ -22,7 +23,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
     }
     return "gray";
   };
-
+  const gameId = uuidv4(); // Generate a 128-bit UUID string
   return (
     <View style={styles.navBar}>
       <TouchableOpacity
@@ -30,6 +31,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
         onPress={() =>
           navigation.replace("HomeScreen", {
             preferredBoardSize: preferredBoardSize,
+            user: user,
           })
         }
       >
@@ -49,6 +51,8 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
                 params: {
                   boardLength: preferredBoardSize,
                   preferredBoardSize: preferredBoardSize,
+                  user: user,
+                  gameId,
                 },
               },
             ],
@@ -74,6 +78,7 @@ const BottomNavBar = ({ navigation, preferredBoardSize }) => {
         onPress={() =>
           navigation.replace("ProfileScreen", {
             preferredBoardSize: preferredBoardSize,
+            user: user,
           })
         }
       >

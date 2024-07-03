@@ -30,7 +30,8 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
-const TABLE_NAME = "vocable-forage-userdata"; // Update to your DynamoDB table name
+const USER_TABLE_NAME = "vocable-forage-userdata";
+const GAME_TABLE_NAME = "vocable-forage-gamedata";
 
 const getObjectFromS3 = async (bucket, key) => {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
@@ -81,7 +82,7 @@ app.post("/attemptLogin", async (req, res) => {
   const normalizedUsername = username.toLowerCase();
 
   const queryParams = {
-    TableName: TABLE_NAME,
+    TableName: USER_TABLE_NAME,
     KeyConditionExpression: "userId = :userId",
     ExpressionAttributeValues: {
       ":userId": normalizedUsername,
@@ -133,7 +134,7 @@ app.post("/createAccount", async (req, res) => {
   const normalizedUsername = username.toLowerCase();
 
   const queryParams = {
-    TableName: TABLE_NAME,
+    TableName: USER_TABLE_NAME,
     KeyConditionExpression: "userId = :userId",
     ExpressionAttributeValues: {
       ":userId": normalizedUsername,
@@ -152,7 +153,7 @@ app.post("/createAccount", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const params = {
-      TableName: TABLE_NAME,
+      TableName: USER_TABLE_NAME,
       Item: {
         userId, // Partition key
         dataType: "userAccount", // Sort key, using 'userAccount' as a constant value for account data
@@ -171,6 +172,36 @@ app.post("/createAccount", async (req, res) => {
 
     // Return false to indicate failure
     res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.get("/getGameData", async (req, res) => {
+  const { gameId } = req.body;
+  console.log("GAMEID in server: ", gameId);
+  if (!gameId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "gameId is required" });
+  }
+  console.log("made it just before params");
+  const params = {
+    TableName: GAME_TABLE_NAME,
+    Key: {
+      gameId: gameId,
+    },
+  };
+
+  try {
+    const gameData = await dynamoDB.get(params).promise();
+    console.log("after db request");
+    if (!gameData.Item) {
+      return res.status(404).json({ success: false });
+    }
+
+    res.status(200).json({ success: true, gameData: gameData.Item });
+  } catch (error) {
+    console.error("Error fetching game data:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 

@@ -19,6 +19,9 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 import BottomNavBar from "../components/BottomNavBar";
 
 function PlayScreen({ navigation, route }) {
+  // should be able to open a board with a data base, so you give the id
+  // if the id is in the table, then we read the board in front the data base
+  // otherwise we just generate it, and then add it to the database
   const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
 
@@ -30,13 +33,18 @@ function PlayScreen({ navigation, route }) {
   const [words, setWords] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
   const [preferredBoardSize, setPreferredBoardSize] = useState(0);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const {
       words: routeWords,
       boardLength: routeBoardLength,
       preferredBoardSize: routePreferredBoardSize,
+      user: user,
+      gameId: routeGameId,
     } = route.params;
+    console.log("GAMEID: ", routeGameId);
+
+    setUser(user);
     setWords(routeWords);
     setBoardLength(routeBoardLength);
     setPreferredBoardSize(routePreferredBoardSize);
@@ -46,6 +54,35 @@ function PlayScreen({ navigation, route }) {
     preferredBoardSizeRef.current = routePreferredBoardSize;
     const { height, width } = Dimensions.get("window");
     bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
+
+    const getGameData = async () => {
+      console.log("In function: ", routeGameId);
+      try {
+        const response = await fetch("http://18.222.167.11:3000/getGameData", {
+          method: "POST", // Use POST method
+          headers: {
+            "Content-Type": "application/json", // Set the content type to JSON
+          },
+          body: JSON.stringify({ routeGameId }), // Send the gameId in the request body
+        });
+
+        if (!response.ok) {
+          const message = `Network response was not ok: ${response.statusText}`;
+          throw new Error(message);
+        }
+
+        const data = await response.json(); // Parse the JSON response
+        if (data.success) {
+          console.log("Game data fetched successfully", data.gameData);
+          // Handle the game data as needed
+        } else {
+          console.log("Game not found");
+        }
+      } catch (error) {
+        console.error("Caught error", error.message);
+      }
+    };
+    getGameData();
 
     console.log("Buffer: ", bufferRef.current);
   }, [route.params]);
@@ -66,6 +103,7 @@ function PlayScreen({ navigation, route }) {
         preferredBoardSize: preferredBoardSize,
         board: boardRef.current,
         boardLength: boardLength,
+        user: user,
         wordsPerCell: wordsPerCellRef.current.map((row) =>
           row.map((cell) => Array.from(cell))
         ),
@@ -81,6 +119,7 @@ function PlayScreen({ navigation, route }) {
       preferredBoardSize: preferredBoardSize,
       board: boardRef.current,
       boardLength: boardLength,
+      user: user,
       wordsPerCell: wordsPerCellRef.current.map((row) =>
         row.map((cell) => Array.from(cell))
       ),
@@ -151,7 +190,6 @@ function PlayScreen({ navigation, route }) {
   const trieRef = useRef(createTrie([]));
 
   useEffect(() => {
-    const start = performance.now();
     trieRef.current = createTrie(words);
     // aho corasick automaton, it's slower and not needed lol
     // if (!automatonRef.current) {
@@ -160,8 +198,6 @@ function PlayScreen({ navigation, route }) {
     //   automaton.build_fail();
     //   automatonRef.current = automaton;
     // }
-    const end = performance.now();
-    console.log(`Creating the trie took ${end - start} ms`);
   }, [words]);
 
   const setWordHandler = (ch, tile) => {
@@ -569,6 +605,7 @@ function PlayScreen({ navigation, route }) {
         <BottomNavBar
           navigation={navigation}
           preferredBoardSize={preferredBoardSize}
+          user={user}
         />
       </View>
     </View>
