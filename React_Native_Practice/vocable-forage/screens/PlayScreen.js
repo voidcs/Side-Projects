@@ -319,6 +319,7 @@ function PlayScreen({ navigation, route }) {
               console.error("Error creating game: ", error.message);
             }
           };
+          createGame();
         }
       } catch (error) {
         console.error("Caught error", error.message);

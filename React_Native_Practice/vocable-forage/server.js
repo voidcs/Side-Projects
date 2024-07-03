@@ -214,12 +214,10 @@ app.post("/createGame", async (req, res) => {
   console.log("Creating game with ID: ", gameId);
 
   if (!gameId || !allWords || !board) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "gameId, allWords, and board are required",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "gameId, allWords, and board are required",
+    });
   }
 
   const params = {
@@ -231,7 +229,9 @@ app.post("/createGame", async (req, res) => {
       players: [],
     },
   };
-
+  console.log(gameId);
+  console.log(allWords);
+  console.log(board);
   try {
     await dynamoDB.put(params).promise();
     console.log(`Game created successfully with ID: ${gameId}`);
