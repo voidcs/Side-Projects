@@ -224,6 +224,8 @@ app.get("/words", async (req, res) => {
 
 buildTrie().then(() => {
   app.listen(port, () => {
-    console.log(`Server is running on http://18.222.167.11:${port}`);
+    console.log(
+      `Server is running on http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:${port}`
+    );
   });
 });
