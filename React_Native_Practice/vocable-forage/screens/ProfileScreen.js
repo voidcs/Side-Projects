@@ -135,6 +135,7 @@ function ProfileScreen({ navigation, route }) {
           textContentType="none" // Ensure no content type association for autofill
           keyboardType="default" // Use default keyboard without any smart suggestions
           placeholderTextColor="#999"
+          autoCapitalize="none"
           returnKeyType="next" // Sets the return key to 'Next'
           onSubmitEditing={() => passwordInputRef.current.focus()} // Focus the password input on submit
         />

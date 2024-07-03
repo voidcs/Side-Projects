@@ -299,6 +299,9 @@ function PlayScreen({ navigation, route }) {
                     gameId: routeGameId,
                     allWords: Array.from(allWordsRef.current),
                     board: boardRef.current,
+                    wordsPerCell: wordsPerCellRef.current.map((row) =>
+                      row.map((cell) => Array.from(cell))
+                    ),
                   }),
                 }
               );

@@ -210,7 +210,7 @@ app.post("/getGameData", async (req, res) => {
 });
 
 app.post("/createGame", async (req, res) => {
-  const { gameId, allWords, board } = req.body;
+  const { gameId, allWords, board, wordsPerCell } = req.body;
   console.log("Creating game with ID: ", gameId);
 
   if (!gameId || !allWords || !board) {
@@ -225,6 +225,7 @@ app.post("/createGame", async (req, res) => {
     Item: {
       gameId: gameId,
       allWords: allWords,
+      wordsPerCell: wordsPerCell,
       board: board,
       players: [],
     },
@@ -232,6 +233,7 @@ app.post("/createGame", async (req, res) => {
   console.log("gameId: ", gameId);
   console.log("allWords: ", allWords);
   console.log("board: ", board);
+  console.log("wordsPerCell: ", wordsPerCell);
   try {
     await dynamoDB.put(params).promise();
     console.log(`Game created successfully with ID: ${gameId}`);
