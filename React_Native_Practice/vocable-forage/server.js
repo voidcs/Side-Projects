@@ -209,6 +209,41 @@ app.post("/getGameData", async (req, res) => {
   }
 });
 
+app.post("/createGame", async (req, res) => {
+  const { gameId, allWords, board } = req.body;
+  console.log("Creating game with ID: ", gameId);
+
+  if (!gameId || !allWords || !board) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "gameId, allWords, and board are required",
+      });
+  }
+
+  const params = {
+    TableName: GAME_TABLE_NAME,
+    Item: {
+      gameId: gameId,
+      allWords: allWords,
+      board: board,
+      players: [],
+    },
+  };
+
+  try {
+    await dynamoDB.put(params).promise();
+    console.log(`Game created successfully with ID: ${gameId}`);
+    res
+      .status(200)
+      .json({ success: true, message: "Game created successfully" });
+  } catch (error) {
+    console.error("Error creating game:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");

@@ -24,7 +24,6 @@ function PlayScreen({ navigation, route }) {
   // otherwise we just generate it, and then add it to the database
   const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
   const wordsRef = useRef([]);
   const boardLengthRef = useRef(0);
@@ -134,7 +133,6 @@ function PlayScreen({ navigation, route }) {
   }, [wordsPerCell]);
   const [allWords, setAllWords] = useState(new Set());
   const allWordsRef = useRef(new Set());
-  // setAllWords(new Set()); causes infinite re-renders
   useEffect(() => {
     allWordsRef.current = allWords;
   }, [allWords]);
@@ -143,7 +141,6 @@ function PlayScreen({ navigation, route }) {
   const startGameRef = useRef(false);
 
   useEffect(() => {
-    const start = performance.now();
     const {
       words: routeWords,
       boardLength: routeBoardLength,
@@ -236,8 +233,6 @@ function PlayScreen({ navigation, route }) {
           }
           boardRef.current = newBoard;
 
-          console.log("len: ", boardLengthRef.current);
-          console.log("board: ", boardRef.current);
           const dir = [
             [-1, -1],
             [-1, 0],
@@ -290,14 +285,46 @@ function PlayScreen({ navigation, route }) {
           }
           startGameRef.current = true;
           createGameRef.current = true;
+          const createGame = async (allWords, board) => {
+            try {
+              const response = await fetch(
+                "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/createGame",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    gameId: routeGameId,
+                    allWords: allWordsRef.current,
+                    board: boardRef.current,
+                  }),
+                }
+              );
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                throw new Error(data.message || "Failed to create game");
+              }
+
+              if (data.success) {
+                console.log("Game created successfully");
+                // Handle success (e.g., navigate to the game screen)
+              } else {
+                console.log("Failed to create game: ", data.message);
+                // Handle failure
+              }
+            } catch (error) {
+              console.error("Error creating game: ", error.message);
+            }
+          };
         }
       } catch (error) {
         console.error("Caught error", error.message);
       }
     };
     getGameData();
-    const end = performance.now();
-    console.log(`Time taken: ${end - start} milliseconds`);
   }, [route.params]);
 
   useEffect(() => {
