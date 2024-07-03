@@ -175,7 +175,7 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
-app.get("/getGameData", async (req, res) => {
+app.post("/getGameData", async (req, res) => {
   const { gameId } = req.body;
   console.log("GAMEID in server: ", gameId);
   if (!gameId) {

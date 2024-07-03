@@ -67,7 +67,7 @@ function PlayScreen({ navigation, route }) {
         });
 
         if (!response.ok) {
-          const message = `Network response was not ok: ${response.statusText}`;
+          const message = `The getGameData failed or something: ${response.statusText}`;
           throw new Error(message);
         }
 
