@@ -78,7 +78,6 @@ function ProfileScreen({ navigation, route }) {
         console.error(error);
       }
     };
-    Alert.alert("Form Submitted", `Username: ${username}`);
     if (isLogin) {
       console.log("WE ON LOG IN PAGE");
       attemptLogin();

@@ -423,7 +423,44 @@ function PlayScreen({ navigation, route }) {
       }
     };
     console.log("we trying to finish over here");
-    addPlayerToGame();
+    addPlayerToGame(); // The player is added in the game, now we add the game to the player
+
+    const addGameToPlayer = async () => {
+      try {
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addGameToPlayer",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              gameId: routeGameId,
+              username: user.username,
+              hasPlayed: true,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to add game to player");
+        }
+
+        if (data.success) {
+          console.log(
+            "Game added to player successfully",
+            data.updatedAttributes
+          );
+        } else {
+          console.log("Failed to add game to player: ", data.message);
+        }
+      } catch (error) {
+        console.error("Error adding game to player: ", error.message);
+      }
+    };
+    addGameToPlayer();
     navigation.replace("EndGameScreen", {
       allWords: Array.from(allWords),
       foundWords: wordsFoundRef.current,
