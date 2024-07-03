@@ -21,13 +21,16 @@ export default function App() {
     const fetchWordList = async () => {
       try {
         //http://172.16.102.180:3000
-        const response = await fetch("http://18.222.167.11:3000/words");
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/words"
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const result = await response.text(); // Use response.text() to handle plain text
         const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
         setWords(wordsArray);
+        console.log("size: ", wordsArray.length);
       } catch (error) {
         console.error("Error fetching word list", error);
       } finally {

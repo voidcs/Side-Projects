@@ -27,13 +27,16 @@ function ProfileScreen({ navigation, route }) {
   const handleUsernameSubmit = () => {
     const attemptLogin = async () => {
       try {
-        const response = await fetch("http://18.222.167.11:3000/attemptLogin", {
-          method: "POST", // Use POST method
-          headers: {
-            "Content-Type": "application/json", // Set the content type to JSON
-          },
-          body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
-        });
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/attemptLogin",
+          {
+            method: "POST", // Use POST method
+            headers: {
+              "Content-Type": "application/json", // Set the content type to JSON
+            },
+            body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
+          }
+        );
         const data = await response.json(); // Parse the JSON response
 
         if (!response.ok) {
@@ -55,7 +58,7 @@ function ProfileScreen({ navigation, route }) {
     const createAccount = async () => {
       try {
         const response = await fetch(
-          "http://18.222.167.11:3000/createAccount",
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/createAccount",
           {
             method: "POST", // Use POST method
             headers: {

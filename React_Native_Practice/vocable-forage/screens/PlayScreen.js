@@ -143,6 +143,7 @@ function PlayScreen({ navigation, route }) {
   const startGameRef = useRef(false);
 
   useEffect(() => {
+    const start = performance.now();
     const {
       words: routeWords,
       boardLength: routeBoardLength,
@@ -150,7 +151,6 @@ function PlayScreen({ navigation, route }) {
       user: user,
       gameId: routeGameId,
     } = route.params;
-    console.log("GAMEID: ", routeGameId);
     setUser(user);
     setWords(routeWords);
     setBoardLength(routeBoardLength);
@@ -163,15 +163,17 @@ function PlayScreen({ navigation, route }) {
     bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
 
     const getGameData = async () => {
-      console.log("In function: ", { gameId: routeGameId });
       try {
-        const response = await fetch("http://18.222.167.11:3000/getGameData", {
-          method: "POST", // Use POST method
-          headers: {
-            "Content-Type": "application/json", // Set the content type to JSON
-          },
-          body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
-        });
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getGameData",
+          {
+            method: "POST", // Use POST method
+            headers: {
+              "Content-Type": "application/json", // Set the content type to JSON
+            },
+            body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
+          }
+        );
         if (!response.ok) {
           const message = `The getGameData failed or something: ${response.statusText}`;
           throw new Error(message);
@@ -183,7 +185,6 @@ function PlayScreen({ navigation, route }) {
           // Handle the game data as needed
           startGameRef.current = true;
         } else {
-          console.log("game doesn't exist yet");
           const initializeWordsPerCell = Array.from(
             { length: boardLengthRef.current },
             () =>
@@ -278,7 +279,6 @@ function PlayScreen({ navigation, route }) {
               }
             }
           };
-          console.log("good before dfs");
           for (let i = 0; i < boardLengthRef.current; i++) {
             for (let j = 0; j < boardLengthRef.current; j++) {
               let s = boardRef.current[i][j];
@@ -288,7 +288,6 @@ function PlayScreen({ navigation, route }) {
               vis[i][j] = false;
             }
           }
-          console.log("good after dfs");
           startGameRef.current = true;
           createGameRef.current = true;
         }
@@ -297,6 +296,8 @@ function PlayScreen({ navigation, route }) {
       }
     };
     getGameData();
+    const end = performance.now();
+    console.log(`Time taken: ${end - start} milliseconds`);
   }, [route.params]);
 
   useEffect(() => {
@@ -515,7 +516,6 @@ function PlayScreen({ navigation, route }) {
       },
     })
   ).current;
-
   const styles = createStyles(boardLengthRef.current, height);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
