@@ -285,7 +285,8 @@ function PlayScreen({ navigation, route }) {
           }
           startGameRef.current = true;
           createGameRef.current = true;
-          const createGame = async (allWords, board) => {
+          // console.log("allWords: ", allWordsRef.current);
+          const createGame = async () => {
             try {
               const response = await fetch(
                 "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/createGame",
@@ -296,7 +297,7 @@ function PlayScreen({ navigation, route }) {
                   },
                   body: JSON.stringify({
                     gameId: routeGameId,
-                    allWords: allWordsRef.current,
+                    allWords: Array.from(allWordsRef.current),
                     board: boardRef.current,
                   }),
                 }

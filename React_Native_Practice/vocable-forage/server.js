@@ -229,9 +229,9 @@ app.post("/createGame", async (req, res) => {
       players: [],
     },
   };
-  console.log(gameId);
-  console.log(allWords);
-  console.log(board);
+  console.log("gameId: ", gameId);
+  console.log("allWords: ", allWords);
+  console.log("board: ", board);
   try {
     await dynamoDB.put(params).promise();
     console.log(`Game created successfully with ID: ${gameId}`);
