@@ -24,6 +24,7 @@ function PlayScreen({ navigation, route }) {
   // otherwise we just generate it, and then add it to the database
   const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
+  const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
   const wordsRef = useRef([]);
   const boardLengthRef = useRef(0);
@@ -34,96 +35,7 @@ function PlayScreen({ navigation, route }) {
   const [boardLength, setBoardLength] = useState(0);
   const [preferredBoardSize, setPreferredBoardSize] = useState(0);
   const [user, setUser] = useState(null);
-  useEffect(() => {
-    const {
-      words: routeWords,
-      boardLength: routeBoardLength,
-      preferredBoardSize: routePreferredBoardSize,
-      user: user,
-      gameId: routeGameId,
-    } = route.params;
-    console.log("GAMEID: ", routeGameId);
-    console.log("Type of GAMEID in Play: ", typeof routeGameId); // This will print the type of gameId
 
-    setUser(user);
-    setWords(routeWords);
-    setBoardLength(routeBoardLength);
-    setPreferredBoardSize(routePreferredBoardSize);
-
-    wordsRef.current = routeWords;
-    boardLengthRef.current = routeBoardLength;
-    preferredBoardSizeRef.current = routePreferredBoardSize;
-    const { height, width } = Dimensions.get("window");
-    bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
-
-    const getGameData = async () => {
-      console.log("In function: ", { gameId: routeGameId });
-      try {
-        const response = await fetch("http://18.222.167.11:3000/getGameData", {
-          method: "POST", // Use POST method
-          headers: {
-            "Content-Type": "application/json", // Set the content type to JSON
-          },
-          body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
-        });
-        console.log("response: ", response);
-        if (!response.ok) {
-          const message = `The getGameData failed or something: ${response.statusText}`;
-          throw new Error(message);
-        }
-
-        const data = await response.json(); // Parse the JSON response
-        if (data.success) {
-          console.log("Game data fetched successfully", data.gameData);
-          // Handle the game data as needed
-        } else {
-          console.log("Game not found");
-        }
-      } catch (error) {
-        console.error("Caught error", error.message);
-      }
-    };
-    getGameData();
-  }, [route.params]);
-
-  useEffect(() => {
-    if (timer > 0) {
-      const intervalId = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1000);
-
-      return () => clearInterval(intervalId);
-    } else {
-      navigation.replace("EndGameScreen", {
-        allWords: Array.from(allWords),
-        foundWords: wordsFoundRef.current,
-        score: scoreRef.current,
-        words: wordsFoundRef.current.length,
-        preferredBoardSize: preferredBoardSize,
-        board: boardRef.current,
-        boardLength: boardLength,
-        user: user,
-        wordsPerCell: wordsPerCellRef.current.map((row) =>
-          row.map((cell) => Array.from(cell))
-        ),
-      });
-    }
-  }, [timer, navigation]);
-  function navigateHandler() {
-    navigation.replace("EndGameScreen", {
-      allWords: Array.from(allWords),
-      foundWords: wordsFoundRef.current,
-      score: scoreRef.current,
-      words: wordsFoundRef.current.length,
-      preferredBoardSize: preferredBoardSize,
-      board: boardRef.current,
-      boardLength: boardLength,
-      user: user,
-      wordsPerCell: wordsPerCellRef.current.map((row) =>
-        row.map((cell) => Array.from(cell))
-      ),
-    });
-  }
   // console.log(trie.tree());
   const { height, width } = Dimensions.get("window");
 
@@ -222,116 +134,211 @@ function PlayScreen({ navigation, route }) {
   }, [wordsPerCell]);
   const [allWords, setAllWords] = useState(new Set());
   const allWordsRef = useRef(new Set());
-  const vis = Array.from({ length: boardLength }, () =>
-    Array(boardLength).fill(false)
-  );
   // setAllWords(new Set()); causes infinite re-renders
   useEffect(() => {
     allWordsRef.current = allWords;
   }, [allWords]);
-  const foundWordsRef = useRef(new Set());
+
+  const createGameRef = useRef(false);
+  const startGameRef = useRef(false);
+
   useEffect(() => {
-    const initializeWordsPerCell = Array.from({ length: boardLength }, () =>
-      Array.from({ length: boardLength }, () => new Set())
-    );
-    setWordsPerCell(initializeWordsPerCell);
-    wordsPerCellRef.current = initializeWordsPerCell;
-    const letters = [];
-    for (let i = 0; i < 26; i++) {
-      let letter = String.fromCharCode("A".charCodeAt(0) + i);
-      for (let j = 0; j < LETTER_DIST[letter]; j++) {
-        letters.push(letter);
-      }
-    }
+    const {
+      words: routeWords,
+      boardLength: routeBoardLength,
+      preferredBoardSize: routePreferredBoardSize,
+      user: user,
+      gameId: routeGameId,
+    } = route.params;
+    console.log("GAMEID: ", routeGameId);
+    setUser(user);
+    setWords(routeWords);
+    setBoardLength(routeBoardLength);
+    setPreferredBoardSize(routePreferredBoardSize);
 
-    const freq = {};
-    for (let i = 0; i < 26; i++) {
-      let letter = String.fromCharCode("A".charCodeAt(0) + i);
-      freq[letter] = 0;
-    }
+    wordsRef.current = routeWords;
+    boardLengthRef.current = routeBoardLength;
+    preferredBoardSizeRef.current = routePreferredBoardSize;
+    const { height, width } = Dimensions.get("window");
+    bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
 
-    const newBoard = [];
-    const flatBoard = [];
-    for (let i = 0; i < boardLength; i++) {
-      newBoard[i] = [];
-      for (let j = 0; j < boardLength; j++) {
-        let randomIndex = Math.floor(Math.random() * letters.length);
-        while (freq[letters[randomIndex]] >= 2) {
-          randomIndex = Math.floor(Math.random() * letters.length);
+    const getGameData = async () => {
+      console.log("In function: ", { gameId: routeGameId });
+      try {
+        const response = await fetch("http://18.222.167.11:3000/getGameData", {
+          method: "POST", // Use POST method
+          headers: {
+            "Content-Type": "application/json", // Set the content type to JSON
+          },
+          body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
+        });
+        if (!response.ok) {
+          const message = `The getGameData failed or something: ${response.statusText}`;
+          throw new Error(message);
         }
-        flatBoard.push(letters[randomIndex]);
-        newBoard[i][j] = letters[randomIndex];
-        freq[letters[randomIndex]]++;
-      }
-    }
-    const shuffleArray = (array) => {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+
+        const data = await response.json(); // Parse the JSON response
+        if (data.success) {
+          console.log("Game data fetched successfully", data.gameData);
+          // Handle the game data as needed
+          startGameRef.current = true;
+        } else {
+          console.log("game doesn't exist yet");
+          const initializeWordsPerCell = Array.from(
+            { length: boardLengthRef.current },
+            () =>
+              Array.from({ length: boardLengthRef.current }, () => new Set())
+          );
+          setWordsPerCell(initializeWordsPerCell);
+          wordsPerCellRef.current = initializeWordsPerCell;
+          const letters = [];
+          for (let i = 0; i < 26; i++) {
+            let letter = String.fromCharCode("A".charCodeAt(0) + i);
+            for (let j = 0; j < LETTER_DIST[letter]; j++) {
+              letters.push(letter);
+            }
+          }
+
+          const freq = {};
+          for (let i = 0; i < 26; i++) {
+            let letter = String.fromCharCode("A".charCodeAt(0) + i);
+            freq[letter] = 0;
+          }
+
+          const newBoard = [];
+          const flatBoard = [];
+          for (let i = 0; i < boardLengthRef.current; i++) {
+            newBoard[i] = [];
+            for (let j = 0; j < boardLengthRef.current; j++) {
+              let randomIndex = Math.floor(Math.random() * letters.length);
+              while (freq[letters[randomIndex]] >= 2) {
+                randomIndex = Math.floor(Math.random() * letters.length);
+              }
+              flatBoard.push(letters[randomIndex]);
+              newBoard[i][j] = letters[randomIndex];
+              freq[letters[randomIndex]]++;
+            }
+          }
+          const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [array[i], array[j]] = [array[j], array[i]];
+            }
+          };
+          shuffleArray(flatBoard);
+
+          let index = 0;
+          for (let i = 0; i < boardLengthRef.current; i++) {
+            for (let j = 0; j < boardLengthRef.current; j++) {
+              newBoard[i][j] = flatBoard[index++];
+            }
+          }
+          boardRef.current = newBoard;
+
+          console.log("len: ", boardLengthRef.current);
+          console.log("board: ", boardRef.current);
+          const dir = [
+            [-1, -1],
+            [-1, 0],
+            [-1, 1],
+            [0, -1],
+            [0, 1],
+            [1, -1],
+            [1, 0],
+            [1, 1],
+          ];
+
+          const valid = (x, y) =>
+            x >= 0 &&
+            x < boardLengthRef.current &&
+            y >= 0 &&
+            y < boardLengthRef.current;
+          let cnt = 0;
+
+          let curRow = -1,
+            curCol = -1;
+          const vis = Array.from({ length: boardLengthRef.current }, () =>
+            Array(boardLengthRef.current).fill(false)
+          );
+          const dfs = (x, y, s) => {
+            if (s.length > 9) return;
+            if (!trieRef.current.isPrefix(s)) return;
+            cnt++;
+            if (trieRef.current.hasWord(s)) {
+              allWordsRef.current.add(s);
+              wordsPerCellRef.current[curRow][curCol].add(s);
+            }
+            for (let i = 0; i < dir.length; i++) {
+              const nx = x + dir[i][0];
+              const ny = y + dir[i][1];
+              if (valid(nx, ny) && !vis[nx][ny]) {
+                vis[nx][ny] = true;
+                dfs(nx, ny, s + boardRef.current[nx][ny]);
+                vis[nx][ny] = false;
+              }
+            }
+          };
+          console.log("good before dfs");
+          for (let i = 0; i < boardLengthRef.current; i++) {
+            for (let j = 0; j < boardLengthRef.current; j++) {
+              let s = boardRef.current[i][j];
+              vis[i][j] = true;
+              (curRow = i), (curCol = j);
+              dfs(i, j, s);
+              vis[i][j] = false;
+            }
+          }
+          console.log("good after dfs");
+          startGameRef.current = true;
+          createGameRef.current = true;
+        }
+      } catch (error) {
+        console.error("Caught error", error.message);
       }
     };
-    shuffleArray(flatBoard);
+    getGameData();
+  }, [route.params]);
 
-    let index = 0;
-    for (let i = 0; i < boardLength; i++) {
-      for (let j = 0; j < boardLength; j++) {
-        newBoard[i][j] = flatBoard[index++];
-      }
+  useEffect(() => {
+    if (timer > 0) {
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    } else {
+      navigation.replace("EndGameScreen", {
+        allWords: Array.from(allWords),
+        foundWords: wordsFoundRef.current,
+        score: scoreRef.current,
+        words: wordsFoundRef.current.length,
+        preferredBoardSize: preferredBoardSize,
+        board: boardRef.current,
+        boardLength: boardLength,
+        user: user,
+        wordsPerCell: wordsPerCellRef.current.map((row) =>
+          row.map((cell) => Array.from(cell))
+        ),
+      });
     }
-    setBoard(newBoard);
-    const dir = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1],
-    ];
+  }, [timer, navigation]);
+  function navigateHandler() {
+    navigation.replace("EndGameScreen", {
+      allWords: Array.from(allWords),
+      foundWords: wordsFoundRef.current,
+      score: scoreRef.current,
+      words: wordsFoundRef.current.length,
+      preferredBoardSize: preferredBoardSize,
+      board: boardRef.current,
+      boardLength: boardLength,
+      user: user,
+      wordsPerCell: wordsPerCellRef.current.map((row) =>
+        row.map((cell) => Array.from(cell))
+      ),
+    });
+  }
 
-    const valid = (x, y) =>
-      x >= 0 && x < boardLength && y >= 0 && y < boardLength;
-    let cnt = 0;
-
-    let curRow = -1,
-      curCol = -1;
-    const dfs = (x, y, s) => {
-      if (s.length > 9) return;
-      if (!trieRef.current.isPrefix(s)) return;
-      cnt++;
-      if (trieRef.current.hasWord(s)) {
-        allWordsRef.current.add(s);
-        wordsPerCellRef.current[curRow][curCol].add(s);
-      }
-      for (let i = 0; i < dir.length; i++) {
-        const nx = x + dir[i][0];
-        const ny = y + dir[i][1];
-        if (valid(nx, ny) && !vis[nx][ny]) {
-          vis[nx][ny] = true;
-          dfs(nx, ny, s + newBoard[nx][ny]);
-          vis[nx][ny] = false;
-        }
-      }
-    };
-    for (let i = 0; i < boardLength; i++) {
-      for (let j = 0; j < boardLength; j++) {
-        let s = newBoard[i][j];
-        vis[i][j] = true;
-        (curRow = i), (curCol = j);
-        dfs(i, j, s);
-        vis[i][j] = false;
-      }
-    }
-    // for (let i = 0; i < boardLength; i++) {
-    //   for (let j = 0; j < boardLength; j++) {
-    //     wordsPerCell[i][j] = Array.from(wordsPerCell[i][j]);
-    //   }
-    // }
-    // console.log("func calls: ", cnt);
-    // console.log("num words: ", allWordsRef.current.size);
-    // console.log(Array.from(allWordsRef.current));
-  }, [boardLength]);
+  // This is the code to make a board, only need to do it if the createBoard is true
 
   const onLayoutBoard = (event) => {
     const board = event.target;
@@ -509,105 +516,109 @@ function PlayScreen({ navigation, route }) {
     })
   ).current;
 
-  const styles = createStyles(boardLength, height);
+  const styles = createStyles(boardLengthRef.current, height);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
   return (
-    <View style={styles.background}>
-      <Svg
-        style={styles.svgOverlay}
-        height={height}
-        width={width}
-        viewBox={`0 0 ${width} ${height}`}
-      >
-        {activeTilesLocRef.current.map((point, index) => {
-          if (index < activeTilesLocRef.current.length - 1) {
-            const nextPoint = activeTilesLocRef.current[index + 1];
-            return (
-              <Line
-                key={index}
-                x1={point.x}
-                y1={point.y}
-                x2={nextPoint.x}
-                y2={nextPoint.y}
-                stroke={validWordRef.current ? "white" : "red"}
-                strokeWidth="12"
-                strokeLinecap="round"
-                strokeOpacity="0.5"
-              />
-            );
-          }
-          return null;
-        })}
-      </Svg>
-      <View style={[styles.scoreContainer]}>
-        <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
-        <Text style={styles.scoreWordsText}>
-          Words: {wordsFoundRef.current.length}
-        </Text>
-        <TouchableOpacity onPress={navigateHandler}>
-          <Text style={styles.timerText}>
-            {minutes < 10 ? `0${minutes}` : minutes}:
-            {seconds < 10 ? `0${seconds}` : seconds}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={[
-          styles.wordContainer,
-          validWordRef.current
-            ? styles.validCell
-            : styles.defaultWordContainerColor,
-        ]}
-      >
-        <Text style={styles.wordText}>
-          {word}
-          {alreadyFoundWordRef.current === false &&
-          validWordRef.current === true
-            ? ` (+${POINTS[word.length]})`
-            : ""}
-        </Text>
-      </View>
-      <View
-        style={styles.board}
-        {...panResponder.panHandlers}
-        onLayout={onLayoutBoard}
-      >
-        {board.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((cell, cellIndex) => {
-              const isActive = activeTiles.some(
-                (tile) => tile.x === rowIndex && tile.y === cellIndex
-              );
+    boardRef.current.length > 0 && (
+      <View style={styles.background}>
+        <Svg
+          style={styles.svgOverlay}
+          height={height}
+          width={width}
+          viewBox={`0 0 ${width} ${height}`}
+        >
+          {activeTilesLocRef.current.map((point, index) => {
+            if (index < activeTilesLocRef.current.length - 1) {
+              const nextPoint = activeTilesLocRef.current[index + 1];
               return (
-                <View
-                  key={cellIndex}
-                  style={[
-                    styles.cell,
-                    isActive &&
-                      (alreadyFoundWordRef.current
-                        ? styles.alreadyFound
-                        : validWordRef.current
-                        ? styles.validCell
-                        : styles.activeCell),
-                  ]}
-                  onLayout={(event) => onLayoutCell(event, rowIndex, cellIndex)}
-                >
-                  <Text style={styles.cellText}>{cell}</Text>
-                </View>
+                <Line
+                  key={index}
+                  x1={point.x}
+                  y1={point.y}
+                  x2={nextPoint.x}
+                  y2={nextPoint.y}
+                  stroke={validWordRef.current ? "white" : "red"}
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                  strokeOpacity="0.5"
+                />
               );
-            })}
-          </View>
-        ))}
+            }
+            return null;
+          })}
+        </Svg>
+        <View style={[styles.scoreContainer]}>
+          <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
+          <Text style={styles.scoreWordsText}>
+            Words: {wordsFoundRef.current.length}
+          </Text>
+          <TouchableOpacity onPress={navigateHandler}>
+            <Text style={styles.timerText}>
+              {minutes < 10 ? `0${minutes}` : minutes}:
+              {seconds < 10 ? `0${seconds}` : seconds}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={[
+            styles.wordContainer,
+            validWordRef.current
+              ? styles.validCell
+              : styles.defaultWordContainerColor,
+          ]}
+        >
+          <Text style={styles.wordText}>
+            {word}
+            {alreadyFoundWordRef.current === false &&
+            validWordRef.current === true
+              ? ` (+${POINTS[word.length]})`
+              : ""}
+          </Text>
+        </View>
+        <View
+          style={styles.board}
+          {...panResponder.panHandlers}
+          onLayout={onLayoutBoard}
+        >
+          {boardRef.current.map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.row}>
+              {row.map((cell, cellIndex) => {
+                const isActive = activeTiles.some(
+                  (tile) => tile.x === rowIndex && tile.y === cellIndex
+                );
+                return (
+                  <View
+                    key={cellIndex}
+                    style={[
+                      styles.cell,
+                      isActive &&
+                        (alreadyFoundWordRef.current
+                          ? styles.alreadyFound
+                          : validWordRef.current
+                          ? styles.validCell
+                          : styles.activeCell),
+                    ]}
+                    onLayout={(event) =>
+                      onLayoutCell(event, rowIndex, cellIndex)
+                    }
+                  >
+                    <Text style={styles.cellText}>{cell}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
+        </View>
+        <View style={styles.navContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={user}
+          />
+        </View>
       </View>
-      <View style={styles.navContainer}>
-        <BottomNavBar
-          navigation={navigation}
-          preferredBoardSize={preferredBoardSize}
-          user={user}
-        />
-      </View>
-    </View>
+    )
   );
 }
 export default PlayScreen;
