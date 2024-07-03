@@ -386,6 +386,44 @@ function PlayScreen({ navigation, route }) {
     }
   }, [timer, navigation]);
   function navigateHandler() {
+    const { user: user, gameId: routeGameId } = route.params;
+    console.log("user: ", user.username);
+    console.log("gameId: ", routeGameId);
+    console.log("words: ", wordsFoundRef.current);
+    const addPlayerToGame = async () => {
+      try {
+        const response = await fetch(
+          "http://your-ec2-ip-address:3000/addPlayerToGame",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              gameId: routeGameId,
+              username: user.username,
+              wordsFoundForThisPlay: wordsFoundRef.current,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to add player to game");
+        }
+
+        if (data.success) {
+          console.log("Player added successfully", data.updatedAttributes);
+        } else {
+          console.log("Failed to add player to game: ", data.message);
+        }
+      } catch (error) {
+        console.error("Error adding player to game: ", error.message);
+      }
+    };
+    console.log("we trying to finish over here");
+    addPlayerToGame();
     navigation.replace("EndGameScreen", {
       allWords: Array.from(allWords),
       foundWords: wordsFoundRef.current,
