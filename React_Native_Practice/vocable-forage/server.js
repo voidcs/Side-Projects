@@ -194,6 +194,7 @@ app.post("/getGameData", async (req, res) => {
   try {
     const gameData = await dynamoDB.get(params).promise();
     console.log("after db request");
+    console.log(gameData);
     if (!gameData.Item) {
       return res.status(404).json({ success: false });
     }

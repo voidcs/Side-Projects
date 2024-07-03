@@ -43,6 +43,7 @@ function PlayScreen({ navigation, route }) {
       gameId: routeGameId,
     } = route.params;
     console.log("GAMEID: ", routeGameId);
+    console.log("Type of GAMEID in Play: ", typeof routeGameId); // This will print the type of gameId
 
     setUser(user);
     setWords(routeWords);
@@ -56,14 +57,14 @@ function PlayScreen({ navigation, route }) {
     bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
 
     const getGameData = async () => {
-      console.log("In function: ", routeGameId);
+      console.log("In function: ", { gameId: routeGameId });
       try {
         const response = await fetch("http://18.222.167.11:3000/getGameData", {
           method: "POST", // Use POST method
           headers: {
             "Content-Type": "application/json", // Set the content type to JSON
           },
-          body: JSON.stringify({ routeGameId }), // Send the gameId in the request body
+          body: JSON.stringify({ gameId: routeGameId }), // Send the gameId in the request body
         });
 
         if (!response.ok) {
@@ -83,8 +84,6 @@ function PlayScreen({ navigation, route }) {
       }
     };
     getGameData();
-
-    console.log("Buffer: ", bufferRef.current);
   }, [route.params]);
 
   useEffect(() => {
