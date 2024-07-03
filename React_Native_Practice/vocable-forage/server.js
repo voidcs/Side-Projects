@@ -244,6 +244,50 @@ app.post("/createGame", async (req, res) => {
   }
 });
 
+app.post("/addPlayerToGame", async (req, res) => {
+  const { gameId, username, wordsFoundForThisPlay } = req.body;
+  console.log("gameId: ", gameId);
+  console.log("username: ", username);
+  console.log("wordsFound: ", wordsFoundForThisPlay);
+  if (!gameId || !username || !wordsFoundForThisPlay) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing required fields" });
+  }
+
+  const player = {
+    username,
+    wordsFoundForThisPlay,
+    dateAndTimePlayedAt: new Date().toISOString(),
+  };
+
+  const params = {
+    TableName: GAME_TABLE_NAME,
+    Key: {
+      gameId: gameId,
+    },
+    UpdateExpression:
+      "SET players = list_append(if_not_exists(players, :empty_list), :player)",
+    ExpressionAttributeValues: {
+      ":player": [player],
+      ":empty_list": [],
+    },
+    ReturnValues: "UPDATED_NEW",
+  };
+
+  try {
+    const result = await dynamoDB.update(params).promise();
+    res.status(200).json({
+      success: true,
+      message: "Player added successfully",
+      updatedAttributes: result.Attributes,
+    });
+  } catch (error) {
+    console.error("Error adding player to game:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
