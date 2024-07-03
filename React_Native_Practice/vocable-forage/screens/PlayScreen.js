@@ -340,7 +340,7 @@ function PlayScreen({ navigation, route }) {
       const addPlayerToGame = async () => {
         try {
           const response = await fetch(
-            "http://your-ec2-ip-address:3000/addPlayerToGame",
+            "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addPlayerToGame",
             {
               method: "POST",
               headers: {
@@ -393,7 +393,7 @@ function PlayScreen({ navigation, route }) {
     const addPlayerToGame = async () => {
       try {
         const response = await fetch(
-          "http://your-ec2-ip-address:3000/addPlayerToGame",
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addPlayerToGame",
           {
             method: "POST",
             headers: {

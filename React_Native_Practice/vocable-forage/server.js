@@ -246,9 +246,10 @@ app.post("/createGame", async (req, res) => {
 
 app.post("/addPlayerToGame", async (req, res) => {
   const { gameId, username, wordsFoundForThisPlay } = req.body;
+
   console.log("gameId: ", gameId);
   console.log("username: ", username);
-  console.log("wordsFound: ", wordsFoundForThisPlay);
+  console.log("words: ", wordsFoundForThisPlay);
   if (!gameId || !username || !wordsFoundForThisPlay) {
     return res
       .status(400)
@@ -259,6 +260,7 @@ app.post("/addPlayerToGame", async (req, res) => {
     username,
     wordsFoundForThisPlay,
     dateAndTimePlayedAt: new Date().toISOString(),
+    hasPlayed: true,
   };
 
   const params = {
@@ -287,7 +289,6 @@ app.post("/addPlayerToGame", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");
