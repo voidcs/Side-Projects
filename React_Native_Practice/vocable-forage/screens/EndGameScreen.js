@@ -48,7 +48,7 @@ function EndGameScreen({ navigation, route }) {
             body: JSON.stringify({ gameId: gameId }),
           }
         );
-
+        console.log(response);
         if (!response.ok) {
           const message = `The getGameData request failed: ${response.statusText}`;
           throw new Error(message);
