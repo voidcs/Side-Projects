@@ -36,21 +36,46 @@ function EndGameScreen({ navigation, route }) {
   const [error, setError] = useState(null);
   useEffect(() => {
     console.log("in effect hook: ", gameId);
-    fetch(`http://your-server-address/getGameById?gameId=${gameId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          console.log("data worked!");
-          console.log(data);
-          setGameData(data.data);
-        } else {
-          setError(data.message);
+    const getGameData = async () => {
+      try {
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getGameById",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gameId: gameId }),
+          }
+        );
+
+        if (!response.ok) {
+          const message = `The getGameData request failed: ${response.statusText}`;
+          throw new Error(message);
         }
-      })
-      .catch((error) => {
-        setError("Error fetching game data");
-        console.error("Error fetching game:", error);
-      });
+
+        const data = await response.json();
+        if (data.success) {
+          console.log("Game data fetched successfully");
+          // Handle the game data as needed
+          startGameRef.current = true;
+          // Additional handling of the fetched data
+          console.log(data.data); // For example, log the fetched game data
+        } else {
+          const initializeWordsPerCell = Array.from(
+            { length: boardLengthRef.current },
+            () =>
+              Array.from({ length: boardLengthRef.current }, () => new Set())
+          );
+          console.error("Game data not found or another error occurred");
+          // Handle the case where game data is not found or success is false
+        }
+      } catch (error) {
+        console.error("Error fetching game data:", error);
+        // Handle the error appropriately in your application
+      }
+    };
+    getGameData();
   }, []);
   const { height, width } = Dimensions.get("window");
   useFonts({

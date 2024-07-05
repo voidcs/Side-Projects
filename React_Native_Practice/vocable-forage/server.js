@@ -336,7 +336,7 @@ app.post("/addGameToPlayer", async (req, res) => {
 });
 
 app.get("/getGameById", async (req, res) => {
-  const { gameId } = req.query;
+  const { gameId } = req.body;
   console.log("in server: ", gameId);
   if (!gameId) {
     return res
