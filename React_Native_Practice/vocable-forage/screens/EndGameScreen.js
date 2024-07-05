@@ -27,13 +27,16 @@ function EndGameScreen({ navigation, route }) {
     preferredBoardSize,
     board,
     boardLength,
-    wordsPerCell,
     user,
     gameId,
   } = route.params;
 
   const [gameData, setGameData] = useState(null);
+  const [otherScores, setOtherScores] = useState([]);
+  const [otherScoresNames, setOtherScoresNames] = useState([]);
   const [error, setError] = useState(null);
+  const [dbWordsPerCell, setDbWordsPerCell] = useState(null);
+  const [myFoundWords, setMyFoundWords] = useState([]);
   useEffect(() => {
     console.log("in effect hook: ", gameId);
     const getGameData = async () => {
@@ -48,7 +51,6 @@ function EndGameScreen({ navigation, route }) {
             body: JSON.stringify({ gameId: gameId }),
           }
         );
-        console.log(response);
         if (!response.ok) {
           const message = `The getGameData request failed: ${response.statusText}`;
           throw new Error(message);
@@ -57,16 +59,37 @@ function EndGameScreen({ navigation, route }) {
         const data = await response.json();
         if (data.success) {
           console.log("Game data fetched successfully");
-          // Handle the game data as needed
-          startGameRef.current = true;
-          // Additional handling of the fetched data
-          console.log(data.data); // For example, log the fetched game data
-        } else {
-          const initializeWordsPerCell = Array.from(
-            { length: boardLengthRef.current },
-            () =>
-              Array.from({ length: boardLengthRef.current }, () => new Set())
+          setGameData(data.data);
+          setOtherScores([
+            ...[data.data.allWords],
+            ...data.data.players.map((player) => player.wordsFoundForThisPlay),
+          ]);
+          setOtherScoresNames([
+            ...["All Words"],
+            ...data.data.players.map((player) => player.username),
+          ]);
+          console.log("names: ", [
+            ...["All Words"],
+            ...data.data.players.map((player) => player.username),
+          ]);
+          const sortWords = (words) => {
+            return words.sort((a, b) => {
+              if (b.length === a.length) {
+                return a.localeCompare(b);
+              }
+              return b.length - a.length;
+            });
+          };
+          setSelectedWordList(data.data.allWords);
+          const sortedWordsPerCell = data.data.wordsPerCell.map((row) =>
+            row.map((cell) => sortWords(cell.slice()))
           );
+          setDbWordsPerCell(sortedWordsPerCell);
+          console.log("data: ", sortedWordsPerCell);
+          // setOtherScoresNames(...["All Words"], ...);
+          // Handle the game data as needed
+          // Additional handling of the fetched data
+        } else {
           console.error("Game data not found or another error occurred");
           // Handle the case where game data is not found or success is false
         }
@@ -77,6 +100,7 @@ function EndGameScreen({ navigation, route }) {
     };
     getGameData();
   }, []);
+  // console.log("gameData: ", gameData);
   const { height, width } = Dimensions.get("window");
   useFonts({
     "RobotoMono-Regular": require("../assets/fonts/RobotoMono-Regular.ttf"),
@@ -105,11 +129,6 @@ function EndGameScreen({ navigation, route }) {
       return b.length - a.length;
     });
   };
-  for (let i = 0; i < boardLength; i++) {
-    for (let j = 0; j < boardLength; j++) {
-      wordsPerCell[i][j] = sortWords(wordsPerCell[i][j]);
-    }
-  }
   const sortedAllWords = sortWords(allWords);
   const sortedFoundWords = sortWords(foundWords);
 
@@ -191,12 +210,15 @@ function EndGameScreen({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const options = ["All Words", "Word 1", "Word 2", "Word 3"];
   const [selectedValue, setSelectedValue] = useState("All Words");
-  const renderModalItem = ({ item }) => (
+  const [selectedWordList, setSelectedWordList] = useState([]);
+  const renderModalItem = ({ item, index }) => (
     <TouchableOpacity
       style={styles.dropdownRow}
       onPress={() => {
         setSelectedValue(item);
         setModalVisible(false);
+        setSelectedWordList(otherScores[index]);
+        // setSelectedScore(otherScores[index]); // Set the useState variable to the ith element in otherScores
       }}
     >
       <Text style={styles.dropdownRowText}>{item}</Text>
@@ -290,7 +312,7 @@ function EndGameScreen({ navigation, route }) {
                         style={[styles.modalContent, { width: width * 0.6 }]}
                       >
                         <FlatList
-                          data={options}
+                          data={otherScoresNames}
                           renderItem={renderModalItem}
                           keyExtractor={(item, index) => index.toString()}
                         />
@@ -306,7 +328,7 @@ function EndGameScreen({ navigation, route }) {
                 </View>
               </View>
               <FlatList
-                data={sortedAllWords}
+                data={selectedWordList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
@@ -321,12 +343,14 @@ function EndGameScreen({ navigation, route }) {
           <View style={styles.reviewScrollContainer}>
             {activeCell.row === null && activeCell.col === null ? (
               <Text style={styles.noWordsFound}>Click a cell for words</Text>
-            ) : Array.from(wordsPerCell[activeCell.row][activeCell.col])
+            ) : Array.from(dbWordsPerCell[activeCell.row][activeCell.col])
                 .length === 0 ? (
               <Text style={styles.noWordsFound}>No words found</Text>
             ) : (
               <FlatList
-                data={Array.from(wordsPerCell[activeCell.row][activeCell.col])}
+                data={Array.from(
+                  dbWordsPerCell[activeCell.row][activeCell.col]
+                )}
                 renderItem={renderReviewItem}
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.wordsList}
