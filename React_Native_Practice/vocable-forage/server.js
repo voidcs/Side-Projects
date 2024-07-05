@@ -345,7 +345,7 @@ app.post("/getGameById", async (req, res) => {
   }
 
   const getParams = {
-    TableName: USER_TABLE_NAME,
+    TableName: GAME_TABLE_NAME,
     Key: {
       gameId: gameId,
     },
