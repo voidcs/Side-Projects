@@ -18,17 +18,7 @@ import POINTS from "../data/point-distribution";
 function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
   // otherwise, we should print all players who played this board
-  const {
-    allWords,
-    foundWords,
-    words,
-    score,
-    preferredBoardSize,
-    board,
-    boardLength,
-    user,
-    gameId,
-  } = route.params;
+  const { preferredBoardSize, user, gameId } = route.params;
 
   const [gameData, setGameData] = useState(null);
   const [otherScores, setOtherScores] = useState([]);
@@ -36,6 +26,27 @@ function EndGameScreen({ navigation, route }) {
   const [error, setError] = useState(null);
   const [dbWordsPerCell, setDbWordsPerCell] = useState(null);
   const [myFoundWords, setMyFoundWords] = useState([]);
+  const [pointSum, setPointSum] = useState(0);
+  const [myPointSum, setMyPointSum] = useState(0);
+  const [board, setBoard] = useState([]);
+  const [boardLength, setBoardLength] = useState(0);
+  const calculatePoints = (words) => {
+    let totalPoints = 0;
+    words.forEach((word) => {
+      const points = POINTS[word.length] || 0;
+      totalPoints += points;
+    });
+    setPointSum(totalPoints);
+  };
+  const calculateMyPoints = (words) => {
+    let totalPoints = 0;
+    words.forEach((word) => {
+      const points = POINTS[word.length] || 0;
+      totalPoints += points;
+    });
+    setMyPointSum(totalPoints);
+  };
+
   useEffect(() => {
     console.log("in effect hook: ", gameId);
     const getGameData = async () => {
@@ -67,10 +78,11 @@ function EndGameScreen({ navigation, route }) {
             ...["All Words"],
             ...data.data.players.map((player) => player.username),
           ]);
-          console.log("names: ", [
-            ...["All Words"],
-            ...data.data.players.map((player) => player.username),
-          ]);
+          // console.log("names: ", [
+          //   ...["All Words"],
+          //   ...data.data.players.map((player) => player.username),
+          // ]);
+
           const sortWords = (words) => {
             return words.sort((a, b) => {
               if (b.length === a.length) {
@@ -79,12 +91,23 @@ function EndGameScreen({ navigation, route }) {
               return b.length - a.length;
             });
           };
-          setSelectedWordList(data.data.allWords);
+          data.data.players.forEach((player, index) => {
+            if (player.username === user.username) {
+              setMyFoundWords(
+                sortWords(data.data.players[index].wordsFoundForThisPlay)
+              );
+              calculateMyPoints(data.data.players[index].wordsFoundForThisPlay);
+            }
+          });
+          setSelectedWordList(sortWords(data.data.allWords));
           const sortedWordsPerCell = data.data.wordsPerCell.map((row) =>
             row.map((cell) => sortWords(cell.slice()))
           );
+          calculatePoints(data.data.allWords);
           setDbWordsPerCell(sortedWordsPerCell);
-          console.log("data: ", sortedWordsPerCell);
+          setBoard(data.data.board);
+          setBoardLength(data.data.board.length);
+          // console.log("data: ", sortedWordsPerCell);
           // setOtherScoresNames(...["All Words"], ...);
           // Handle the game data as needed
           // Additional handling of the fetched data
@@ -108,17 +131,6 @@ function EndGameScreen({ navigation, route }) {
   const styles = createStyles(boardLength, height, width);
   const [activeTab, setActiveTab] = useState("Found");
   const [currentPage, setCurrentPage] = useState("Results");
-  const [pointSum, setPointSum] = useState(0);
-
-  useEffect(() => {
-    let totalPoints = 0;
-    allWords.forEach((word) => {
-      const points = POINTS[word.length] || 0;
-      totalPoints += points;
-    });
-
-    setPointSum(totalPoints);
-  }, [allWords]);
 
   const sortWords = (words) => {
     return words.sort((a, b) => {
@@ -128,11 +140,6 @@ function EndGameScreen({ navigation, route }) {
       return b.length - a.length;
     });
   };
-  const sortedAllWords = sortWords(allWords);
-  const sortedFoundWords = sortWords(foundWords);
-
-  const wordsToDisplay =
-    activeTab === "Found" ? sortedFoundWords : sortedAllWords;
 
   const renderItem = ({ item }) => {
     const points = POINTS[item.length] || 0;
@@ -207,7 +214,6 @@ function EndGameScreen({ navigation, route }) {
     }
   };
   const [modalVisible, setModalVisible] = useState(false);
-  const options = ["All Words", "Word 1", "Word 2", "Word 3"];
   const [selectedValue, setSelectedValue] = useState("All Words");
   const [selectedWordList, setSelectedWordList] = useState([]);
   const renderModalItem = ({ item, index }) => (
@@ -217,6 +223,8 @@ function EndGameScreen({ navigation, route }) {
         setSelectedValue(item);
         setModalVisible(false);
         setSelectedWordList(otherScores[index]);
+        console.log("other: ", otherScores[index]);
+        calculatePoints(otherScores[index]);
         // setSelectedScore(otherScores[index]); // Set the useState variable to the ith element in otherScores
       }}
     >
@@ -264,8 +272,8 @@ function EndGameScreen({ navigation, route }) {
         <View style={styles.scoringContainer}>
           <View style={[styles.column, { width: width * 0.5 }]}>
             <View style={styles.scoreContainer}>
-              <Text style={styles.title}>Score: {score}</Text>
-              <Text style={styles.title}>Words: {words}</Text>
+              <Text style={styles.title}>Score: {myPointSum}</Text>
+              <Text style={styles.title}>Words: {myFoundWords.length}</Text>
             </View>
             <View style={styles.scrollContainer}>
               <View style={[styles.tabContainer, { width: width * 0.4 }]}>
@@ -276,7 +284,7 @@ function EndGameScreen({ navigation, route }) {
                 </View>
               </View>
               <FlatList
-                data={sortedFoundWords}
+                data={myFoundWords}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
@@ -286,7 +294,7 @@ function EndGameScreen({ navigation, route }) {
           <View style={[styles.column, { width: width * 0.5 }]}>
             <View style={styles.scoreContainer}>
               <Text style={styles.title}>Score: {pointSum}</Text>
-              <Text style={styles.title}>Words: {allWords.length}</Text>
+              <Text style={styles.title}>Words: {selectedWordList.length}</Text>
             </View>
             <View style={styles.scrollContainer}>
               <View style={[styles.tabContainer]}>

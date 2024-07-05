@@ -453,10 +453,7 @@ function PlayScreen({ navigation, route }) {
         }
 
         if (data.success) {
-          console.log(
-            "Game added to player successfully",
-            data.updatedAttributes
-          );
+          console.log("Game added to player successfully");
         } else {
           console.log("Failed to add game to player: ", data.message);
         }
