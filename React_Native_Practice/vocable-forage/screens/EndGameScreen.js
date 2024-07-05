@@ -14,7 +14,6 @@ import { useFonts } from "expo-font";
 import Svg, { Line } from "react-native-svg";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
-import ModalDropdown from "react-native-modal-dropdown";
 
 function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
