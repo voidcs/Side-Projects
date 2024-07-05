@@ -30,6 +30,7 @@ function EndGameScreen({ navigation, route }) {
   const [myPointSum, setMyPointSum] = useState(0);
   const [board, setBoard] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
+  console.log(user);
   const calculatePoints = (words) => {
     let totalPoints = 0;
     words.forEach((word) => {

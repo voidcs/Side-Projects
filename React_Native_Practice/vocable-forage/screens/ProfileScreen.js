@@ -78,11 +78,38 @@ function ProfileScreen({ navigation, route }) {
         console.error(error);
       }
     };
+
+    const getUser = async () => {
+      try {
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
+          {
+            method: "POST", // Use POST method
+            headers: {
+              "Content-Type": "application/json", // Set the content type to JSON
+            },
+            body: JSON.stringify({ username }), // Convert the username and password to a JSON string
+          }
+        );
+        const data = await response.json(); // Parse the JSON response
+        console.log("Data: ", data);
+        if (data.success) {
+          console.log("It worked lol");
+          setUserData(data.user);
+        } else {
+          throw new Error(data.message || "Network response was not ok");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
     if (isLogin) {
-      console.log("WE ON LOG IN PAGE");
       attemptLogin();
     } else {
       createAccount();
+      console.log("username: ", username);
+      console.log("password: ", password);
+      getUser();
     }
     Keyboard.dismiss(); // Dismiss the keyboard
   };
@@ -102,7 +129,7 @@ function ProfileScreen({ navigation, route }) {
           Friends: {userData.friends.join(", ")}
         </Text>
         <Text style={styles.subtitle}>
-          Game IDs: {userData.gameIds.join(", ")}
+          {/* Game IDs: {userData.gameIds.join(", ")} */}
         </Text>
         <TouchableOpacity
           style={styles.button}

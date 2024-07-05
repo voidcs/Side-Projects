@@ -6,7 +6,9 @@ function HomeScreen({ navigation, route }) {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.title}>Hello Borpa The Home Screen Lol</Text>
+        <Text style={styles.title}>
+          The app will crash if you don't make an account LOL
+        </Text>
         <View style={styles.buttonContainer}>
           <Button
             title={"2x2"}

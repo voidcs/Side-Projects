@@ -123,6 +123,50 @@ app.post("/attemptLogin", async (req, res) => {
   }
 });
 
+app.post("/getUser", async (req, res) => {
+  const { username } = req.body;
+
+  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  if (!validUsernameRegex.test(username)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid characters in username" });
+  }
+
+  const normalizedUsername = username.toLowerCase();
+
+  const queryParams = {
+    TableName: USER_TABLE_NAME,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+      ":userId": normalizedUsername,
+    },
+  };
+
+  try {
+    const userResult = await dynamoDB.query(queryParams).promise();
+
+    if (userResult.Items.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Username does not exist." });
+    }
+
+    const user = userResult.Items[0];
+    res.status(200).json({
+      success: true,
+      user: {
+        username: user.username,
+        friends: user.friends,
+        gameIds: user.gameIds,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
 app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
   const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
