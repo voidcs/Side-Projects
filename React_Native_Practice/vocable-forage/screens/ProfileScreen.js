@@ -155,7 +155,6 @@ function ProfileScreen({ navigation, route }) {
           keyboardType="default" // Use default keyboard which does not adapt to context
           placeholderTextColor="#999"
           returnKeyType="done" // Sets the return key to 'Done'
-          onSubmitEditing={handleUsernameSubmit} // Handle the form submission on submit
           clearButtonMode="while-editing"
         />
         <TouchableOpacity style={styles.button} onPress={handleUsernameSubmit}>

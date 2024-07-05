@@ -29,9 +29,30 @@ function EndGameScreen({ navigation, route }) {
     boardLength,
     wordsPerCell,
     user,
+    gameId,
   } = route.params;
-  const { height, width } = Dimensions.get("window");
 
+  const [gameData, setGameData] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    console.log("in effect hook: ", gameId);
+    fetch(`http://your-server-address/getGameById?gameId=${gameId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          console.log("data worked!");
+          console.log(data);
+          setGameData(data.data);
+        } else {
+          setError(data.message);
+        }
+      })
+      .catch((error) => {
+        setError("Error fetching game data");
+        console.error("Error fetching game:", error);
+      });
+  }, []);
+  const { height, width } = Dimensions.get("window");
   useFonts({
     "RobotoMono-Regular": require("../assets/fonts/RobotoMono-Regular.ttf"),
     "RobotoMono-Medium": require("../assets/fonts/RobotoMono-Medium.ttf"),
@@ -43,7 +64,6 @@ function EndGameScreen({ navigation, route }) {
 
   useEffect(() => {
     let totalPoints = 0;
-
     allWords.forEach((word) => {
       const points = POINTS[word.length] || 0;
       totalPoints += points;

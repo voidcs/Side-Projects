@@ -18,8 +18,20 @@
 - The userdata table stores
     - username
     - password
-    - friends array
-    - gameID array
+    - friends[]
+    - gameID array [gameID, hasPlayed (bool)]
+
+- The gamedata table stores
+    - allWords []
+    - board [][]
+    - wordsPerCell [][]
+    - players 
+        - const player = {
+            username,
+            wordsFoundForThisPlay,
+            dateAndTimePlayedAt: new Date().toISOString(),
+            hasPlayed: true,
+        };
 
 - The gamedata table
     - Users and their word list and when they played it

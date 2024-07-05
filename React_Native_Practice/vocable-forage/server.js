@@ -335,6 +335,40 @@ app.post("/addGameToPlayer", async (req, res) => {
   }
 });
 
+app.get("/getGameById", async (req, res) => {
+  const { gameId } = req.query;
+  console.log("in server: ", gameId);
+  if (!gameId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing required field: gameId" });
+  }
+
+  const getParams = {
+    TableName: USER_TABLE_NAME,
+    Key: {
+      gameId: gameId,
+    },
+  };
+
+  try {
+    const data = await dynamoDB.get(getParams).promise();
+    if (!data.Item) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: data.Item,
+    });
+  } catch (error) {
+    console.error("Error fetching game:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 app.get("/words", async (req, res) => {
   try {
     console.log("Received request to /words");

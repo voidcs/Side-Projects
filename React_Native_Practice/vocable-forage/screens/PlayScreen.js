@@ -382,6 +382,7 @@ function PlayScreen({ navigation, route }) {
         board: boardRef.current,
         boardLength: boardLength,
         user: user,
+        gameId: routeGameId,
         wordsPerCell: wordsPerCellRef.current.map((row) =>
           row.map((cell) => Array.from(cell))
         ),
@@ -473,6 +474,7 @@ function PlayScreen({ navigation, route }) {
       board: boardRef.current,
       boardLength: boardLength,
       user: user,
+      gameId: routeGameId,
       wordsPerCell: wordsPerCellRef.current.map((row) =>
         row.map((cell) => Array.from(cell))
       ),
