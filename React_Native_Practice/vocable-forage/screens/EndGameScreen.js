@@ -8,10 +8,13 @@ import {
   Dimensions,
   FlatList,
   TouchableOpacity,
+  Modal,
 } from "react-native";
+import { useFonts } from "expo-font";
 import Svg, { Line } from "react-native-svg";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
+import ModalDropdown from "react-native-modal-dropdown";
 
 function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
@@ -29,10 +32,15 @@ function EndGameScreen({ navigation, route }) {
   } = route.params;
   const { height, width } = Dimensions.get("window");
 
-  const styles = createStyles(boardLength, height);
+  useFonts({
+    "RobotoMono-Regular": require("../assets/fonts/RobotoMono-Regular.ttf"),
+    "RobotoMono-Medium": require("../assets/fonts/RobotoMono-Medium.ttf"),
+  });
+  const styles = createStyles(boardLength, height, width);
   const [activeTab, setActiveTab] = useState("Found");
   const [currentPage, setCurrentPage] = useState("Results");
   const [pointSum, setPointSum] = useState(0);
+
   useEffect(() => {
     let totalPoints = 0;
 
@@ -69,6 +77,16 @@ function EndGameScreen({ navigation, route }) {
       <View style={styles.wordContainer}>
         <Text style={styles.wordText}>{item}</Text>
         <Text style={styles.pointText}>{points}</Text>
+      </View>
+    );
+  };
+
+  const renderReviewItem = ({ item }) => {
+    const points = POINTS[item.length] || 0;
+    return (
+      <View style={styles.reviewWordContainer}>
+        <Text style={styles.reviewWordText}>{item}</Text>
+        <Text style={styles.reviewPointText}>{points}</Text>
       </View>
     );
   };
@@ -125,6 +143,21 @@ function EndGameScreen({ navigation, route }) {
       setActiveCell({ row, col });
     }
   };
+  const [modalVisible, setModalVisible] = useState(false);
+  const options = ["All Words", "Word 1", "Word 2", "Word 3"];
+  const [selectedValue, setSelectedValue] = useState("All Words");
+  const renderModalItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.dropdownRow}
+      onPress={() => {
+        setSelectedValue(item);
+        setModalVisible(false);
+      }}
+    >
+      <Text style={styles.dropdownRowText}>{item}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.pageContainer}>
@@ -162,52 +195,81 @@ function EndGameScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
       {currentPage === "Results" && (
-        <>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.title}>
-              Score: {activeTab === "Found" ? score : pointSum}
-            </Text>
-            <Text style={styles.title}>
-              Words: {activeTab === "Found" ? words : allWords.length}
-            </Text>
-          </View>
-          <View style={styles.scrollContainer}>
-            <View style={styles.tabContainer}>
-              <TouchableOpacity
-                style={[styles.tab, activeTab === "Found" && styles.activeTab]}
-                onPress={() => setActiveTab("Found")}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === "Found" && styles.activeTabText,
-                  ]}
-                >
-                  Found
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tab, activeTab === "All" && styles.activeTab]}
-                onPress={() => setActiveTab("All")}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === "All" && styles.activeTabText,
-                  ]}
-                >
-                  All
-                </Text>
-              </TouchableOpacity>
+        <View style={styles.scoringContainer}>
+          <View style={[styles.column, { width: width * 0.5 }]}>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.title}>Score: {score}</Text>
+              <Text style={styles.title}>Words: {words}</Text>
             </View>
-            <FlatList
-              data={wordsToDisplay}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              showsVerticalScrollIndicator={false}
-            />
+            <View style={styles.scrollContainer}>
+              <View style={[styles.tabContainer, { width: width * 0.4 }]}>
+                <View style={[styles.tab, styles.activeTab]}>
+                  <Text style={[styles.tabText, styles.activeTabText]}>
+                    {user.username}
+                  </Text>
+                </View>
+              </View>
+              <FlatList
+                data={sortedFoundWords}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
           </View>
-        </>
+          <View style={[styles.column, { width: width * 0.5 }]}>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.title}>Score: {pointSum}</Text>
+              <Text style={styles.title}>Words: {allWords.length}</Text>
+            </View>
+            <View style={styles.scrollContainer}>
+              <View style={[styles.tabContainer]}>
+                <View style={{ width: "100%" }}>
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(true)}
+                    style={[styles.tab, styles.activeTab]}
+                  >
+                    <Text style={[styles.tabText, styles.activeTabText]}>
+                      {"▼  " + selectedValue + "  ▼"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <Modal
+                    transparent={true}
+                    animationType="slide"
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}
+                  >
+                    <View style={styles.modalContainer}>
+                      <View
+                        style={[styles.modalContent, { width: width * 0.6 }]}
+                      >
+                        <FlatList
+                          data={options}
+                          renderItem={renderModalItem}
+                          keyExtractor={(item, index) => index.toString()}
+                        />
+                        <TouchableOpacity
+                          onPress={() => setModalVisible(false)}
+                          style={styles.closeButton}
+                        >
+                          <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Modal>
+                </View>
+              </View>
+              <FlatList
+                data={sortedAllWords}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
+                initialScrollIndex={0} // Ensure this index is valid
+              />
+            </View>
+          </View>
+        </View>
       )}
       {currentPage === "Review" && (
         <>
@@ -220,7 +282,7 @@ function EndGameScreen({ navigation, route }) {
             ) : (
               <FlatList
                 data={Array.from(wordsPerCell[activeCell.row][activeCell.col])}
-                renderItem={renderItem}
+                renderItem={renderReviewItem}
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.wordsList}
                 showsVerticalScrollIndicator={false}
@@ -312,13 +374,12 @@ function EndGameScreen({ navigation, route }) {
 
 export default EndGameScreen;
 
-const createStyles = (boardLength, height) => {
+const createStyles = (boardLength, height, width) => {
   const cellSize = (height * 0.4) / boardLength;
   return StyleSheet.create({
     scoreContainer: {
-      marginVertical: height * 0.02,
-      height: 50,
-      width: "80%",
+      height: 30,
+      width: "90%",
       borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
@@ -354,21 +415,22 @@ const createStyles = (boardLength, height) => {
       marginTop: height * 0.03,
     },
     title: {
-      fontSize: 28,
+      fontSize: 18,
       fontWeight: "bold",
       color: "#a02f58",
     },
     tabContainer: {
       flexDirection: "row",
+      alignSelf: "center",
       position: "absolute",
       top: -30, // Adjust this value to position the tabs above the words container
-      left: 10, // Adjust this value to position the tabs on the top left of the words container
       zIndex: 1, // Ensure tabs are above other elements
     },
     tab: {
       paddingVertical: 5,
-      flex: 1,
+      width: "100%",
       alignItems: "center",
+      justifyContent: "center",
       borderWidth: 1,
       borderColor: "#a02f58",
       backgroundColor: "#FBF4F6",
@@ -388,12 +450,12 @@ const createStyles = (boardLength, height) => {
       fontWeight: "bold",
     },
     scrollContainer: {
-      width: "60%",
-      height: "50%",
+      width: "90%",
+      height: "60%",
       backgroundColor: "#ffffff",
       marginTop: height * 0.05,
       borderRadius: 10,
-      padding: 10,
+      padding: 7,
       borderWidth: 1,
       borderColor: "#a02f58",
       position: "relative",
@@ -418,19 +480,19 @@ const createStyles = (boardLength, height) => {
       paddingVertical: 2,
     },
     wordText: {
-      fontSize: 18,
+      fontSize: 16,
       textAlign: "left",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
       flex: 1,
     },
     noWordsFound: {
-      fontSize: 18,
+      fontSize: 16,
       textAlign: "center",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
       flex: 1,
     },
     pointText: {
-      fontSize: 18,
+      fontSize: 16,
       textAlign: "right",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // Sf Mono or Menlo
     },
@@ -501,6 +563,73 @@ const createStyles = (boardLength, height) => {
     },
     clickedCell: {
       backgroundColor: "yellow",
+    },
+    scoringContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    column: {
+      margin: 2,
+      justifyContent: "center",
+      alignItems: "center",
+      // borderColor: "black",
+    },
+    reviewWordContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between", // Ensure words are left aligned and points are right aligned
+      paddingVertical: 2,
+    },
+    reviewWordText: {
+      fontSize: 18,
+      textAlign: "left",
+      fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
+      flex: 1,
+    },
+    reviewPointText: {
+      fontSize: 18,
+      textAlign: "right",
+      fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // Sf Mono or Menlo
+    },
+    modalBox: {
+      width: "100%",
+      // borderWidth: 5,
+    },
+    dropdownRow: {
+      width: "100%",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      marginVertical: 5,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#a02f58", // Match the background color
+      borderRadius: 10,
+    },
+    dropdownRowText: {
+      fontSize: 20,
+      textAlign: "center",
+      color: "#FBF4F6", // Match the text color
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+      backgroundColor: "white",
+      borderRadius: 10,
+      padding: 20,
+      width: "100%",
+    },
+    closeButton: {
+      marginTop: 20,
+      padding: 10,
+      backgroundColor: "#ccc",
+      borderRadius: 5,
+      alignItems: "center",
+    },
+    closeButtonText: {
+      color: "#000",
     },
   });
 };
