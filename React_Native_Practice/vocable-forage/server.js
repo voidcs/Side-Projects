@@ -189,9 +189,15 @@ app.post("/createAccount", async (req, res) => {
     const existingUser = await dynamoDB.query(queryParams).promise();
     if (existingUser.Items.length > 0) {
       // If user exists, return an error
-      return res
-        .status(409)
-        .json({ success: false, message: "Username already exists." });
+      return res.status(409).json({
+        success: false,
+        message: "Username already exists.",
+        user: {
+          username: username,
+          friends: [],
+          gameIds: [],
+        },
+      });
     }
     const userId = normalizedUsername; // This can be any unique identifier. Here, we are using the username for simplicity.
     const hashedPassword = await bcrypt.hash(password, 10);

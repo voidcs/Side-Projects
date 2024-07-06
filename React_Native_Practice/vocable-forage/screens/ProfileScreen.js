@@ -71,6 +71,8 @@ function ProfileScreen({ navigation, route }) {
         console.log("Data: ", data);
         if (data.success) {
           console.log("Added account");
+          setUserData(data.user);
+          console.log("account: ", data.user);
         } else {
           throw new Error(data.message || "Network response was not ok");
         }
@@ -79,37 +81,10 @@ function ProfileScreen({ navigation, route }) {
       }
     };
 
-    const getUser = async () => {
-      try {
-        const response = await fetch(
-          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
-          {
-            method: "POST", // Use POST method
-            headers: {
-              "Content-Type": "application/json", // Set the content type to JSON
-            },
-            body: JSON.stringify({ username }), // Convert the username and password to a JSON string
-          }
-        );
-        const data = await response.json(); // Parse the JSON response
-        console.log("Data: ", data);
-        if (data.success) {
-          console.log("It worked lol");
-          setUserData(data.user);
-        } else {
-          throw new Error(data.message || "Network response was not ok");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
     if (isLogin) {
       attemptLogin();
     } else {
       createAccount();
-      console.log("username: ", username);
-      console.log("password: ", password);
-      getUser();
     }
     Keyboard.dismiss(); // Dismiss the keyboard
   };
