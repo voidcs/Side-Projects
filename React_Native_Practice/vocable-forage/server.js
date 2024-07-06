@@ -226,6 +226,48 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
+app.post("/getPlayerInGame", async (req, res) => {
+  const { username, gameId } = req.body;
+  console.log("IN THE SERVER username: ", username, "gameId: ", gameId);
+  if (!username || !gameId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Username and gameId are required" });
+  }
+
+  const queryParams = {
+    TableName: GAME_TABLE_NAME,
+    Key: {
+      gameId: gameId,
+    },
+  };
+
+  try {
+    const gameResult = await dynamoDB.get(queryParams).promise();
+
+    if (!gameResult.Item) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not found" });
+    }
+
+    const player = gameResult.Item.players.find(
+      (player) => player.username === username
+    );
+
+    if (!player) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Player not found in the game" });
+    }
+
+    res.status(200).json({ success: true, player: player });
+  } catch (error) {
+    console.error("Error fetching player in game:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 app.post("/getGameData", async (req, res) => {
   const { gameId } = req.body;
   console.log("GAMEID in server: ", gameId);

@@ -8,6 +8,7 @@ import HomeScreen from "./screens/HomeScreen";
 import PlayScreen from "./screens/PlayScreen";
 import EndGameScreen from "./screens/EndGameScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import HistoryScreen from "./screens/HistoryScreen";
 import Trie from "trie-prefix-tree";
 
 const Stack = createNativeStackNavigator();
@@ -83,6 +84,13 @@ export default function App() {
           <Stack.Screen
             name="EndGameScreen"
             component={EndGameScreen}
+            options={{
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="HistoryScreen"
+            component={HistoryScreen}
             options={{
               title: "",
             }}

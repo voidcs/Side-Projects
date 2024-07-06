@@ -30,6 +30,7 @@ function EndGameScreen({ navigation, route }) {
   const [myPointSum, setMyPointSum] = useState(0);
   const [board, setBoard] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
+  const [startRender, setStartRender] = useState(false);
   console.log(user);
   const calculatePoints = (words) => {
     let totalPoints = 0;
@@ -108,6 +109,7 @@ function EndGameScreen({ navigation, route }) {
           setDbWordsPerCell(sortedWordsPerCell);
           setBoard(data.data.board);
           setBoardLength(data.data.board.length);
+          setStartRender(true);
           // console.log("data: ", sortedWordsPerCell);
           // setOtherScoresNames(...["All Words"], ...);
           // Handle the game data as needed
@@ -234,218 +236,222 @@ function EndGameScreen({ navigation, route }) {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.pageContainer}>
-        <TouchableOpacity
-          style={[
-            styles.pageTab,
-            currentPage === "Results" && styles.pageActiveTab,
-          ]}
-          onPress={() => setCurrentPage("Results")}
-        >
-          <Text
+    startRender && (
+      <View style={styles.container}>
+        <View style={styles.pageContainer}>
+          <TouchableOpacity
             style={[
-              styles.pageTabText,
-              currentPage === "Results" && styles.pageActiveTabText,
+              styles.pageTab,
+              currentPage === "Results" && styles.pageActiveTab,
             ]}
+            onPress={() => setCurrentPage("Results")}
           >
-            Results
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.pageTab,
-            currentPage === "Review" && styles.pageActiveTab,
-          ]}
-          onPress={() => setCurrentPage("Review")}
-        >
-          <Text
-            style={[
-              styles.pageTabText,
-              currentPage === "Review" && styles.pageActiveTabText,
-            ]}
-          >
-            Review
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {currentPage === "Results" && (
-        <View style={styles.scoringContainer}>
-          <View style={[styles.column, { width: width * 0.5 }]}>
-            <View style={styles.scoreContainer}>
-              <Text style={styles.title}>Score: {myPointSum}</Text>
-              <Text style={styles.title}>Words: {myFoundWords.length}</Text>
-            </View>
-            <View style={styles.scrollContainer}>
-              <View style={[styles.tabContainer, { width: width * 0.4 }]}>
-                <View style={[styles.tab, styles.activeTab]}>
-                  <Text style={[styles.tabText, styles.activeTabText]}>
-                    {user.username}
-                  </Text>
-                </View>
-              </View>
-              <FlatList
-                data={myFoundWords}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
-          </View>
-          <View style={[styles.column, { width: width * 0.5 }]}>
-            <View style={styles.scoreContainer}>
-              <Text style={styles.title}>Score: {pointSum}</Text>
-              <Text style={styles.title}>Words: {selectedWordList.length}</Text>
-            </View>
-            <View style={styles.scrollContainer}>
-              <View style={[styles.tabContainer]}>
-                <View style={{ width: "100%" }}>
-                  <TouchableOpacity
-                    onPress={() => setModalVisible(true)}
-                    style={[styles.tab, styles.activeTab]}
-                  >
-                    <Text style={[styles.tabText, styles.activeTabText]}>
-                      {"▼  " + selectedValue + "  ▼"}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <Modal
-                    transparent={true}
-                    animationType="slide"
-                    visible={modalVisible}
-                    onRequestClose={() => setModalVisible(false)}
-                  >
-                    <View style={styles.modalContainer}>
-                      <View
-                        style={[styles.modalContent, { width: width * 0.6 }]}
-                      >
-                        <FlatList
-                          data={otherScoresNames}
-                          renderItem={renderModalItem}
-                          keyExtractor={(item, index) => index.toString()}
-                        />
-                        <TouchableOpacity
-                          onPress={() => setModalVisible(false)}
-                          style={styles.closeButton}
-                        >
-                          <Text style={styles.closeButtonText}>Close</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </Modal>
-                </View>
-              </View>
-              <FlatList
-                data={selectedWordList}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-                initialScrollIndex={0} // Ensure this index is valid
-              />
-            </View>
-          </View>
-        </View>
-      )}
-      {currentPage === "Review" && (
-        <>
-          <View style={styles.reviewScrollContainer}>
-            {activeCell.row === null && activeCell.col === null ? (
-              <Text style={styles.noWordsFound}>Click a cell for words</Text>
-            ) : Array.from(dbWordsPerCell[activeCell.row][activeCell.col])
-                .length === 0 ? (
-              <Text style={styles.noWordsFound}>No words found</Text>
-            ) : (
-              <FlatList
-                data={Array.from(
-                  dbWordsPerCell[activeCell.row][activeCell.col]
-                )}
-                renderItem={renderReviewItem}
-                keyExtractor={(item, index) => index.toString()}
-                style={styles.wordsList}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
-          </View>
-          <View style={styles.background}>
-            <Svg
-              style={styles.svgOverlay}
-              height={height}
-              width={width}
-              viewBox={`0 0 ${width} ${height}`}
+            <Text
+              style={[
+                styles.pageTabText,
+                currentPage === "Results" && styles.pageActiveTabText,
+              ]}
             >
-              {activeTilesLocRef.current.map((point, index) => {
-                if (index < activeTilesLocRef.current.length - 1) {
-                  const nextPoint = activeTilesLocRef.current[index + 1];
-                  return (
-                    <Line
-                      key={index}
-                      x1={point.x}
-                      y1={point.y}
-                      x2={nextPoint.x}
-                      y2={nextPoint.y}
-                      stroke="red"
-                      strokeWidth="12"
-                      strokeLinecap="round"
-                      strokeOpacity="0.5"
-                    />
-                  );
-                }
-                return null;
-              })}
-            </Svg>
-
-            <View style={styles.board} onLayout={onLayoutBoard}>
-              {board.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.row}>
-                  {row.map((cell, cellIndex) => {
-                    const isActive = activeTiles.some(
-                      (tile) => tile.x === rowIndex && tile.y === cellIndex
-                    );
-                    return (
-                      <Pressable
-                        key={`${rowIndex}-${cellIndex}`}
-                        style={styles.touchable}
-                        onPress={() => handleCellPress(rowIndex, cellIndex)}
-                      >
-                        <View
-                          key={cellIndex}
-                          style={[
-                            styles.cell,
-                            isActive && styles.validCell,
-                            activeCell.row === rowIndex &&
-                              activeCell.col === cellIndex &&
-                              styles.clickedCell,
-                          ]}
-                          onLayout={(event) =>
-                            onLayoutCell(event, rowIndex, cellIndex)
-                          }
-                        >
-                          <Text style={styles.cellText}>{cell}</Text>
-                        </View>
-                      </Pressable>
-                    );
-                  })}
+              Results
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.pageTab,
+              currentPage === "Review" && styles.pageActiveTab,
+            ]}
+            onPress={() => setCurrentPage("Review")}
+          >
+            <Text
+              style={[
+                styles.pageTabText,
+                currentPage === "Review" && styles.pageActiveTabText,
+              ]}
+            >
+              Review
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {currentPage === "Results" && (
+          <View style={styles.scoringContainer}>
+            <View style={[styles.column, { width: width * 0.5 }]}>
+              <View style={styles.scoreContainer}>
+                <Text style={styles.title}>Score: {myPointSum}</Text>
+                <Text style={styles.title}>Words: {myFoundWords.length}</Text>
+              </View>
+              <View style={styles.scrollContainer}>
+                <View style={[styles.tabContainer, { width: width * 0.4 }]}>
+                  <View style={[styles.tab, styles.activeTab]}>
+                    <Text style={[styles.tabText, styles.activeTabText]}>
+                      {user.username}
+                    </Text>
+                  </View>
                 </View>
-              ))}
+                <FlatList
+                  data={myFoundWords}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
             </View>
-            <View style={styles.navContainer}>
-              <BottomNavBar
-                navigation={navigation}
-                preferredBoardSize={preferredBoardSize}
-                user={user}
-              />
+            <View style={[styles.column, { width: width * 0.5 }]}>
+              <View style={styles.scoreContainer}>
+                <Text style={styles.title}>Score: {pointSum}</Text>
+                <Text style={styles.title}>
+                  Words: {selectedWordList.length}
+                </Text>
+              </View>
+              <View style={styles.scrollContainer}>
+                <View style={[styles.tabContainer]}>
+                  <View style={{ width: "100%" }}>
+                    <TouchableOpacity
+                      onPress={() => setModalVisible(true)}
+                      style={[styles.tab, styles.activeTab]}
+                    >
+                      <Text style={[styles.tabText, styles.activeTabText]}>
+                        {"▼  " + selectedValue + "  ▼"}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <Modal
+                      transparent={true}
+                      animationType="slide"
+                      visible={modalVisible}
+                      onRequestClose={() => setModalVisible(false)}
+                    >
+                      <View style={styles.modalContainer}>
+                        <View
+                          style={[styles.modalContent, { width: width * 0.6 }]}
+                        >
+                          <FlatList
+                            data={otherScoresNames}
+                            renderItem={renderModalItem}
+                            keyExtractor={(item, index) => index.toString()}
+                          />
+                          <TouchableOpacity
+                            onPress={() => setModalVisible(false)}
+                            style={styles.closeButton}
+                          >
+                            <Text style={styles.closeButtonText}>Close</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </Modal>
+                  </View>
+                </View>
+                <FlatList
+                  data={selectedWordList}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  showsVerticalScrollIndicator={false}
+                  initialScrollIndex={0} // Ensure this index is valid
+                />
+              </View>
             </View>
           </View>
-        </>
-      )}
-      <View style={styles.navContainer}>
-        <BottomNavBar
-          navigation={navigation}
-          preferredBoardSize={preferredBoardSize}
-          user={user}
-        />
+        )}
+        {currentPage === "Review" && (
+          <>
+            <View style={styles.reviewScrollContainer}>
+              {activeCell.row === null && activeCell.col === null ? (
+                <Text style={styles.noWordsFound}>Click a cell for words</Text>
+              ) : Array.from(dbWordsPerCell[activeCell.row][activeCell.col])
+                  .length === 0 ? (
+                <Text style={styles.noWordsFound}>No words found</Text>
+              ) : (
+                <FlatList
+                  data={Array.from(
+                    dbWordsPerCell[activeCell.row][activeCell.col]
+                  )}
+                  renderItem={renderReviewItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  style={styles.wordsList}
+                  showsVerticalScrollIndicator={false}
+                />
+              )}
+            </View>
+            <View style={styles.background}>
+              <Svg
+                style={styles.svgOverlay}
+                height={height}
+                width={width}
+                viewBox={`0 0 ${width} ${height}`}
+              >
+                {activeTilesLocRef.current.map((point, index) => {
+                  if (index < activeTilesLocRef.current.length - 1) {
+                    const nextPoint = activeTilesLocRef.current[index + 1];
+                    return (
+                      <Line
+                        key={index}
+                        x1={point.x}
+                        y1={point.y}
+                        x2={nextPoint.x}
+                        y2={nextPoint.y}
+                        stroke="red"
+                        strokeWidth="12"
+                        strokeLinecap="round"
+                        strokeOpacity="0.5"
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </Svg>
+
+              <View style={styles.board} onLayout={onLayoutBoard}>
+                {board.map((row, rowIndex) => (
+                  <View key={rowIndex} style={styles.row}>
+                    {row.map((cell, cellIndex) => {
+                      const isActive = activeTiles.some(
+                        (tile) => tile.x === rowIndex && tile.y === cellIndex
+                      );
+                      return (
+                        <Pressable
+                          key={`${rowIndex}-${cellIndex}`}
+                          style={styles.touchable}
+                          onPress={() => handleCellPress(rowIndex, cellIndex)}
+                        >
+                          <View
+                            key={cellIndex}
+                            style={[
+                              styles.cell,
+                              isActive && styles.validCell,
+                              activeCell.row === rowIndex &&
+                                activeCell.col === cellIndex &&
+                                styles.clickedCell,
+                            ]}
+                            onLayout={(event) =>
+                              onLayoutCell(event, rowIndex, cellIndex)
+                            }
+                          >
+                            <Text style={styles.cellText}>{cell}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+              <View style={styles.navContainer}>
+                <BottomNavBar
+                  navigation={navigation}
+                  preferredBoardSize={preferredBoardSize}
+                  user={user}
+                />
+              </View>
+            </View>
+          </>
+        )}
+        <View style={styles.navContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={user}
+          />
+        </View>
       </View>
-    </View>
+    )
   );
 }
 

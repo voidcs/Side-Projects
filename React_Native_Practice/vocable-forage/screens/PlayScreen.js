@@ -373,20 +373,45 @@ function PlayScreen({ navigation, route }) {
         }
       };
       addPlayerToGame();
-      navigation.replace("EndGameScreen", {
-        allWords: Array.from(allWords),
-        foundWords: wordsFoundRef.current,
-        score: scoreRef.current,
-        words: wordsFoundRef.current.length,
-        preferredBoardSize: preferredBoardSize,
-        board: boardRef.current,
-        boardLength: boardLength,
-        user: user,
-        gameId: routeGameId,
-        wordsPerCell: wordsPerCellRef.current.map((row) =>
-          row.map((cell) => Array.from(cell))
-        ),
-      });
+
+      const addGameToPlayer = async () => {
+        try {
+          const response = await fetch(
+            "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addGameToPlayer",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                gameId: routeGameId,
+                username: user.username,
+                hasPlayed: true,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to add game to player");
+          }
+
+          if (data.success) {
+            console.log("Game added to player successfully");
+            navigation.replace("EndGameScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: user,
+              gameId: routeGameId,
+            });
+          } else {
+            console.log("Failed to add game to player: ", data.message);
+          }
+        } catch (error) {
+          console.error("Error adding game to player: ", error.message);
+        }
+      };
+      addGameToPlayer();
     }
   }, [timer, navigation]);
   function navigateHandler() {
@@ -453,7 +478,7 @@ function PlayScreen({ navigation, route }) {
         }
 
         if (data.success) {
-          console.log("Game added to player successfully");
+          console.log("Game added to player successfully, going to replace");
         } else {
           console.log("Failed to add game to player: ", data.message);
         }
@@ -463,18 +488,9 @@ function PlayScreen({ navigation, route }) {
     };
     addGameToPlayer();
     navigation.replace("EndGameScreen", {
-      allWords: Array.from(allWords),
-      foundWords: wordsFoundRef.current,
-      score: scoreRef.current,
-      words: wordsFoundRef.current.length,
       preferredBoardSize: preferredBoardSize,
-      board: boardRef.current,
-      boardLength: boardLength,
       user: user,
       gameId: routeGameId,
-      wordsPerCell: wordsPerCellRef.current.map((row) =>
-        row.map((cell) => Array.from(cell))
-      ),
     });
   }
 

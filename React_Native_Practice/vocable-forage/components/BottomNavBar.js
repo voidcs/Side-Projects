@@ -7,6 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Icon } from "react-native-elements";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
@@ -66,11 +67,20 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        // onPress={() => navigation.replace("HomeScreen")}
+        onPress={() =>
+          navigation.replace("HistoryScreen", {
+            preferredBoardSize: preferredBoardSize,
+            user: user,
+          })
+        }
       >
-        <Icon name="home" size={28} color={getColor("StatsScreen")} />
-        <Text style={[styles.navText, { color: getColor("StatsScreen") }]}>
-          Home
+        <MaterialCommunityIcons
+          name="format-list-bulleted"
+          size={28}
+          color={getColor("HistoryScreen")}
+        />
+        <Text style={[styles.navText, { color: getColor("HistoryScreen") }]}>
+          Log
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -113,6 +123,7 @@ const createStyles = (height, width) => {
       shadowOpacity: 0,
     },
     navItem: {
+      flex: 1,
       alignItems: "center",
     },
     navText: {

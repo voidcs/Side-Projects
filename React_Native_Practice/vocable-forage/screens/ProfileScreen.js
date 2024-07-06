@@ -45,7 +45,7 @@ function ProfileScreen({ navigation, route }) {
         }
 
         if (data.success) {
-          console.log("Login successful", data.user);
+          console.log("Login successful");
           setUserData(data.user);
         } else {
           throw new Error(data.message || "Network response was not ok");
