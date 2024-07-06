@@ -192,11 +192,6 @@ app.post("/createAccount", async (req, res) => {
       return res.status(409).json({
         success: false,
         message: "Username already exists.",
-        user: {
-          username: username,
-          friends: [],
-          gameIds: [],
-        },
       });
     }
     const userId = normalizedUsername; // This can be any unique identifier. Here, we are using the username for simplicity.
@@ -214,9 +209,15 @@ app.post("/createAccount", async (req, res) => {
       },
     };
     await dynamoDB.put(params).promise();
-    res
-      .status(200)
-      .json({ success: true, message: "Account created successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Account created successfully",
+      user: {
+        username: username,
+        friends: [],
+        gameIds: [],
+      },
+    });
   } catch (error) {
     console.error("Error in creating account:", error);
 
