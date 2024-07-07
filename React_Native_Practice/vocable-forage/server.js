@@ -283,6 +283,7 @@ const getPlayerGames = async (username, gameIds) => {
       console.error(`Error fetching player in gameId: ${gameId}`, error);
     }
   }
+  console.log(results);
   return results;
 };
 

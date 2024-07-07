@@ -117,6 +117,7 @@ function HistoryScreen({ navigation, route }) {
       }
     };
     fetchPlayerGames();
+    console.log(games);
   }, [user.username]);
 
   const handleNextPage = () => {
