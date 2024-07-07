@@ -72,7 +72,7 @@ app.post("/containsPrefix", (req, res) => {
 app.post("/attemptLogin", async (req, res) => {
   const { username, password } = req.body;
 
-  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(username)) {
     return res
       .status(400)
@@ -126,7 +126,7 @@ app.post("/attemptLogin", async (req, res) => {
 app.post("/getUser", async (req, res) => {
   const { username } = req.body;
 
-  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(username)) {
     return res
       .status(400)
@@ -169,7 +169,7 @@ app.post("/getUser", async (req, res) => {
 
 app.post("/createAccount", async (req, res) => {
   const { username, password } = req.body;
-  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(username)) {
     return res
       .status(400)

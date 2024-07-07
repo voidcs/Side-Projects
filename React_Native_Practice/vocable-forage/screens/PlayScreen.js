@@ -416,9 +416,6 @@ function PlayScreen({ navigation, route }) {
   }, [timer, navigation]);
   function navigateHandler() {
     const { user: user, gameId: routeGameId } = route.params;
-    console.log("user: ", user.username);
-    console.log("gameId: ", routeGameId);
-    console.log("words: ", wordsFoundRef.current);
     const addPlayerToGame = async () => {
       try {
         const response = await fetch(
@@ -451,7 +448,6 @@ function PlayScreen({ navigation, route }) {
         console.error("Error adding player to game: ", error.message);
       }
     };
-    console.log("we trying to finish over here");
     addPlayerToGame(); // The player is added in the game, now we add the game to the player
 
     const addGameToPlayer = async () => {
@@ -892,7 +888,7 @@ const createStyles = (boardLength, height) => {
       backgroundColor: "#dbbfd9", // This is a much lighter color I think it's more playable
     },
     validCell: {
-      backgroundColor: "#82267E", // Green background for valid words
+      backgroundColor: "#82267E",
     },
     alreadyFound: {
       backgroundColor: "#660000",

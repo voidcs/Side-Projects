@@ -19,7 +19,6 @@ function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
   // otherwise, we should print all players who played this board
   const { preferredBoardSize, user, gameId } = route.params;
-
   const [gameData, setGameData] = useState(null);
   const [otherScores, setOtherScores] = useState([]);
   const [otherScoresNames, setOtherScoresNames] = useState([]);
@@ -31,7 +30,6 @@ function EndGameScreen({ navigation, route }) {
   const [board, setBoard] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
   const [startRender, setStartRender] = useState(false);
-  console.log(user);
   const calculatePoints = (words) => {
     let totalPoints = 0;
     words.forEach((word) => {
@@ -147,19 +145,35 @@ function EndGameScreen({ navigation, route }) {
   const renderItem = ({ item }) => {
     const points = POINTS[item.length] || 0;
     return (
-      <View style={styles.wordContainer}>
-        <Text style={styles.wordText}>{item}</Text>
-        <Text style={styles.pointText}>{points}</Text>
+      <View style={[styles.wordContainer]}>
+        <Text style={[styles.wordText, { color: "black" }]}>{item}</Text>
+        <Text style={[styles.pointText, { color: "black" }]}>{points}</Text>
       </View>
     );
   };
 
   const renderReviewItem = ({ item }) => {
     const points = POINTS[item.length] || 0;
+    const isFound = myFoundWords.includes(item);
+
     return (
       <View style={styles.reviewWordContainer}>
-        <Text style={styles.reviewWordText}>{item}</Text>
-        <Text style={styles.reviewPointText}>{points}</Text>
+        <Text
+          style={[
+            styles.reviewWordText,
+            { color: !isFound ? "#a02f58" : "#D3D3D3" },
+          ]}
+        >
+          {item}
+        </Text>
+        <Text
+          style={[
+            styles.reviewPointText,
+            { color: !isFound ? "#a02f58" : "#D3D3D3" },
+          ]}
+        >
+          {points}
+        </Text>
       </View>
     );
   };
@@ -660,18 +674,26 @@ const createStyles = (boardLength, height, width) => {
     reviewWordContainer: {
       flexDirection: "row",
       justifyContent: "space-between", // Ensure words are left aligned and points are right aligned
-      paddingVertical: 2,
+      borderRadius: 8,
+      marginVertical: 2,
+      paddingHorizontal: 5,
     },
     reviewWordText: {
       fontSize: 18,
       textAlign: "left",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // SF Mono or Menlo?
-      flex: 1,
+      padding: 0,
+      color: "#FBF4F6",
+      // borderWidth: 3,
     },
     reviewPointText: {
       fontSize: 18,
       textAlign: "right",
       fontFamily: Platform.OS === "ios" ? "RobotoMono-Regular" : "monospace", // Sf Mono or Menlo
+      padding: 0,
+      color: "#FBF4F6",
+
+      // borderWidth: 3,
     },
     modalBox: {
       width: "100%",

@@ -6,8 +6,7 @@
     "start": "expo start --tunnel",
     "start:prod": "expo start --tunnel --no-dev --minify",
     "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "ios": "expo start --ios"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",

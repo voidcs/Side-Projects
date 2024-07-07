@@ -8,10 +8,20 @@
 - Building Trie takes 425.399 ms on average
 - Flatlist is significantly faster, it speed up the all words list tab in the results page
 
+- HistoryScreen issues
+    - It was expensive to load all games for a user into an array before the first render
+    - Took about 19 seconds for 120 games, running in parallel took 1 second
+    - Better approach is to retrieve 5 games at a time based on the screen that the user sees
+        - Known as lazy loading
+
+
 - Colors:
     Main: #a02f58
     Secondary: #FBF4F6
     Accent: #82267E
+
+    Color for review page: #a02f58
+                           #D3D3D3
 
 - Google Vision API
 
@@ -20,6 +30,9 @@
     - password
     - friends[]
     - gameID array [gameID, hasPlayed (bool)]
+
+// for every single game in the gameID array,
+// retrieve the wordsFoundForThisPlay and datePlayed if user.username === table[gameId].players.username
 
 - The gamedata table stores
     - allWords []

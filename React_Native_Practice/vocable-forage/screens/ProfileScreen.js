@@ -19,6 +19,40 @@ function ProfileScreen({ navigation, route }) {
   const [userData, setUserData] = useState(null);
   useEffect(() => {
     if (user) {
+      const getUser = async () => {
+        const start = performance.now();
+        try {
+          const response = await fetch(
+            "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username: user.username }),
+            }
+          );
+          const data = await response.json();
+
+          if (!response.ok) {
+            const message =
+              data.message || "Could not find the username in the database";
+            throw new Error(message);
+          }
+
+          if (data.success) {
+            setUserData(data.user);
+            const end = performance.now();
+            const elapsedTime = end - start;
+            // console.log(`Elapsed time: ${elapsedTime} milliseconds`);
+          } else {
+            throw new Error(data.message || "Network response was not ok");
+          }
+        } catch (error) {
+          console.error("Caught error", error.message);
+        }
+      };
+      getUser();
       setUserData(user);
     }
   }, [user]);
@@ -99,7 +133,9 @@ function ProfileScreen({ navigation, route }) {
     // Render a different component or page when userData is not null
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome, {userData.username}</Text>
+        <Text style={styles.title}>
+          Oi bruv, you're logged in {userData.username}
+        </Text>
         <Text style={styles.subtitle}>
           Friends: {userData.friends.join(", ")}
         </Text>
@@ -126,6 +162,9 @@ function ProfileScreen({ navigation, route }) {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>{isLogin ? "Login" : "Create Account"}</Text>
+        <Text style={[styles.title, { fontSize: 14 }]}>
+          Dw bro the password is hashed, I can't see it 💀
+        </Text>
         <TextInput
           style={styles.input}
           placeholder="Enter your username"
