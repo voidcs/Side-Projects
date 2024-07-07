@@ -338,10 +338,15 @@ app.post("/addPlayerToGame", async (req, res) => {
       .json({ success: false, message: "Missing required fields" });
   }
 
+  function convertToPST(date) {
+    const options = { timeZone: "America/Los_Angeles", timeZoneName: "short" };
+    const pstDate = new Date(date.toLocaleString("en-US", options));
+    return pstDate.toISOString();
+  }
   const player = {
     username,
     wordsFoundForThisPlay,
-    dateAndTimePlayedAt: new Date().toISOString(),
+    dateAndTimePlayedAt: convertToPST(new Date()),
     hasPlayed: true,
   };
 
@@ -448,6 +453,7 @@ app.post("/getGameData", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
+
 app.post("/getGameById", async (req, res) => {
   const { gameId } = req.body;
   console.log("in server: ", gameId);

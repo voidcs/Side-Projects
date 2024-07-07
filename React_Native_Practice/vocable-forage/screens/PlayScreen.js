@@ -476,6 +476,11 @@ function PlayScreen({ navigation, route }) {
 
         if (data.success) {
           console.log("Game added to player successfully, going to replace");
+          navigation.replace("EndGameScreen", {
+            preferredBoardSize: preferredBoardSize,
+            user: user,
+            gameId: routeGameId,
+          });
         } else {
           console.log("Failed to add game to player: ", data.message);
         }
@@ -484,11 +489,6 @@ function PlayScreen({ navigation, route }) {
       }
     };
     addGameToPlayer();
-    navigation.replace("EndGameScreen", {
-      preferredBoardSize: preferredBoardSize,
-      user: user,
-      gameId: routeGameId,
-    });
   }
 
   // This is the code to make a board, only need to do it if the createBoard is true
