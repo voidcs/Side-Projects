@@ -228,23 +228,14 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/getPlayerGames", async (req, res) => {
   const { username, gameIds } = req.body;
+  console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
 
-  if (!username || !gameIds) {
+  if (!username || !gameIds || !Array.isArray(gameIds)) {
     return res
       .status(400)
       .json({ success: false, message: "Username and gameIds are required" });
   }
 
-  try {
-    const results = await getPlayerGames(username, gameIds);
-    res.status(200).json({ success: true, games: results });
-  } catch (error) {
-    console.error("Error fetching player games:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
-
-const getPlayerGames = async (username, gameIds) => {
   const results = [];
 
   for (const [gameId, hasPlayed] of gameIds) {
@@ -282,42 +273,9 @@ const getPlayerGames = async (username, gameIds) => {
       console.error(`Error fetching player in gameId: ${gameId}`, error);
     }
   }
-  console.log(results);
-  return results;
-};
 
-app.post("/getGameData", async (req, res) => {
-  const { gameId } = req.body;
-  console.log("GAMEID in server: ", gameId);
-  if (!gameId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "gameId is required" });
-  }
-  console.log("made it just before params");
-  const params = {
-    TableName: GAME_TABLE_NAME,
-    Key: {
-      gameId: gameId,
-    },
-  };
-
-  try {
-    const gameData = await dynamoDB.get(params).promise();
-    console.log("after db request");
-    // console.log(gameData);
-    if (!gameData || !gameData.Item) {
-      console.log(`No game found for gameId: ${gameId}`);
-      return res
-        .status(200)
-        .json({ success: false, message: "No game found for this gameId" });
-    }
-
-    res.status(200).json({ success: true, gameData: gameData.Item });
-  } catch (error) {
-    console.error("Error fetching game data:", error);
-    res.status(500).json({ success: false, message: "Internal server error." });
-  }
+  console.log("results:", results);
+  res.status(200).json({ success: true, games: results });
 });
 
 app.post("/createGame", async (req, res) => {
