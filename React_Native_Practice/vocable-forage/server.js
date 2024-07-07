@@ -339,8 +339,10 @@ app.post("/addPlayerToGame", async (req, res) => {
   }
 
   function convertToPST(date) {
-    const options = { timeZone: "America/Los_Angeles", timeZoneName: "short" };
-    const pstDate = new Date(date.toLocaleString("en-US", options));
+    const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const utcDate = date.getTime() + utcOffset; // UTC time
+    const pstOffset = -8 * 3600000; // PST is UTC-8:00
+    const pstDate = new Date(utcDate + pstOffset); // apply PST offset
     return pstDate.toISOString();
   }
   const player = {
