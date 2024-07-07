@@ -228,7 +228,6 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/getPlayerGames", async (req, res) => {
   const { username, gameIds } = req.body;
-  console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
 
   if (!username || !gameIds) {
     return res
@@ -275,7 +274,7 @@ const getPlayerGames = async (username, gameIds) => {
 
       results.push({
         gameId: gameId,
-        datePlayed: gameResult.Item.datePlayed,
+        datePlayed: gameResult.Item.dateAndTimePlayedAt,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
       });
