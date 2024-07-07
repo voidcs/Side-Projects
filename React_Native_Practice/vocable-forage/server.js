@@ -349,6 +349,7 @@ app.post("/addPlayerToGame", async (req, res) => {
     dateAndTimePlayedAt: convertToPST(new Date()),
     hasPlayed: true,
   };
+  console.log("time: ", player.dateAndTimePlayedAt);
 
   const params = {
     TableName: GAME_TABLE_NAME,
