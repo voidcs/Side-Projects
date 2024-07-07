@@ -22,22 +22,23 @@ function HistoryScreen({ navigation, route }) {
   const [games, setGames] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [render, setRender] = useState(false);
-  const fetchedGameIdsRef = useRef(new Set()); // Maintain a set of fetched game IDs
 
   useEffect(() => {
-    const getUser = async () => {
+    const fetchPlayerGames = async () => {
       const start = performance.now();
       try {
         setGames([]);
-        fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
         const response = await fetch(
-          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getPlayerGames",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username: user.username }),
+            body: JSON.stringify({
+              username: user.username,
+              gameIds: user.gameIds,
+            }),
           }
         );
         const data = await response.json();
@@ -49,8 +50,60 @@ function HistoryScreen({ navigation, route }) {
         }
 
         if (data.success) {
-          setUserData(data.user);
-          await fetchMoreGames(data.user.gameIds.slice(0, ITEMS_PER_PAGE));
+          const calculatePoints = (words) => {
+            let totalPoints = 0;
+            words.forEach((word) => {
+              const points = POINTS[word.length] || 0;
+              totalPoints += points;
+            });
+            return totalPoints;
+          };
+
+          const newGames = data.games.map((game) => {
+            const gameDate = new Date(game.datePlayed);
+            const now = new Date();
+            const oneDay = 24 * 60 * 60 * 1000;
+            let formattedDate;
+
+            if (now.toDateString() === gameDate.toDateString()) {
+              formattedDate = `Today at ${gameDate.toLocaleString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              })}`;
+            } else if (
+              now.getTime() - gameDate.getTime() < oneDay &&
+              now.getDay() !== gameDate.getDay()
+            ) {
+              formattedDate = `Yesterday at ${gameDate.toLocaleString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              })}`;
+            } else {
+              formattedDate = gameDate.toLocaleString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              });
+            }
+
+            return {
+              ...game,
+              formattedDate: formattedDate,
+              points: calculatePoints(game.wordsFoundForThisPlay),
+            };
+          });
+
+          setGames(
+            newGames.sort(
+              (a, b) => new Date(b.datePlayed) - new Date(a.datePlayed)
+            )
+          );
+
           setRender(true);
 
           const end = performance.now();
@@ -63,106 +116,11 @@ function HistoryScreen({ navigation, route }) {
         console.error("Caught error", error.message);
       }
     };
-    getUser();
+    fetchPlayerGames();
   }, [user.username]);
 
-  const fetchMoreGames = async (gameIds) => {
-    const fetchGameData = async (UUID) => {
-      const response = await fetch(
-        "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getPlayerInGame",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: user.username,
-            gameId: UUID[0],
-          }),
-        }
-      );
-      const gameData = await response.json();
-      return { ...gameData, gameId: UUID[0] };
-    };
-
-    const gamePromises = gameIds
-      .filter((id) => !fetchedGameIdsRef.current.has(id[0])) // Filter out already fetched game IDs
-      .map(fetchGameData);
-
-    const gameResults = await Promise.all(gamePromises);
-
-    const newGames = gameResults
-      .filter((gameData) => gameData.success)
-      .map((gameData) => {
-        const calculatePoints = (words) => {
-          let totalPoints = 0;
-          words.forEach((word) => {
-            const points = POINTS[word.length] || 0;
-            totalPoints += points;
-          });
-          return totalPoints;
-        };
-
-        const gameDate = new Date(gameData.player.dateAndTimePlayedAt);
-        const now = new Date();
-        const oneDay = 24 * 60 * 60 * 1000;
-        let formattedDate;
-
-        if (now.toDateString() === gameDate.toDateString()) {
-          formattedDate = `Today at ${gameDate.toLocaleString("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          })}`;
-        } else if (
-          now.getTime() - gameDate.getTime() < oneDay &&
-          now.getDay() !== gameDate.getDay()
-        ) {
-          formattedDate = `Yesterday at ${gameDate.toLocaleString("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          })}`;
-        } else {
-          formattedDate = gameDate.toLocaleString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          });
-        }
-
-        return {
-          ...gameData.player,
-          dateAndTimePlayedAt: gameData.player.dateAndTimePlayedAt, // Store ISO string
-          formattedDate: formattedDate,
-          gameId: gameData.gameId,
-          points: calculatePoints(gameData.player.wordsFoundForThisPlay),
-        };
-      });
-
-    setGames((prevGames) => [
-      ...prevGames,
-      ...newGames.sort(
-        (a, b) =>
-          new Date(b.dateAndTimePlayedAt) - new Date(a.dateAndTimePlayedAt)
-      ),
-    ]);
-
-    // Add the fetched game IDs to the set
-    newGames.forEach((game) => fetchedGameIdsRef.current.add(game.gameId));
-  };
-
-  const handleNextPage = async () => {
-    const nextPage = currentPage + 1;
-    const startIndex = nextPage * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const nextGameIds = userData.gameIds.slice(startIndex, endIndex);
-
-    await fetchMoreGames(nextGameIds);
-    setCurrentPage(nextPage);
+  const handleNextPage = () => {
+    setCurrentPage((prev) => prev + 1);
   };
 
   const handlePreviousPage = () => {
@@ -185,7 +143,6 @@ function HistoryScreen({ navigation, route }) {
       <Text style={styles.infoText}>
         Words: {item.wordsFoundForThisPlay.length}
       </Text>
-      {/* <Text style={styles.infoText}>Game ID: {item.gameId}</Text> */}
     </TouchableOpacity>
   );
 
@@ -214,7 +171,7 @@ function HistoryScreen({ navigation, route }) {
           <Button
             title="Next"
             onPress={handleNextPage}
-            disabled={endIndex >= userData.gameIds.length}
+            disabled={endIndex >= games.length}
           />
         </View>
         <View style={styles.navContainer}>

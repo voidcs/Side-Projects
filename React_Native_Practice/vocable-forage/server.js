@@ -226,47 +226,65 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
-app.post("/getPlayerInGame", async (req, res) => {
-  const { username, gameId } = req.body;
-  console.log("IN THE SERVER username: ", username, "gameId: ", gameId);
-  if (!username || !gameId) {
+app.post("/getPlayerGames", async (req, res) => {
+  const { username, gameIds } = req.body;
+  console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
+
+  if (!username || !gameIds) {
     return res
       .status(400)
-      .json({ success: false, message: "Username and gameId are required" });
+      .json({ success: false, message: "Username and gameIds are required" });
   }
 
-  const queryParams = {
-    TableName: GAME_TABLE_NAME,
-    Key: {
-      gameId: gameId,
-    },
-  };
-
   try {
-    const gameResult = await dynamoDB.get(queryParams).promise();
-
-    if (!gameResult.Item) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Game not found" });
-    }
-
-    const player = gameResult.Item.players.find(
-      (player) => player.username === username
-    );
-    console.log("player: ", player);
-    if (!player) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Player not found in the game" });
-    }
-
-    res.status(200).json({ success: true, player: player });
+    const results = await getPlayerGames(username, gameIds);
+    res.status(200).json({ success: true, games: results });
   } catch (error) {
-    console.error("Error fetching player in game:", error);
+    console.error("Error fetching player games:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
+const getPlayerGames = async (username, gameIds) => {
+  const results = [];
+
+  for (const [gameId, hasPlayed] of gameIds) {
+    const queryParams = {
+      TableName: GAME_TABLE_NAME,
+      Key: {
+        gameId: gameId,
+      },
+    };
+
+    try {
+      const gameResult = await dynamoDB.get(queryParams).promise();
+
+      if (!gameResult.Item) {
+        console.log(`Game not found for gameId: ${gameId}`);
+        continue;
+      }
+
+      const player = gameResult.Item.players.find(
+        (player) => player.username === username
+      );
+
+      if (!player) {
+        console.log(`Player not found in gameId: ${gameId}`);
+        continue;
+      }
+
+      results.push({
+        gameId: gameId,
+        datePlayed: gameResult.Item.datePlayed,
+        hasPlayed: hasPlayed,
+        wordsFoundForThisPlay: player.wordsFoundForThisPlay,
+      });
+    } catch (error) {
+      console.error(`Error fetching player in gameId: ${gameId}`, error);
+    }
+  }
+  return results;
+};
 
 app.post("/getGameData", async (req, res) => {
   const { gameId } = req.body;
