@@ -11,7 +11,6 @@ const app = express();
 const port = 3000;
 const AWS = require("aws-sdk");
 const bcrypt = require("bcrypt");
-const moment = require("moment-timezone");
 
 let trie;
 
@@ -340,7 +339,11 @@ app.post("/addPlayerToGame", async (req, res) => {
   }
 
   function convertToPST(date) {
-    return moment(date).tz("America/Los_Angeles").format();
+    const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const utcDate = date.getTime() + utcOffset; // UTC time
+    const pstOffset = -7 * 3600000; // PST is UTC-8:00
+    const pstDate = new Date(utcDate + pstOffset); // apply PST offset
+    return pstDate.toISOString();
   }
   const player = {
     username,
