@@ -671,106 +671,112 @@ function PlayScreen({ navigation, route }) {
   const styles = createStyles(boardLengthRef.current, height);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
-  return (
-    boardRef.current.length > 0 && (
-      <View style={styles.background}>
-        <Svg
-          style={styles.svgOverlay}
-          height={height}
-          width={width}
-          viewBox={`0 0 ${width} ${height}`}
-        >
-          {activeTilesLocRef.current.map((point, index) => {
-            if (index < activeTilesLocRef.current.length - 1) {
-              const nextPoint = activeTilesLocRef.current[index + 1];
-              return (
-                <Line
-                  key={index}
-                  x1={point.x}
-                  y1={point.y}
-                  x2={nextPoint.x}
-                  y2={nextPoint.y}
-                  stroke={validWordRef.current ? "white" : "red"}
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeOpacity="0.5"
-                />
-              );
-            }
-            return null;
-          })}
-        </Svg>
-        <View style={[styles.scoreContainer]}>
-          <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
-          <Text style={styles.scoreWordsText}>
-            Words: {wordsFoundRef.current.length}
+  return boardRef.current.length > 0 ? (
+    <View style={styles.background}>
+      <Svg
+        style={styles.svgOverlay}
+        height={height}
+        width={width}
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        {activeTilesLocRef.current.map((point, index) => {
+          if (index < activeTilesLocRef.current.length - 1) {
+            const nextPoint = activeTilesLocRef.current[index + 1];
+            return (
+              <Line
+                key={index}
+                x1={point.x}
+                y1={point.y}
+                x2={nextPoint.x}
+                y2={nextPoint.y}
+                stroke={validWordRef.current ? "white" : "red"}
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeOpacity="0.5"
+              />
+            );
+          }
+          return null;
+        })}
+      </Svg>
+      <View style={[styles.scoreContainer]}>
+        <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
+        <Text style={styles.scoreWordsText}>
+          Words: {wordsFoundRef.current.length}
+        </Text>
+        <TouchableOpacity onPress={navigateHandler}>
+          <Text style={styles.timerText}>
+            {minutes < 10 ? `0${minutes}` : minutes}:
+            {seconds < 10 ? `0${seconds}` : seconds}
           </Text>
-          <TouchableOpacity onPress={navigateHandler}>
-            <Text style={styles.timerText}>
-              {minutes < 10 ? `0${minutes}` : minutes}:
-              {seconds < 10 ? `0${seconds}` : seconds}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={[
-            styles.wordContainer,
-            validWordRef.current
-              ? styles.validCell
-              : styles.defaultWordContainerColor,
-          ]}
-        >
-          <Text style={styles.wordText}>
-            {word}
-            {alreadyFoundWordRef.current === false &&
-            validWordRef.current === true
-              ? ` (+${POINTS[word.length]})`
-              : ""}
-          </Text>
-        </View>
-        <View
-          style={styles.board}
-          {...panResponder.panHandlers}
-          onLayout={onLayoutBoard}
-        >
-          {boardRef.current.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.row}>
-              {row.map((cell, cellIndex) => {
-                const isActive = activeTiles.some(
-                  (tile) => tile.x === rowIndex && tile.y === cellIndex
-                );
-                return (
-                  <View
-                    key={cellIndex}
-                    style={[
-                      styles.cell,
-                      isActive &&
-                        (alreadyFoundWordRef.current
-                          ? styles.alreadyFound
-                          : validWordRef.current
-                          ? styles.validCell
-                          : styles.activeCell),
-                    ]}
-                    onLayout={(event) =>
-                      onLayoutCell(event, rowIndex, cellIndex)
-                    }
-                  >
-                    <Text style={styles.cellText}>{cell}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          ))}
-        </View>
-        <View style={styles.navContainer}>
-          <BottomNavBar
-            navigation={navigation}
-            preferredBoardSize={preferredBoardSize}
-            user={user}
-          />
-        </View>
+        </TouchableOpacity>
       </View>
-    )
+      <View
+        style={[
+          styles.wordContainer,
+          validWordRef.current
+            ? styles.validCell
+            : styles.defaultWordContainerColor,
+        ]}
+      >
+        <Text style={styles.wordText}>
+          {word}
+          {alreadyFoundWordRef.current === false &&
+          validWordRef.current === true
+            ? ` (+${POINTS[word.length]})`
+            : ""}
+        </Text>
+      </View>
+      <View
+        style={styles.board}
+        {...panResponder.panHandlers}
+        onLayout={onLayoutBoard}
+      >
+        {boardRef.current.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((cell, cellIndex) => {
+              const isActive = activeTiles.some(
+                (tile) => tile.x === rowIndex && tile.y === cellIndex
+              );
+              return (
+                <View
+                  key={cellIndex}
+                  style={[
+                    styles.cell,
+                    isActive &&
+                      (alreadyFoundWordRef.current
+                        ? styles.alreadyFound
+                        : validWordRef.current
+                        ? styles.validCell
+                        : styles.activeCell),
+                  ]}
+                  onLayout={(event) => onLayoutCell(event, rowIndex, cellIndex)}
+                >
+                  <Text style={styles.cellText}>{cell}</Text>
+                </View>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+      <View style={styles.navContainer}>
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+          user={user}
+        />
+      </View>
+    </View>
+  ) : (
+    <View style={styles.background}>
+      <View style={styles.navContainer}>
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+          user={user}
+        />
+      </View>
+    </View>
   );
 }
 export default PlayScreen;

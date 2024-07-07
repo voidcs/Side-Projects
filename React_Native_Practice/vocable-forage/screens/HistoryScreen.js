@@ -8,6 +8,7 @@ import {
   Button,
   Dimensions,
 } from "react-native";
+import { parse } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 
@@ -105,13 +106,16 @@ function HistoryScreen({ navigation, route }) {
           ...game,
           points: calculatePoints(game.wordsFoundForThisPlay),
         }));
+        const parseDate = (dateString) => {
+          return parse(dateString, "MMMM d, yyyy, h:mm a", new Date());
+        };
 
-        setGames(
-          newGames.sort(
-            (a, b) =>
-              new Date(b.dateAndTimePlayedAt) - new Date(a.dateAndTimePlayedAt)
-          )
-        );
+        newGames.sort((a, b) => {
+          const dateA = parseDate(a.dateAndTimePlayedAt);
+          const dateB = parseDate(b.dateAndTimePlayedAt);
+          return dateB - dateA;
+        });
+        setGames(newGames);
       } else {
         throw new Error(data.message || "Network response was not ok");
       }
@@ -127,9 +131,9 @@ function HistoryScreen({ navigation, route }) {
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 0));
   };
-
-  const renderGameItem = ({ item }) => (
+  const renderGameItem = (item) => (
     <TouchableOpacity
+      key={item.gameId}
       style={styles.button}
       onPress={() => {
         navigation.replace("EndGameScreen", {
@@ -151,41 +155,44 @@ function HistoryScreen({ navigation, route }) {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentGames = games.slice(startIndex, endIndex);
 
-  return (
-    userData &&
-    render && (
-      <View style={styles.container}>
-        <View style={styles.listContainer}>
-          <FlatList
-            data={currentGames}
-            keyExtractor={(item) => item.gameId}
-            renderItem={renderGameItem}
-          />
-        </View>
-        <View style={styles.pagination}>
-          <Button
-            title="Back"
-            onPress={handlePreviousPage}
-            disabled={currentPage === 0}
-            color="#a02f58" // Set button color
-          />
-          <Text>Page {currentPage + 1}</Text>
-          <Button
-            title="Next"
-            onPress={handleNextPage}
-            disabled={endIndex >= games.length}
-            color="#a02f58" // Set button color
-          />
-        </View>
-        <View style={styles.navContainer}>
-          <BottomNavBar
-            navigation={navigation}
-            preferredBoardSize={preferredBoardSize}
-            user={user}
-          />
-        </View>
+  return userData && render ? (
+    <View style={styles.container}>
+      <View style={styles.listContainer}>
+        {currentGames.map((game) => renderGameItem(game))}
       </View>
-    )
+      <View style={styles.pagination}>
+        <Button
+          title="Back"
+          onPress={handlePreviousPage}
+          disabled={currentPage === 0}
+          color="#a02f58" // Set button color
+        />
+        <Text>Page {currentPage + 1}</Text>
+        <Button
+          title="Next"
+          onPress={handleNextPage}
+          disabled={endIndex >= games.length}
+          color="#a02f58" // Set button color
+        />
+      </View>
+      <View style={styles.navContainer}>
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+          user={user}
+        />
+      </View>
+    </View>
+  ) : (
+    <View style={styles.container}>
+      <View style={styles.navContainer}>
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+          user={user}
+        />
+      </View>
+    </View>
   );
 }
 

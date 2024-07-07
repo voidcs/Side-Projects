@@ -228,7 +228,7 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/getPlayerGames", async (req, res) => {
   const { username, gameIds } = req.body;
-  console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
+  // console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
 
   if (!username || !gameIds || !Array.isArray(gameIds)) {
     return res
@@ -262,7 +262,7 @@ app.post("/getPlayerGames", async (req, res) => {
         console.log(`Player not found in gameId: ${gameId}`);
         continue;
       }
-      console.log("player: ", gameResult.Item);
+      // console.log("player: ", gameResult.Item);
       const formattedDate = new Date(player.dateAndTimePlayedAt).toLocaleString(
         "en-US",
         {
@@ -279,7 +279,9 @@ app.post("/getPlayerGames", async (req, res) => {
         dateAndTimePlayedAt: formattedDate,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
+        boardLength: gameResult.Item.board.length,
       });
+      console.log("size: ", gameResult.Item.board.length);
     } catch (error) {
       console.error(`Error fetching player in gameId: ${gameId}`, error);
     }
