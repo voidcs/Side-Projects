@@ -254,7 +254,7 @@ app.post("/getPlayerInGame", async (req, res) => {
     const player = gameResult.Item.players.find(
       (player) => player.username === username
     );
-
+    console.log("player: ", player);
     if (!player) {
       return res
         .status(404)

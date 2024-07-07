@@ -229,6 +229,7 @@ function PlayScreen({ navigation, route }) {
           for (let i = 0; i < boardLengthRef.current; i++) {
             for (let j = 0; j < boardLengthRef.current; j++) {
               newBoard[i][j] = flatBoard[index++];
+              // newBoard[i][j] = "💀";
             }
           }
           boardRef.current = newBoard;
