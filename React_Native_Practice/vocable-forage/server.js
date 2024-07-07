@@ -285,7 +285,7 @@ app.post("/getPlayerGames", async (req, res) => {
     }
   }
 
-  console.log("results:", results);
+  // console.log("results:", results);
   res.status(200).json({ success: true, games: results });
 });
 
@@ -415,6 +415,39 @@ app.post("/addGameToPlayer", async (req, res) => {
   }
 });
 
+app.post("/getGameData", async (req, res) => {
+  const { gameId } = req.body;
+  console.log("GAMEID in server: ", gameId);
+  if (!gameId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "gameId is required" });
+  }
+  console.log("made it just before params");
+  const params = {
+    TableName: GAME_TABLE_NAME,
+    Key: {
+      gameId: gameId,
+    },
+  };
+
+  try {
+    const gameData = await dynamoDB.get(params).promise();
+    console.log("after db request");
+    // console.log(gameData);
+    if (!gameData || !gameData.Item) {
+      console.log(`No game found for gameId: ${gameId}`);
+      return res
+        .status(200)
+        .json({ success: false, message: "No game found for this gameId" });
+    }
+
+    res.status(200).json({ success: true, gameData: gameData.Item });
+  } catch (error) {
+    console.error("Error fetching game data:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
 app.post("/getGameById", async (req, res) => {
   const { gameId } = req.body;
   console.log("in server: ", gameId);

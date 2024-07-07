@@ -22,23 +22,22 @@ function HistoryScreen({ navigation, route }) {
   const [games, setGames] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [render, setRender] = useState(false);
+  const fetchedGameIdsRef = useRef(new Set()); // Maintain a set of fetched game IDs
 
   useEffect(() => {
-    const fetchPlayerGames = async () => {
+    const getUser = async () => {
       const start = performance.now();
       try {
         setGames([]);
+        fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
         const response = await fetch(
-          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getPlayerGames",
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              username: user.username,
-              gameIds: user.gameIds,
-            }),
+            body: JSON.stringify({ username: user.username }),
           }
         );
         const data = await response.json();
@@ -50,60 +49,8 @@ function HistoryScreen({ navigation, route }) {
         }
 
         if (data.success) {
-          const calculatePoints = (words) => {
-            let totalPoints = 0;
-            words.forEach((word) => {
-              const points = POINTS[word.length] || 0;
-              totalPoints += points;
-            });
-            return totalPoints;
-          };
-
-          const newGames = data.games.map((game) => {
-            const gameDate = new Date(game.datePlayed);
-            const now = new Date();
-            const oneDay = 24 * 60 * 60 * 1000;
-            let formattedDate;
-
-            if (now.toDateString() === gameDate.toDateString()) {
-              formattedDate = `Today at ${gameDate.toLocaleString("en-US", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-              })}`;
-            } else if (
-              now.getTime() - gameDate.getTime() < oneDay &&
-              now.getDay() !== gameDate.getDay()
-            ) {
-              formattedDate = `Yesterday at ${gameDate.toLocaleString("en-US", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-              })}`;
-            } else {
-              formattedDate = gameDate.toLocaleString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-              });
-            }
-
-            return {
-              ...game,
-              formattedDate: formattedDate,
-              points: calculatePoints(game.wordsFoundForThisPlay),
-            };
-          });
-
-          setGames(
-            newGames.sort(
-              (a, b) => new Date(b.datePlayed) - new Date(a.datePlayed)
-            )
-          );
-
+          setUserData(data.user);
+          await fetchPlayerGames(data.user.gameIds);
           setRender(true);
 
           const end = performance.now();
@@ -116,9 +63,62 @@ function HistoryScreen({ navigation, route }) {
         console.error("Caught error", error.message);
       }
     };
-    fetchPlayerGames();
-    console.log(games);
+    getUser();
   }, [user.username]);
+
+  const fetchPlayerGames = async (gameIds) => {
+    try {
+      setGames([]);
+      fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
+      const response = await fetch(
+        "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getPlayerGames",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: user.username,
+            gameIds: gameIds,
+          }),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message =
+          data.message || "Could not find the username in the database";
+        throw new Error(message);
+      }
+
+      if (data.success) {
+        const calculatePoints = (words) => {
+          let totalPoints = 0;
+          words.forEach((word) => {
+            const points = POINTS[word.length] || 0;
+            totalPoints += points;
+          });
+          return totalPoints;
+        };
+
+        const newGames = data.games.map((game) => ({
+          ...game,
+          points: calculatePoints(game.wordsFoundForThisPlay),
+        }));
+
+        setGames(
+          newGames.sort(
+            (a, b) =>
+              new Date(b.dateAndTimePlayedAt) - new Date(a.dateAndTimePlayedAt)
+          )
+        );
+      } else {
+        throw new Error(data.message || "Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Caught error", error.message);
+    }
+  };
 
   const handleNextPage = () => {
     setCurrentPage((prev) => prev + 1);
@@ -139,7 +139,7 @@ function HistoryScreen({ navigation, route }) {
         });
       }}
     >
-      <Text style={styles.infoText}>{item.formattedDate}</Text>
+      <Text style={styles.infoText}>{item.dateAndTimePlayedAt}</Text>
       <Text style={styles.infoText}>Points: {item.points}</Text>
       <Text style={styles.infoText}>
         Words: {item.wordsFoundForThisPlay.length}
@@ -167,12 +167,14 @@ function HistoryScreen({ navigation, route }) {
             title="Back"
             onPress={handlePreviousPage}
             disabled={currentPage === 0}
+            color="#a02f58" // Set button color
           />
           <Text>Page {currentPage + 1}</Text>
           <Button
             title="Next"
             onPress={handleNextPage}
             disabled={endIndex >= games.length}
+            color="#a02f58" // Set button color
           />
         </View>
         <View style={styles.navContainer}>

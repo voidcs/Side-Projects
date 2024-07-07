@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import BottomNavBar from "../components/BottomNavBar";
 function HomeScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
+  console.log("in home: ", user);
   return (
     <>
       <View style={styles.container}>
