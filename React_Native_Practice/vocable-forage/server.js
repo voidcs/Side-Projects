@@ -274,7 +274,7 @@ const getPlayerGames = async (username, gameIds) => {
 
       results.push({
         gameId: gameId,
-        datePlayed: gameResult.Item.dateAndTimePlayedAt,
+        dateAndTimePlayedAt: gameResult.Item.dateAndTimePlayedAt,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
       });
