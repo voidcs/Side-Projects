@@ -265,7 +265,7 @@ app.post("/getPlayerGames", async (req, res) => {
       console.log("player: ", gameResult.Item);
       results.push({
         gameId: gameId,
-        dateAndTimePlayedAt: gameResult.Item.players.dateAndTimePlayedAt,
+        dateAndTimePlayedAt: player.dateAndTimePlayedAt,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
       });
