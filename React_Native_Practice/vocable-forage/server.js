@@ -263,9 +263,20 @@ app.post("/getPlayerGames", async (req, res) => {
         continue;
       }
       console.log("player: ", gameResult.Item);
+      const formattedDate = new Date(player.dateAndTimePlayedAt).toLocaleString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }
+      );
       results.push({
         gameId: gameId,
-        dateAndTimePlayedAt: player.dateAndTimePlayedAt,
+        dateAndTimePlayedAt: formattedDate,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
       });
