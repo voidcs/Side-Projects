@@ -262,10 +262,10 @@ app.post("/getPlayerGames", async (req, res) => {
         console.log(`Player not found in gameId: ${gameId}`);
         continue;
       }
-
+      console.log("player: ", gameResult.Item);
       results.push({
         gameId: gameId,
-        dateAndTimePlayedAt: gameResult.Item.dateAndTimePlayedAt,
+        dateAndTimePlayedAt: gameResult.Item.players.dateAndTimePlayedAt,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
       });
