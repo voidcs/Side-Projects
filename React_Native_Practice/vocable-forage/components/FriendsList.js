@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const FriendsList = ({ friends, addFriend }) => {
+const FriendsList = ({ friends, addFriend, user }) => {
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
   const [newFriend, setNewFriend] = useState("");
@@ -34,12 +34,6 @@ const FriendsList = ({ friends, addFriend }) => {
           }
         );
         const data = await response.json();
-
-        if (!response.ok) {
-          const message =
-            data.message || "Could not find the username in the database";
-          throw new Error(message);
-        }
 
         if (data.success) {
           console.log("succeeded");

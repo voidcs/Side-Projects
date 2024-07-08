@@ -144,7 +144,11 @@ function ProfileScreen({ navigation, route }) {
         <Text style={styles.subtitle}>
           Friends: {userData.friends.join(", ")}
         </Text>
-        <FriendsList friends={userData.friends} addFriend={addFriend} />
+        <FriendsList
+          friends={userData.friends}
+          addFriend={addFriend}
+          user={user}
+        />
         <Text style={styles.subtitle}>
           {/* Game IDs: {userData.gameIds.join(", ")} */}
         </Text>

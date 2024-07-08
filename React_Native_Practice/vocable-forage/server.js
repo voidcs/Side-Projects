@@ -238,7 +238,7 @@ app.post("/addFriend", async (req, res) => {
       },
     };
 
-    const dataLookup = await dynamoDB.query(paramsLookup).promise();
+    const dataLookup = await dynamoDB.get(paramsLookup).promise();
 
     // If friendname exists, update the current user's friends list
     if (dataLookup.Item) {
@@ -256,7 +256,7 @@ app.post("/addFriend", async (req, res) => {
         ReturnValues: "UPDATED_NEW",
       };
 
-      const dataUpdate = await docClient.update(paramsUpdate).promise();
+      const dataUpdate = await dynamoDB.updateItem(paramsUpdate).promise();
       res.status(200).json({
         success: true,
         message: "Friend added successfully",
