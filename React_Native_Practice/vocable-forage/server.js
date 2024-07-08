@@ -227,8 +227,8 @@ app.post("/createAccount", async (req, res) => {
 });
 
 app.post("/addFriend", async (req, res) => {
-  console.log("in add friend", username, friendname);
   const { username, friendname } = req.body;
+  console.log("in add friend", username, friendname);
 
   const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(friendname)) {
