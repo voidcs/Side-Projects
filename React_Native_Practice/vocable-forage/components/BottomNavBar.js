@@ -37,9 +37,9 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
         }
       >
         <Icon name="home" size={28} color={getColor("HomeScreen")} />
-        <Text style={[styles.navText, { color: getColor("HomeScreen") }]}>
-          Home
-        </Text>
+        <Text
+          style={[styles.navText, { color: getColor("HomeScreen") }]}
+        ></Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
@@ -61,9 +61,9 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
         }}
       >
         <Icon name="play-arrow" size={28} color={getColor("PlayScreen")} />
-        <Text style={[styles.navText, { color: getColor("PlayScreen") }]}>
-          Play
-        </Text>
+        <Text
+          style={[styles.navText, { color: getColor("PlayScreen") }]}
+        ></Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
@@ -79,9 +79,9 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
           size={28}
           color={getColor("HistoryScreen")}
         />
-        <Text style={[styles.navText, { color: getColor("HistoryScreen") }]}>
-          Log
-        </Text>
+        <Text
+          style={[styles.navText, { color: getColor("HistoryScreen") }]}
+        ></Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
@@ -97,9 +97,9 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
           size={28}
           color={getColor("ProfileScreen")}
         />
-        <Text style={[styles.navText, { color: getColor("ProfileScreen") }]}>
-          Profile
-        </Text>
+        <Text
+          style={[styles.navText, { color: getColor("ProfileScreen") }]}
+        ></Text>
       </TouchableOpacity>
     </View>
   );
@@ -121,6 +121,8 @@ const createStyles = (height, width) => {
       borderTopWidth: 0,
       elevation: 0,
       shadowOpacity: 0,
+      // backgroundColor: "#f0f0f0",
+      // borderRadius: 20,
     },
     navItem: {
       flex: 1,

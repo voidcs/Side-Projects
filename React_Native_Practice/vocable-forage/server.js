@@ -226,6 +226,53 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
+app.post("/addFriend", async (req, res) => {
+  const { username, friendname } = req.body;
+
+  // Check if the friendname exists in the vocable-forage-userdata table
+  try {
+    const paramsLookup = {
+      TableName: USER_TABLE_NAME,
+      Key: {
+        username: friendname,
+      },
+    };
+
+    const dataLookup = await docClient.get(paramsLookup).promise();
+
+    // If friendname exists, update the current user's friends list
+    if (dataLookup.Item) {
+      const paramsUpdate = {
+        TableName: USER_TABLE_NAME, // Make sure this is your correct table name
+        Key: {
+          username: username,
+        },
+        UpdateExpression:
+          "SET friends = list_append(if_not_exists(friends, :empty_list), :new_friend)",
+        ExpressionAttributeValues: {
+          ":new_friend": [friendname],
+          ":empty_list": [],
+        },
+        ReturnValues: "UPDATED_NEW",
+      };
+
+      const dataUpdate = await docClient.update(paramsUpdate).promise();
+      res.status(200).json({
+        success: true,
+        message: "Friend added successfully",
+        updatedAttributes: dataUpdate.Attributes,
+      });
+    } else {
+      res
+        .status(404)
+        .json({ success: false, message: "Friendname does not exist" });
+    }
+  } catch (error) {
+    console.error("Error accessing DynamoDB", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+});
+
 app.post("/getPlayerGames", async (req, res) => {
   const { username, gameIds } = req.body;
   // console.log("IN THE SERVER username: ", username, "gameIds: ", gameIds);
@@ -281,7 +328,6 @@ app.post("/getPlayerGames", async (req, res) => {
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
         boardLength: gameResult.Item.board.length,
       });
-      console.log("size: ", gameResult.Item.board.length);
     } catch (error) {
       console.error(`Error fetching player in gameId: ${gameId}`, error);
     }

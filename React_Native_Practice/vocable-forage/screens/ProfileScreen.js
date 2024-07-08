@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
+import FriendsList from "../components/FriendsList";
 
 function ProfileScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
@@ -130,7 +131,11 @@ function ProfileScreen({ navigation, route }) {
   };
 
   if (userData) {
-    // Render a different component or page when userData is not null
+    userData.friends = ["JJ", "Becca", "Alan"];
+    const addFriend = (newFriend) => {
+      userData.friends.push(newFriend);
+      console.log("friends: ", userData.friends);
+    };
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
@@ -139,6 +144,7 @@ function ProfileScreen({ navigation, route }) {
         <Text style={styles.subtitle}>
           Friends: {userData.friends.join(", ")}
         </Text>
+        <FriendsList friends={userData.friends} addFriend={addFriend} />
         <Text style={styles.subtitle}>
           {/* Game IDs: {userData.gameIds.join(", ")} */}
         </Text>
@@ -234,7 +240,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#FBF4F6",
-    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
