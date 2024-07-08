@@ -228,48 +228,36 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/addFriend", async (req, res) => {
   const { username, friendname } = req.body;
+  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
+  if (!validUsernameRegex.test(friendname)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Enter a valid username idiot" });
+  }
+  const normalizedUsername = friendname.toLowerCase();
 
-  // Check if the friendname exists in the vocable-forage-userdata table
+  const getItemParams = {
+    TableName: USER_TABLE_NAME,
+    Key: {
+      userId: normalizedUsername,
+    },
+  };
+
   try {
-    const paramsLookup = {
-      TableName: USER_TABLE_NAME,
-      Key: {
-        userId: friendname,
-      },
-    };
-
-    const dataLookup = await dynamoDB.get(paramsLookup).promise();
-
-    // If friendname exists, update the current user's friends list
-    if (dataLookup.Item) {
-      const paramsUpdate = {
-        TableName: USER_TABLE_NAME, // Make sure this is your correct table name
-        Key: {
-          userId: username,
-        },
-        UpdateExpression:
-          "SET friends = list_append(if_not_exists(friends, :empty_list), :new_friend)",
-        ExpressionAttributeValues: {
-          ":new_friend": [friendname],
-          ":empty_list": [],
-        },
-        ReturnValues: "UPDATED_NEW",
-      };
-
-      const dataUpdate = await dynamoDB.updateItem(paramsUpdate).promise();
-      res.status(200).json({
-        success: true,
-        message: "Friend added successfully",
-        updatedAttributes: dataUpdate.Attributes,
-      });
+    const user = await dynamoDB.get(getItemParams).promise();
+    if (user.Item) {
+      console.log("this person exists I guess");
+      // Your friend exists, congrats bro
+      // If user exists, return an error
     } else {
-      res
-        .status(404)
-        .json({ success: false, message: "Friendname does not exist" });
+      return res.status(409).json({
+        success: false,
+        message: "User does not exist.",
+      });
     }
   } catch (error) {
-    console.error("Error accessing DynamoDB", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    console.error("Error searching for user", error);
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
