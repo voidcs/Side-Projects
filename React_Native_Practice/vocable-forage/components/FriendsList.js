@@ -20,8 +20,6 @@ const FriendsList = ({ friends, addFriend }) => {
   const handleAddFriend = async () => {
     if (newFriend.trim()) {
       try {
-        setGames([]);
-        fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
         const response = await fetch(
           "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addFriend",
           {
@@ -44,6 +42,7 @@ const FriendsList = ({ friends, addFriend }) => {
         }
 
         if (data.success) {
+          console.log("succeeded");
           addFriend(newFriend);
           setNewFriend("");
           setModalVisible(false);
