@@ -239,7 +239,7 @@ app.post("/addFriend", async (req, res) => {
   const getItemParams = {
     TableName: USER_TABLE_NAME,
     Key: {
-      userId: normalizedUsername,
+      userId: username,
     },
   };
 
