@@ -246,13 +246,13 @@ app.post("/addFriend", async (req, res) => {
       .status(400)
       .json({ success: false, message: "You cannot add yourself as a friend" });
   }
-  const normalizedUsername = friendname.toLowerCase();
+  const normalizedFriendName = friendname.toLowerCase();
 
   const queryParams = {
     TableName: USER_TABLE_NAME,
     KeyConditionExpression: "userId = :userId",
     ExpressionAttributeValues: {
-      ":userId": normalizedUsername,
+      ":userId": normalizedFriendName,
     },
   };
 
