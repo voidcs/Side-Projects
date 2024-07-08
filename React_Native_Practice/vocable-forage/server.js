@@ -228,6 +228,7 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/addFriend", async (req, res) => {
   const { username, friendname } = req.body;
+
   console.log("in add friend", username, friendname);
 
   const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
@@ -237,6 +238,14 @@ app.post("/addFriend", async (req, res) => {
       .json({ success: false, message: "Invalid characters in username" });
   }
 
+  if (
+    validUsernameRegex.test(friendname) &&
+    friendname.toLowerCase() === username
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You cannot add yourself as a friend" });
+  }
   const normalizedUsername = friendname.toLowerCase();
 
   const queryParams = {
