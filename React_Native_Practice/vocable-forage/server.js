@@ -228,41 +228,46 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/addFriend", async (req, res) => {
   const { username, friendname } = req.body;
+
   console.log("in add friend", username, friendname);
 
-  // Validate the friend's username
-  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
-  if (
-    !validUsernameRegex.test(friendname) ||
-    friendname.toLowerCase() === username.toLowerCase()
-  ) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid username or you cannot add yourself.",
-    });
+  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
+  if (!validUsernameRegex.test(friendname)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid characters in username" });
   }
 
-  const normalizedUsername = username.toLowerCase();
-  const normalizedFriendName = friendname.toLowerCase();
+  if (
+    validUsernameRegex.test(friendname) &&
+    friendname.toLowerCase() === username
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You cannot add yourself as a friend" });
+  }
+  const normalizedUsername = friendname.toLowerCase();
 
   const queryParams = {
     TableName: USER_TABLE_NAME,
-    Key: {
-      userId: normalizedUsername,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+      ":userId": normalizedUsername,
     },
   };
 
   try {
-    const result = await dynamoDB.get(queryParams).promise();
-    if (!result.Item) {
-      console.log("Username does not exist");
+    const result = await dynamoDB.query(queryParams).promise();
+    if (result.Items.length === 0) {
+      console.log("doesn't exist");
       return res.status(404).json({
         success: false,
         message: "User does not exist.",
       });
     }
+    // User exists, handle your logic here
+    console.log("this person exists");
 
-    // User exists, now add friendname to the user's friends list
     const updateParams = {
       TableName: USER_TABLE_NAME,
       Key: {
@@ -284,7 +289,7 @@ app.post("/addFriend", async (req, res) => {
       message: "Friend added successfully",
     });
   } catch (error) {
-    console.error("Error updating user data", error);
+    console.error("Error searching for user", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
