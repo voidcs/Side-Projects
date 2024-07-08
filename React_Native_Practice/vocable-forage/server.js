@@ -228,53 +228,63 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/addFriend", async (req, res) => {
   const { username, friendname } = req.body;
-
   console.log("in add friend", username, friendname);
 
-  const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
-  if (!validUsernameRegex.test(friendname)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid characters in username" });
+  // Validate the friend's username
+  const validUsernameRegex = /^[a-zA-Z0-9_-]{3,24}$/;
+  if (
+    !validUsernameRegex.test(friendname) ||
+    friendname.toLowerCase() === username.toLowerCase()
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid username or you cannot add yourself.",
+    });
   }
 
-  if (
-    validUsernameRegex.test(friendname) &&
-    friendname.toLowerCase() === username
-  ) {
-    return res
-      .status(400)
-      .json({ success: false, message: "You cannot add yourself as a friend" });
-  }
-  const normalizedUsername = friendname.toLowerCase();
+  const normalizedUsername = username.toLowerCase();
+  const normalizedFriendName = friendname.toLowerCase();
 
   const queryParams = {
     TableName: USER_TABLE_NAME,
-    KeyConditionExpression: "userId = :userId",
-    ExpressionAttributeValues: {
-      ":userId": normalizedUsername,
+    Key: {
+      userId: normalizedUsername,
     },
   };
 
   try {
-    const result = await dynamoDB.query(queryParams).promise();
-    if (result.Items.length === 0) {
-      console.log("doesn't exist");
+    const result = await dynamoDB.get(queryParams).promise();
+    if (!result.Item) {
+      console.log("Username does not exist");
       return res.status(404).json({
         success: false,
         message: "User does not exist.",
       });
-    } else {
-      // User exists, handle your logic here
-      console.log("this person exists");
-      res.status(200).json({
-        success: true,
-        message: "User found.",
-        userData: result.Item,
-      });
     }
+
+    // User exists, now add friendname to the user's friends list
+    const updateParams = {
+      TableName: USER_TABLE_NAME,
+      Key: {
+        userId: normalizedUsername,
+      },
+      UpdateExpression:
+        "SET friends = list_append(if_not_exists(friends, :empty_list), :friend)",
+      ExpressionAttributeValues: {
+        ":friend": [normalizedFriendName],
+        ":empty_list": [],
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+
+    await dynamoDB.update(updateParams).promise();
+    console.log("Friend added successfully");
+    res.status(200).json({
+      success: true,
+      message: "Friend added successfully",
+    });
   } catch (error) {
-    console.error("Error searching for user", error);
+    console.error("Error updating user data", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

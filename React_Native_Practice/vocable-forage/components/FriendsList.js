@@ -41,18 +41,16 @@ const FriendsList = ({ friends, addFriend, user }) => {
           throw new Error(message);
         }
 
+        console.log("data? ", data.success);
         if (data.success) {
           console.log("succeeded");
           addFriend(newFriend);
-          setNewFriend("");
-          setModalVisible(false);
         } else {
           throw new Error(data.message);
         }
       } catch (error) {
         console.error("Caught error", error.message);
       }
-      addFriend(newFriend);
       setNewFriend("");
       setModalVisible(false);
     }

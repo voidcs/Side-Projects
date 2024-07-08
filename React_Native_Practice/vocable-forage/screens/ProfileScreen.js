@@ -42,7 +42,6 @@ function ProfileScreen({ navigation, route }) {
           }
 
           if (data.success) {
-            setUserData(data.user);
             const end = performance.now();
             const elapsedTime = end - start;
             // console.log(`Elapsed time: ${elapsedTime} milliseconds`);
@@ -134,6 +133,7 @@ function ProfileScreen({ navigation, route }) {
     userData.friends = ["JJ", "Becca", "Alan"];
     const addFriend = (newFriend) => {
       userData.friends.push(newFriend);
+      setUserData(userData);
       console.log("friends: ", userData.friends);
     };
     return (
@@ -147,7 +147,7 @@ function ProfileScreen({ navigation, route }) {
         <FriendsList
           friends={userData.friends}
           addFriend={addFriend}
-          user={user}
+          user={userData}
         />
         <Text style={styles.subtitle}>
           {/* Game IDs: {userData.gameIds.join(", ")} */}
