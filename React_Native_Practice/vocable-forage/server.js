@@ -248,25 +248,30 @@ app.post("/addFriend", async (req, res) => {
   }
   const normalizedFriendName = friendname.toLowerCase();
 
-  const queryParams = {
+  const getParams = {
     TableName: USER_TABLE_NAME,
-    KeyConditionExpression: "userId = :userId",
-    ExpressionAttributeValues: {
-      ":userId": normalizedFriendName,
+    Key: {
+      userId: username.toLowerCase(),
+      dataType: "userAccount",
     },
   };
 
   try {
-    const result = await dynamoDB.query(queryParams).promise();
-    if (result.Items.length === 0) {
-      console.log("doesn't exist");
-      return res.status(404).json({
+    const user = await dynamoDB.get(getParams).promise();
+    if (!user.Item) {
+      console.log("User does not exist");
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist." });
+    }
+
+    // Check if the friend is already added
+    if (user.Item.friends && user.Item.friends.includes(normalizedFriendName)) {
+      return res.status(409).json({
         success: false,
-        message: "User does not exist.",
+        message: "Friend already added.",
       });
     }
-    // User exists, handle your logic here
-    console.log("this person exists");
 
     const updateParams = {
       TableName: USER_TABLE_NAME,
