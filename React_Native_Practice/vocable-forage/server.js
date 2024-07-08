@@ -271,7 +271,7 @@ app.post("/addFriend", async (req, res) => {
     const updateParams = {
       TableName: USER_TABLE_NAME,
       Key: {
-        userId: normalizedUsername,
+        userId: username,
       },
       UpdateExpression:
         "SET friends = list_append(if_not_exists(friends, :empty_list), :friend)",
