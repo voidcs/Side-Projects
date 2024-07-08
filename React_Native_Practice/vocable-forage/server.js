@@ -267,7 +267,6 @@ app.post("/addFriend", async (req, res) => {
     }
     // User exists, handle your logic here
     console.log("this person exists");
-
     const updateParams = {
       TableName: USER_TABLE_NAME,
       Key: {
@@ -426,6 +425,7 @@ app.post("/addPlayerToGame", async (req, res) => {
     TableName: GAME_TABLE_NAME,
     Key: {
       gameId: gameId,
+      dataType: "userAccount",
     },
     UpdateExpression:
       "SET players = list_append(if_not_exists(players, :empty_list), :player)",
