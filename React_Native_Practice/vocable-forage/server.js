@@ -227,27 +227,28 @@ app.post("/createAccount", async (req, res) => {
 });
 
 app.post("/addFriend", async (req, res) => {
-  console.log("in add friend");
+  console.log("in add friend", username, friendname);
   const { username, friendname } = req.body;
 
   const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(friendname)) {
     return res
       .status(400)
-      .json({ success: false, message: "Enter a valid username." });
+      .json({ success: false, message: "Invalid characters in username" });
   }
 
   const normalizedUsername = friendname.toLowerCase();
 
-  const getParams = {
+  const queryParams = {
     TableName: USER_TABLE_NAME,
-    Key: {
-      userId: normalizedUsername,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+      ":userId": normalizedUsername,
     },
   };
 
   try {
-    const result = await dynamoDB.get(getParams).promise();
+    const result = await dynamoDB.query(queryParams).promise();
 
     if (!result.Item) {
       console.log("doesn't exist");
