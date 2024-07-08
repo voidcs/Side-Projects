@@ -229,38 +229,44 @@ app.post("/createAccount", async (req, res) => {
 app.post("/addFriend", async (req, res) => {
   console.log("in add friend");
   const { username, friendname } = req.body;
+
   const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(friendname)) {
     return res
       .status(400)
-      .json({ success: false, message: "Enter a valid username idiot" });
+      .json({ success: false, message: "Enter a valid username." });
   }
+
   const normalizedUsername = friendname.toLowerCase();
 
-  const queryParams = {
+  const getParams = {
     TableName: USER_TABLE_NAME,
-    KeyConditionExpression: "userId = :userId",
-    ExpressionAttributeValues: {
-      ":userId": normalizedUsername,
+    Key: {
+      userId: normalizedUsername,
     },
   };
 
   try {
-    const user = await dynamoDB.get(queryParams).promise();
-    if (user.Items.length > 0) {
-      // Your friend exists, congrats bro
-      // If user exists, return an error
-      console.log("this person exists");
-    } else {
+    const result = await dynamoDB.get(getParams).promise();
+
+    if (!result.Item) {
       console.log("doesn't exist");
-      return res.status(409).json({
+      return res.status(404).json({
         success: false,
         message: "User does not exist.",
+      });
+    } else {
+      // User exists, handle your logic here
+      console.log("this person exists");
+      res.status(200).json({
+        success: true,
+        message: "User found.",
+        userData: result.Item,
       });
     }
   } catch (error) {
     console.error("Error searching for user", error);
-    res.status(400).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
