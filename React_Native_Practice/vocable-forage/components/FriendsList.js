@@ -35,6 +35,12 @@ const FriendsList = ({ friends, addFriend, user }) => {
         );
         const data = await response.json();
 
+        if (!response.ok) {
+          const message =
+            data.message || "Could not find the username in the database";
+          throw new Error(message);
+        }
+
         if (data.success) {
           console.log("succeeded");
           addFriend(newFriend);
