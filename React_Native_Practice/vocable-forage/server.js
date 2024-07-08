@@ -249,8 +249,7 @@ app.post("/addFriend", async (req, res) => {
 
   try {
     const result = await dynamoDB.query(queryParams).promise();
-
-    if (!result.Item) {
+    if (result.Items.length === 0) {
       console.log("doesn't exist");
       return res.status(404).json({
         success: false,
