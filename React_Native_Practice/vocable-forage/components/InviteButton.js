@@ -9,19 +9,49 @@ import {
   Dimensions,
 } from "react-native";
 
-const InviteButton = ({ friendsList }) => {
+const InviteButton = ({ friendsList, gameId }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { width } = Dimensions.get("window");
 
   const addPlayerToGame = async () => {};
-  const addGameToPlayer = async () => {};
+  const addGameToPlayer = async (username) => {
+    try {
+      const response = await fetch(
+        "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addGameToPlayer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gameId: gameId,
+            username: username,
+            hasPlayed: false,
+          }),
+        }
+      );
 
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to invite game to player");
+      }
+
+      if (data.success) {
+        console.log("Game invited to player successfully");
+      } else {
+        console.log("Failed to invite game to player: ", data.message);
+      }
+    } catch (error) {
+      console.error("Error inviting game to player: ", error.message);
+    }
+  };
   const renderModalItem = ({ item }) => (
     <TouchableOpacity
       style={styles.dropdownRow}
       onPress={() => {
         setModalVisible(false);
-        //
+        addGameToPlayer(item);
       }}
     >
       <Text style={styles.dropdownRowText}>{item}</Text>
