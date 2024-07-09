@@ -524,9 +524,9 @@ app.post("/addGameToPlayer", async (req, res) => {
           ExpressionAttributeValues: {
             ":hasPlayed": true,
           },
-          ReturnValues: "ALL_NEW", // Optional: Returns all of the attributes of the item after the update
+          ReturnValues: "ALL_NEW",
         };
-        const result = await dynamoDB.update(params).promise();
+        const result = await dynamoDB.update(alreadyPlayedParams).promise();
         // Take existing entry and set hasPlayed to true
         return res.status(409).json({
           success: true,
