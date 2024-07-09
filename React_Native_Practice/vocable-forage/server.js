@@ -405,60 +405,74 @@ app.post("/createGame", async (req, res) => {
 app.post("/addPlayerToGame", async (req, res) => {
   const { gameId, username, wordsFoundForThisPlay, inviter, hasPlayed } =
     req.body;
-  console.log(
-    "adding player to game... inviter: ",
-    inviter,
-    "player: ",
-    username
-  );
-  console.log("gameId: ", gameId);
-  console.log("username: ", username);
-  console.log("words: ", wordsFoundForThisPlay);
-  if (!gameId || !username || !wordsFoundForThisPlay) {
+
+  if (!gameId || !username || wordsFoundForThisPlay === undefined) {
     return res
       .status(400)
       .json({ success: false, message: "Missing required fields" });
   }
 
-  function convertToPST(date) {
-    const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
-    const utcDate = date.getTime() + utcOffset; // UTC time
-    const pstOffset = -7 * 3600000; // PST is UTC-8:00
-    const pstDate = new Date(utcDate + pstOffset); // apply PST offset
-    return pstDate.toISOString();
-  }
-  const player = {
-    username,
-    wordsFoundForThisPlay,
-    dateAndTimePlayedAt: convertToPST(new Date()),
-    hasPlayed: hasPlayed,
-    inviter: inviter,
-  };
-  console.log("time: ", player.dateAndTimePlayedAt);
-
-  const params = {
+  // Fetch the current game data
+  const getItemParams = {
     TableName: GAME_TABLE_NAME,
     Key: {
       gameId: gameId,
     },
-    UpdateExpression:
-      "SET players = list_append(if_not_exists(players, :empty_list), :player)",
-    ExpressionAttributeValues: {
-      ":player": [player],
-      ":empty_list": [],
-    },
-    ReturnValues: "UPDATED_NEW",
   };
 
   try {
-    const result = await dynamoDB.update(params).promise();
+    const getResult = await dynamoDB.get(getItemParams).promise();
+    const game = getResult.Item;
+
+    if (!game) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not found" });
+    }
+
+    // Determine if the player already exists in the game
+    const playerIndex = game.players.findIndex((p) => p.username === username);
+
+    if (playerIndex !== -1) {
+      // Player exists, update their data if hasPlayed is false
+      if (!game.players[playerIndex].hasPlayed) {
+        game.players[playerIndex].wordsFoundForThisPlay = wordsFoundForThisPlay;
+        game.players[playerIndex].hasPlayed = true;
+        game.players[playerIndex].dateAndTimePlayedAt =
+          new Date().toISOString();
+      }
+    } else {
+      // Player does not exist, add new player
+      game.players.push({
+        username,
+        wordsFoundForThisPlay,
+        dateAndTimePlayedAt: new Date().toISOString(),
+        hasPlayed,
+        inviter,
+      });
+    }
+
+    // Update the game data with new player information
+    const updateParams = {
+      TableName: GAME_TABLE_NAME,
+      Key: {
+        gameId: gameId,
+      },
+      UpdateExpression: "SET players = :players",
+      ExpressionAttributeValues: {
+        ":players": game.players,
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+
+    const updateResult = await dynamoDB.update(updateParams).promise();
     res.status(200).json({
       success: true,
-      message: "Player added successfully",
-      updatedAttributes: result.Attributes,
+      message: "Player data updated successfully",
+      updatedAttributes: updateResult.Attributes,
     });
   } catch (error) {
-    console.error("Error adding player to game:", error);
+    console.error("Error handling player data:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
