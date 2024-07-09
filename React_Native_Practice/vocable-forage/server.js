@@ -348,9 +348,16 @@ app.post("/getPlayerGames", async (req, res) => {
           hour12: true,
         }
       );
+      function convertToPST(date) {
+        const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+        const utcDate = date.getTime() + utcOffset; // UTC time
+        const pstOffset = -7 * 3600000; // PST is UTC-8:00
+        const pstDate = new Date(utcDate + pstOffset); // apply PST offset
+        return pstDate.toISOString();
+      }
       results.push({
         gameId: gameId,
-        dateAndTimePlayedAt: formattedDate,
+        dateAndTimePlayedAt: convertToPST(new Date()),
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
         boardLength: gameResult.Item.board.length,
