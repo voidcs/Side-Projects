@@ -403,62 +403,96 @@ app.post("/createGame", async (req, res) => {
 });
 
 app.post("/addPlayerToGame", async (req, res) => {
-  const { gameId, username, wordsFoundForThisPlay, inviter, hasPlayed } =
-    req.body;
-  console.log(
-    "adding player to game... inviter: ",
-    inviter,
-    "player: ",
-    username
-  );
-  console.log("gameId: ", gameId);
-  console.log("username: ", username);
-  console.log("words: ", wordsFoundForThisPlay);
-  if (!gameId || !username || !wordsFoundForThisPlay) {
+  const { gameId, username, wordsFoundForThisPlay, inviter } = req.body;
+
+  if (!gameId || !username) {
     return res
       .status(400)
       .json({ success: false, message: "Missing required fields" });
   }
 
-  function convertToPST(date) {
-    const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
-    const utcDate = date.getTime() + utcOffset; // UTC time
-    const pstOffset = -7 * 3600000; // PST is UTC-8:00
-    const pstDate = new Date(utcDate + pstOffset); // apply PST offset
-    return pstDate.toISOString();
-  }
-  const player = {
-    username,
-    wordsFoundForThisPlay,
-    dateAndTimePlayedAt: convertToPST(new Date()),
-    hasPlayed: hasPlayed,
-    inviter: inviter,
-  };
-  console.log("time: ", player.dateAndTimePlayedAt);
-
   const params = {
-    TableName: GAME_TABLE_NAME,
+    TableName: USER_TABLE_NAME,
     Key: {
-      gameId: gameId,
+      userId: username,
+      dataType: "userAccount",
     },
-    UpdateExpression:
-      "SET players = list_append(if_not_exists(players, :empty_list), :player)",
-    ExpressionAttributeValues: {
-      ":player": [player],
-      ":empty_list": [],
-    },
-    ReturnValues: "UPDATED_NEW",
   };
 
   try {
-    const result = await dynamoDB.update(params).promise();
-    res.status(200).json({
-      success: true,
-      message: "Player added successfully",
-      updatedAttributes: result.Attributes,
-    });
+    // Retrieve current game data for the player
+    const userData = await dynamoDB.get(params).promise();
+    const games = userData.Item ? userData.Item.gameIds : [];
+    const gameIndex = games.findIndex((game) => game.gameId === gameId);
+
+    if (gameIndex !== -1) {
+      // Game exists, check if already played
+      if (!games[gameIndex].hasPlayed) {
+        // If not played, update the existing entry
+        const updateParams = {
+          TableName: USER_TABLE_NAME,
+          Key: {
+            userId: username,
+            dataType: "userAccount",
+          },
+          UpdateExpression: `SET gameIds[${gameIndex}] = :newGameEntry`,
+          ExpressionAttributeValues: {
+            ":newGameEntry": {
+              gameId: gameId,
+              hasPlayed: true, // Now setting as played
+              wordsFoundForThisPlay: wordsFoundForThisPlay,
+              inviter: inviter,
+            },
+          },
+          ReturnValues: "ALL_NEW",
+        };
+
+        const result = await dynamoDB.update(updateParams).promise();
+        res.status(200).json({
+          success: true,
+          message: "Game data updated successfully",
+          updatedAttributes: result.Attributes,
+        });
+      } else {
+        // Game already played, no need to update
+        res.status(409).json({
+          success: false,
+          message: "Game already marked as played.",
+        });
+      }
+    } else {
+      // Add new game if not exists
+      const newGameEntry = {
+        gameId: gameId,
+        hasPlayed: false, // assuming starting as not played
+        wordsFoundForThisPlay: wordsFoundForThisPlay,
+        inviter: inviter,
+      };
+
+      const updateParams = {
+        TableName: USER_TABLE_NAME,
+        Key: {
+          userId: username,
+          dataType: "userAccount",
+        },
+        UpdateExpression:
+          "SET gameIds = list_append(if_not_exists(gameIds, :empty_list), :newGameEntry)",
+        ExpressionAttributeValues: {
+          ":newGameEntry": [newGameEntry],
+          ":empty_list": [],
+        },
+        ReturnValues: "ALL_NEW",
+      };
+
+      const result = await dynamoDB.update(updateParams).promise();
+      res.status(200).json({
+        success: true,
+        message: "New game added successfully",
+        updatedAttributes: result.Attributes,
+      });
+    }
   } catch (error) {
-    console.error("Error adding player to game:", error);
+    console.error("Error managing game data:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
