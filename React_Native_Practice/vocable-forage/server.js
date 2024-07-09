@@ -501,7 +501,7 @@ app.post("/addGameToPlayer", async (req, res) => {
     if (currentGameIds.some((pair) => pair[0] === gameId)) {
       return res.status(409).json({
         success: false,
-        message: "Game already exists for this player",
+        message: "Player is already in this game",
       });
     }
     const updateResult = await dynamoDB.update(updateParams).promise();
