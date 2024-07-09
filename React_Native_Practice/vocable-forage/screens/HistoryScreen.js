@@ -21,6 +21,7 @@ function HistoryScreen({ navigation, route }) {
     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
   });
   const { preferredBoardSize, user } = route.params;
+  console.log("in history: ", user.friends);
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
 
@@ -205,6 +206,7 @@ function HistoryScreen({ navigation, route }) {
 
   return userData && render ? (
     <View style={styles.container}>
+      <Text>I should probably put stuff up here</Text>
       <View style={styles.listContainer}>
         {currentGames.map((game) => renderGameItem(game))}
       </View>

@@ -64,6 +64,8 @@ const FriendsList = ({ friends, addFriend, user }) => {
 
   return (
     <View style={styles.outerContainer}>
+      <Text style={styles.header}>Friends</Text>
+
       <FlatList
         showsVerticalScrollIndicator={false}
         bounces={false}
@@ -126,7 +128,7 @@ const FriendsList = ({ friends, addFriend, user }) => {
 const createStyles = (height, width) =>
   StyleSheet.create({
     outerContainer: {
-      height: height * 0.3,
+      height: height * 0.37,
       width: "80%",
       alignItems: "center",
       justifyContent: "center",
@@ -160,6 +162,7 @@ const createStyles = (height, width) =>
       backgroundColor: "#007bff",
       padding: 10,
       borderRadius: 5,
+      marginTop: 20,
     },
     addButtonText: {
       color: "#ffffff",
@@ -192,6 +195,12 @@ const createStyles = (height, width) =>
       marginVertical: 10,
       borderWidth: 1,
       padding: 10,
+    },
+    header: {
+      fontSize: 20,
+      fontWeight: "bold",
+      paddingVertical: 10, // Adds vertical padding around the text
+      color: "#333333", // Dark gray color for the header text
     },
   });
 

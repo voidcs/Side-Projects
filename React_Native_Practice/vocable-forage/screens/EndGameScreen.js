@@ -14,6 +14,7 @@ import { useFonts } from "expo-font";
 import Svg, { Line } from "react-native-svg";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
+import InviteButton from "../components/InviteButton";
 
 function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
@@ -287,82 +288,91 @@ function EndGameScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
         {currentPage === "Results" && (
-          <View style={styles.scoringContainer}>
-            <View style={[styles.column, { width: width * 0.5 }]}>
-              <View style={styles.scoreContainer}>
-                <Text style={styles.title}>Score: {myPointSum}</Text>
-                <Text style={styles.title}>Words: {myFoundWords.length}</Text>
-              </View>
-              <View style={styles.scrollContainer}>
-                <View style={[styles.tabContainer, { width: width * 0.4 }]}>
-                  <View style={[styles.tab, styles.activeTab]}>
-                    <Text style={[styles.tabText, styles.activeTabText]}>
-                      {user.username}
-                    </Text>
-                  </View>
+          <View style={styles.resultsContainer}>
+            <View style={styles.scoringContainer}>
+              <View style={[styles.column, { width: width * 0.5 }]}>
+                <View style={styles.scoreContainer}>
+                  <Text style={styles.title}>Score: {myPointSum}</Text>
+                  <Text style={styles.title}>Words: {myFoundWords.length}</Text>
                 </View>
-                <FlatList
-                  data={myFoundWords}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
-            </View>
-            <View style={[styles.column, { width: width * 0.5 }]}>
-              <View style={styles.scoreContainer}>
-                <Text style={styles.title}>Score: {pointSum}</Text>
-                <Text style={styles.title}>
-                  Words: {selectedWordList.length}
-                </Text>
-              </View>
-              <View style={styles.scrollContainer}>
-                <View style={[styles.tabContainer]}>
-                  <View style={{ width: "100%" }}>
-                    <TouchableOpacity
-                      onPress={() => setModalVisible(true)}
-                      style={[styles.tab, styles.activeTab]}
-                    >
+                <View style={styles.scrollContainer}>
+                  <View style={[styles.tabContainer, { width: width * 0.4 }]}>
+                    <View style={[styles.tab, styles.activeTab]}>
                       <Text style={[styles.tabText, styles.activeTabText]}>
-                        {"▼  " + selectedValue + "  ▼"}
+                        {user.username}
                       </Text>
-                    </TouchableOpacity>
-
-                    <Modal
-                      transparent={true}
-                      animationType="slide"
-                      visible={modalVisible}
-                      onRequestClose={() => setModalVisible(false)}
-                    >
-                      <View style={styles.modalContainer}>
-                        <View
-                          style={[styles.modalContent, { width: width * 0.6 }]}
-                        >
-                          <FlatList
-                            data={otherScoresNames}
-                            renderItem={renderModalItem}
-                            keyExtractor={(item, index) => index.toString()}
-                          />
-                          <TouchableOpacity
-                            onPress={() => setModalVisible(false)}
-                            style={styles.closeButton}
-                          >
-                            <Text style={styles.closeButtonText}>Close</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </Modal>
+                    </View>
                   </View>
+                  <FlatList
+                    data={myFoundWords}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                  />
                 </View>
-                <FlatList
-                  data={selectedWordList}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                  showsVerticalScrollIndicator={false}
-                  initialScrollIndex={0} // Ensure this index is valid
-                />
+              </View>
+              <View style={[styles.column, { width: width * 0.5 }]}>
+                <View style={styles.scoreContainer}>
+                  <Text style={styles.title}>Score: {pointSum}</Text>
+                  <Text style={styles.title}>
+                    Words: {selectedWordList.length}
+                  </Text>
+                </View>
+                <View style={styles.scrollContainer}>
+                  <View style={[styles.tabContainer]}>
+                    <View style={{ width: "100%" }}>
+                      <TouchableOpacity
+                        onPress={() => setModalVisible(true)}
+                        style={[styles.tab, styles.activeTab]}
+                      >
+                        <Text style={[styles.tabText, styles.activeTabText]}>
+                          {"▼  " + selectedValue + "  ▼"}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <Modal
+                        transparent={true}
+                        animationType="slide"
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                      >
+                        <View style={styles.modalContainer}>
+                          <View
+                            style={[
+                              styles.modalContent,
+                              { width: width * 0.6 },
+                            ]}
+                          >
+                            <Text style={styles.modalViewWordsText}>
+                              View Words
+                            </Text>
+                            <FlatList
+                              data={otherScoresNames}
+                              renderItem={renderModalItem}
+                              keyExtractor={(item, index) => index.toString()}
+                            />
+                            <TouchableOpacity
+                              onPress={() => setModalVisible(false)}
+                              style={styles.closeButton}
+                            >
+                              <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </Modal>
+                    </View>
+                  </View>
+                  <FlatList
+                    data={selectedWordList}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                    initialScrollIndex={0} // Ensure this index is valid
+                  />
+                </View>
               </View>
             </View>
+            <InviteButton friendsList={user.friends} />
           </View>
         )}
         {currentPage === "Review" && (
@@ -510,6 +520,7 @@ const createStyles = (boardLength, height, width) => {
       backgroundColor: "#FBF4F6",
       paddingTop: 40,
       marginTop: height * 0.03,
+      width: "100%",
     },
     title: {
       fontSize: 18,
@@ -724,7 +735,6 @@ const createStyles = (boardLength, height, width) => {
       backgroundColor: "white",
       borderRadius: 10,
       padding: 20,
-      width: "100%",
     },
     closeButton: {
       marginTop: 20,
@@ -735,6 +745,14 @@ const createStyles = (boardLength, height, width) => {
     },
     closeButtonText: {
       color: "#000",
+    },
+    resultsContainer: {
+      height: "100%",
+    },
+    modalViewWordsText: {
+      textAlign: "center",
+      marginBottom: 5,
+      fontSize: 20,
     },
   });
 };

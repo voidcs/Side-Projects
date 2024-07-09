@@ -486,6 +486,24 @@ app.post("/addGameToPlayer", async (req, res) => {
   };
 
   try {
+    const getParams = {
+      TableName: USER_TABLE_NAME,
+      Key: {
+        userId: username,
+        dataType: "userAccount",
+      },
+    };
+
+    const getResult = await dynamoDB.get(getParams).promise();
+    const currentGameIds = getResult.Item ? getResult.Item.gameIds : [];
+
+    // Check if gameId already exists
+    if (currentGameIds.some((pair) => pair[0] === gameId)) {
+      return res.status(409).json({
+        success: false,
+        message: "Game already exists for this player",
+      });
+    }
     const updateResult = await dynamoDB.update(updateParams).promise();
     res.status(200).json({
       success: true,

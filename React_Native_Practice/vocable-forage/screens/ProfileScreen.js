@@ -130,7 +130,7 @@ function ProfileScreen({ navigation, route }) {
   };
 
   if (userData) {
-    userData.friends = ["JJ", "Becca", "Alan"];
+    // userData.friends = ["JJ", "Becca", "Alan"];
     const addFriend = (newFriend) => {
       userData.friends.push(newFriend);
       setUserData(userData);
@@ -141,9 +141,7 @@ function ProfileScreen({ navigation, route }) {
         <Text style={styles.title}>
           Oi bruv, you're logged in {userData.username}
         </Text>
-        <Text style={styles.subtitle}>
-          Friends: {userData.friends.join(", ")}
-        </Text>
+
         <FriendsList
           friends={userData.friends}
           addFriend={addFriend}
