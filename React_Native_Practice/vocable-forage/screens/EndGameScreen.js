@@ -372,7 +372,11 @@ function EndGameScreen({ navigation, route }) {
                 </View>
               </View>
             </View>
-            <InviteButton friendsList={user.friends} gameId={gameId} />
+            <InviteButton
+              friendsList={user.friends}
+              gameId={gameId}
+              invitee={user.username}
+            />
           </View>
         )}
         {currentPage === "Review" && (

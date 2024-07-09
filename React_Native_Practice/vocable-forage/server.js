@@ -402,7 +402,7 @@ app.post("/createGame", async (req, res) => {
 });
 
 app.post("/addPlayerToGame", async (req, res) => {
-  const { gameId, username, wordsFoundForThisPlay } = req.body;
+  const { gameId, username, wordsFoundForThisPlay, inviter } = req.body;
 
   console.log("gameId: ", gameId);
   console.log("username: ", username);
@@ -425,6 +425,7 @@ app.post("/addPlayerToGame", async (req, res) => {
     wordsFoundForThisPlay,
     dateAndTimePlayedAt: convertToPST(new Date()),
     hasPlayed: true,
+    inviter: inviter,
   };
   console.log("time: ", player.dateAndTimePlayedAt);
 

@@ -9,11 +9,43 @@ import {
   Dimensions,
 } from "react-native";
 
-const InviteButton = ({ friendsList, gameId }) => {
+const InviteButton = ({ friendsList, gameId, invitee }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { width } = Dimensions.get("window");
 
-  const addPlayerToGame = async () => {};
+  const addPlayerToGame = async (username, invitee) => {
+    try {
+      const response = await fetch(
+        "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addPlayerToGame",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gameId: gameId,
+            username: username,
+            wordsFoundForThisPlay: [],
+            inviter: invitee,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add player to game");
+      }
+
+      if (data.success) {
+        console.log("Player added successfully", data.updatedAttributes);
+      } else {
+        console.log("Failed to add player to game: ", data.message);
+      }
+    } catch (error) {
+      console.error("Error adding player to game: ", error.message);
+    }
+  };
   const addGameToPlayer = async (username) => {
     try {
       const response = await fetch(
@@ -52,6 +84,7 @@ const InviteButton = ({ friendsList, gameId }) => {
       onPress={() => {
         setModalVisible(false);
         addGameToPlayer(item);
+        addPlayerToGame(item, invitee);
       }}
     >
       <Text style={styles.dropdownRowText}>{item}</Text>
