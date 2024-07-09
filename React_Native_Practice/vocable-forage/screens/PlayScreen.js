@@ -182,14 +182,12 @@ function PlayScreen({ navigation, route }) {
             "PlayScreen: Game data fetched successfully with UUID: ",
             routeGameId
           );
-          // console.log(data);
-          // Handle the game data as needed
+          // console.log(data.gameData);
           startGameRef.current = true;
           boardRef.current = data.gameData.board;
           boardLengthRef.current = data.gameData.board.length;
-          console.log("boardLenghtRef: ", boardLayoutRef.current);
-          console.log("board: ", data.gameData.board);
-          console.log("wordsPerell: ", data.gameData.wordsPerCell);
+          startGameRef.current = true;
+          createGameRef.current = true;
         } else {
           const initializeWordsPerCell = Array.from(
             { length: boardLengthRef.current },

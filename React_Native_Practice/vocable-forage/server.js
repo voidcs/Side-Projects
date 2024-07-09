@@ -505,33 +505,42 @@ app.post("/addGameToPlayer", async (req, res) => {
     const getResult = await dynamoDB.get(getParams).promise();
     const currentGameIds = getResult.Item ? getResult.Item.gameIds : [];
 
-    // Check if gameId already exists
-    if (currentGameIds.some((pair) => pair[0] === gameId)) {
+    let gameIndex = currentGameIds.findIndex((pair) => pair[0] === gameId);
+
+    if (gameIndex !== -1) {
       if (!hasPlayed) {
         return res.status(409).json({
           success: false,
           message: "Player is already in this game",
         });
       } else {
-        console.log("This player is getting marked from an invitation");
-        const alreadyPlayedParams = {
+        const updateParams = {
           TableName: USER_TABLE_NAME,
           Key: {
             userId: username,
             dataType: "userAccount",
           },
-          UpdateExpression: "SET hasPlayed = :hasPlayed",
+          UpdateExpression: `SET gameIds[${gameIndex}][1] = :hasPlayedTrue`,
           ExpressionAttributeValues: {
-            ":hasPlayed": true,
+            ":hasPlayedTrue": true,
           },
           ReturnValues: "ALL_NEW",
         };
-        const result = await dynamoDB.update(alreadyPlayedParams).promise();
-        // Take existing entry and set hasPlayed to true
-        res.status(200).json({
-          success: true,
-          message: "Marked played from invitation",
-        });
+
+        try {
+          console.log("in the right part!");
+          const updateResult = await dynamoDB.update(updateParams).promise();
+          return res.status(200).json({
+            success: true,
+            message: "Player's game status updated to played",
+            updatedAttributes: updateResult.Attributes,
+          });
+        } catch (error) {
+          console.error("Error updating game status:", error);
+          res
+            .status(500)
+            .json({ success: false, message: "Internal server error" });
+        }
       }
     }
     const updateResult = await dynamoDB.update(updateParams).promise();
