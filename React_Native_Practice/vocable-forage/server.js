@@ -354,6 +354,7 @@ app.post("/getPlayerGames", async (req, res) => {
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
         boardLength: gameResult.Item.board.length,
+        inviter: player.inviter,
       });
     } catch (error) {
       console.error(`Error fetching player in gameId: ${gameId}`, error);

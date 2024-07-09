@@ -139,6 +139,7 @@ function HistoryScreen({ navigation, route }) {
   };
 
   const renderGameItem = (item) => {
+    console.log("game!: ", item);
     if (item.hasPlayed) {
       return (
         <TouchableOpacity
