@@ -348,16 +348,10 @@ app.post("/getPlayerGames", async (req, res) => {
           hour12: true,
         }
       );
-      function convertToPST(date) {
-        const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
-        const utcDate = date.getTime() + utcOffset; // UTC time
-        const pstOffset = -7 * 3600000; // PST is UTC-8:00
-        const pstDate = new Date(utcDate + pstOffset); // apply PST offset
-        return pstDate.toISOString();
-      }
+
       results.push({
         gameId: gameId,
-        dateAndTimePlayedAt: convertToPST(new Date()),
+        dateAndTimePlayedAt: formattedDate,
         hasPlayed: hasPlayed,
         wordsFoundForThisPlay: player.wordsFoundForThisPlay,
         boardLength: gameResult.Item.board.length,
@@ -440,20 +434,28 @@ app.post("/addPlayerToGame", async (req, res) => {
     // Determine if the player already exists in the game
     const playerIndex = game.players.findIndex((p) => p.username === username);
 
+    function convertToPST(date) {
+      const utcOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+      const utcDate = date.getTime() + utcOffset; // UTC time
+      const pstOffset = -7 * 3600000; // PST is UTC-8:00
+      const pstDate = new Date(utcDate + pstOffset); // apply PST offset
+      return pstDate.toISOString();
+    }
     if (playerIndex !== -1) {
       // Player exists, update their data if hasPlayed is false
       if (!game.players[playerIndex].hasPlayed) {
         game.players[playerIndex].wordsFoundForThisPlay = wordsFoundForThisPlay;
         game.players[playerIndex].hasPlayed = true;
-        game.players[playerIndex].dateAndTimePlayedAt =
-          new Date().toISOString();
+        game.players[playerIndex].dateAndTimePlayedAt = convertToPST(
+          new Date()
+        );
       }
     } else {
       // Player does not exist, add new player
       game.players.push({
         username,
         wordsFoundForThisPlay,
-        dateAndTimePlayedAt: new Date().toISOString(),
+        dateAndTimePlayedAt: convertToPST(new Date()),
         hasPlayed,
         inviter,
       });
