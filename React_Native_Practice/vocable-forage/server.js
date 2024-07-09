@@ -403,7 +403,12 @@ app.post("/createGame", async (req, res) => {
 
 app.post("/addPlayerToGame", async (req, res) => {
   const { gameId, username, wordsFoundForThisPlay, inviter } = req.body;
-
+  console.log(
+    "adding player to game... inviter: ",
+    inviter,
+    "player: ",
+    username
+  );
   console.log("gameId: ", gameId);
   console.log("username: ", username);
   console.log("words: ", wordsFoundForThisPlay);
