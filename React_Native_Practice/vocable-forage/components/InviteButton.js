@@ -14,7 +14,9 @@ const InviteButton = ({ friendsList, gameId, invitee }) => {
   const { width } = Dimensions.get("window");
 
   const addPlayerToGame = async (username, invitee) => {
+    console.log("asdasd");
     try {
+      console.log("in here lmfao");
       const response = await fetch(
         "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/addPlayerToGame",
         {
@@ -27,6 +29,7 @@ const InviteButton = ({ friendsList, gameId, invitee }) => {
             username: username,
             wordsFoundForThisPlay: [],
             inviter: invitee,
+            hasPlayed: false,
           }),
         }
       );
@@ -78,19 +81,21 @@ const InviteButton = ({ friendsList, gameId, invitee }) => {
       console.error("Error inviting game to player: ", error.message);
     }
   };
-  const renderModalItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.dropdownRow}
-      onPress={() => {
-        setModalVisible(false);
-        addGameToPlayer(item);
-        addPlayerToGame(item, invitee);
-      }}
-    >
-      <Text style={styles.dropdownRowText}>{item}</Text>
-    </TouchableOpacity>
-  );
-
+  const renderModalItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.dropdownRow}
+        onPress={() => {
+          setModalVisible(false);
+          addGameToPlayer(item);
+          console.log("elp");
+          addPlayerToGame(item, invitee);
+        }}
+      >
+        <Text style={styles.dropdownRowText}>{item}</Text>
+      </TouchableOpacity>
+    );
+  };
   return (
     <View style={styles.tabContainer}>
       <TouchableOpacity

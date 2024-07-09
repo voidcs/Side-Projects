@@ -431,6 +431,8 @@ function PlayScreen({ navigation, route }) {
               gameId: routeGameId,
               username: user.username,
               wordsFoundForThisPlay: wordsFoundRef.current,
+              inviter: "",
+              hasPlayed: true,
             }),
           }
         );
