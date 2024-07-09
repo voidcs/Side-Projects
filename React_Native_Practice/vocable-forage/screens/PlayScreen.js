@@ -178,9 +178,18 @@ function PlayScreen({ navigation, route }) {
 
         const data = await response.json(); // Parse the JSON response
         if (data.success) {
-          console.log("Game data fetched successfully");
+          console.log(
+            "PlayScreen: Game data fetched successfully with UUID: ",
+            routeGameId
+          );
+          // console.log(data);
           // Handle the game data as needed
           startGameRef.current = true;
+          boardRef.current = data.gameData.board;
+          boardLengthRef.current = data.gameData.board.length;
+          console.log("boardLenghtRef: ", boardLayoutRef.current);
+          console.log("board: ", data.gameData.board);
+          console.log("wordsPerell: ", data.gameData.wordsPerCell);
         } else {
           const initializeWordsPerCell = Array.from(
             { length: boardLengthRef.current },

@@ -176,7 +176,7 @@ function HistoryScreen({ navigation, route }) {
           key={item.gameId}
           style={styles.button}
           onPress={() => {
-            navigation.replace("EndGameScreen", {
+            navigation.replace("PlayScreen", {
               preferredBoardSize: preferredBoardSize,
               user: user,
               gameId: item.gameId,

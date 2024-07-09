@@ -528,7 +528,7 @@ app.post("/addGameToPlayer", async (req, res) => {
         };
         const result = await dynamoDB.update(alreadyPlayedParams).promise();
         // Take existing entry and set hasPlayed to true
-        return res.status(409).json({
+        res.status(200).json({
           success: true,
           message: "Marked played from invitation",
         });
