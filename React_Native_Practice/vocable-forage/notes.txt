@@ -1,3 +1,10 @@
+TODO: change what page the invitation navigates to 
+      have to edit addPlayerToGame and addGameToPlayer to update if the game exists already
+
+
+
+
+
 -Use node 14 for the EC2 server server.js
     - install with nvm install 14
     - nvm use 14
@@ -25,14 +32,13 @@
 
 - Google Vision API
 
+
+// Only update in userdata is changing hasPlayed
 - The userdata table stores
     - username
     - password
     - friends[]
     - gameID array [gameID, hasPlayed (bool)]
-
-// for every single game in the gameID array,
-// retrieve the wordsFoundForThisPlay and datePlayed if user.username === table[gameId].players.username
 
 - The gamedata table stores
     - allWords []
@@ -46,6 +52,17 @@
             hasPlayed: true,
             inviter
         };
+
+    // addPlayerToGame
+    If player is in gamedata.players:
+        update the player varable to
+        const player = {
+            username,
+            wordsFound: (new entry),
+            date:
+            hasPlayed: true
+            inviter
+        }
 
 - The gamedata table
     - Users and their word list and when they played it

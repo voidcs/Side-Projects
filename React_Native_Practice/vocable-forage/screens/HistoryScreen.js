@@ -190,9 +190,7 @@ function HistoryScreen({ navigation, route }) {
               </Text>
             </View>
             <View style={styles.gameInfoContainer}>
-              <Text style={styles.infoText}>
-                You did not play this game yet lol
-              </Text>
+              <Text style={styles.infoText}>Invited by {item.inviter}</Text>
               <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
             </View>
           </View>

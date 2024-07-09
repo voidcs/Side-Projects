@@ -507,10 +507,32 @@ app.post("/addGameToPlayer", async (req, res) => {
 
     // Check if gameId already exists
     if (currentGameIds.some((pair) => pair[0] === gameId)) {
-      return res.status(409).json({
-        success: false,
-        message: "Player is already in this game",
-      });
+      if (!hasPlayed) {
+        return res.status(409).json({
+          success: false,
+          message: "Player is already in this game",
+        });
+      } else {
+        console.log("This player is getting marked from an invitation");
+        const alreadyPlayedParams = {
+          TableName: USER_TABLE_NAME,
+          Key: {
+            userId: username,
+            dataType: "userAccount",
+          },
+          UpdateExpression: "SET hasPlayed = :hasPlayed",
+          ExpressionAttributeValues: {
+            ":hasPlayed": true,
+          },
+          ReturnValues: "ALL_NEW", // Optional: Returns all of the attributes of the item after the update
+        };
+        const result = await dynamoDB.update(params).promise();
+        // Take existing entry and set hasPlayed to true
+        return res.status(409).json({
+          success: true,
+          message: "Marked played from invitation",
+        });
+      }
     }
     const updateResult = await dynamoDB.update(updateParams).promise();
     res.status(200).json({
