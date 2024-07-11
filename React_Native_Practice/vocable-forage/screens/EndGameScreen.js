@@ -234,13 +234,14 @@ function EndGameScreen({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedValue, setSelectedValue] = useState("All Words");
   const [selectedWordList, setSelectedWordList] = useState([]);
+
   const renderModalItem = ({ item, index }) => (
     <TouchableOpacity
       style={styles.dropdownRow}
       onPress={() => {
         setSelectedValue(item);
         setModalVisible(false);
-        setSelectedWordList(otherScores[index]);
+        setSelectedWordList(sortWords(otherScores[index]));
         console.log("other: ", otherScores[index]);
         calculatePoints(otherScores[index]);
         // setSelectedScore(otherScores[index]); // Set the useState variable to the ith element in otherScores

@@ -21,7 +21,6 @@ function HistoryScreen({ navigation, route }) {
     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
   });
   const { preferredBoardSize, user } = route.params;
-  console.log("in history: ", user.friends);
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
 
@@ -139,7 +138,6 @@ function HistoryScreen({ navigation, route }) {
   };
 
   const renderGameItem = (item) => {
-    console.log("game!: ", item);
     if (item.hasPlayed) {
       return (
         <TouchableOpacity

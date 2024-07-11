@@ -157,7 +157,7 @@ function PlayScreen({ navigation, route }) {
     boardLengthRef.current = routeBoardLength;
     preferredBoardSizeRef.current = routePreferredBoardSize;
     const { height, width } = Dimensions.get("window");
-    bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.08;
+    bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
 
     const getGameData = async () => {
       try {
