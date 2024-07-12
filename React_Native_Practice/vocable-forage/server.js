@@ -258,6 +258,8 @@ app.post("/addFriend", async (req, res) => {
 
   try {
     const user = await dynamoDB.get(getParams).promise();
+    console.log("user: ", user);
+    console.log("item: ", user.Item);
     if (!user.Item) {
       console.log("User does not exist");
       return res
