@@ -732,6 +732,8 @@ function PlayScreen({ navigation, route }) {
           styles.wordContainer,
           validWordRef.current
             ? styles.validCell
+            : activeTiles.length > 0
+            ? { backgroundColor: "#dbbfd9" }
             : styles.defaultWordContainerColor,
         ]}
       >
@@ -744,7 +746,14 @@ function PlayScreen({ navigation, route }) {
         </Text>
       </View>
       <View
-        style={styles.board}
+        style={[
+          styles.board,
+          validWordRef.current
+            ? { borderColor: "#82267E" }
+            : activeTiles.length > 0
+            ? { borderColor: "#dbbfd9" }
+            : { borderColor: "#a02f58" },
+        ]}
         {...panResponder.panHandlers}
         onLayout={onLayoutBoard}
       >
@@ -901,8 +910,15 @@ const createStyles = (boardLength, height) => {
       alignItems: "center",
       alignSelf: "center",
       borderRadius: 8,
+      elevation: 3, // This adds shadow on Android, similar to box-shadow
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
+      shadowOpacity: 0.05, // Opacity of shadow for iOS
+      shadowRadius: 8, // Blur radius for iOS
+      borderRadius: 10, // Rounded corners
       borderColor: "#a02f58",
       borderWidth: 5,
+      borderRadius: 20,
     },
     row: {
       flexDirection: "row",
