@@ -1,6 +1,4 @@
-TODO: change what page the invitation navigates to 
-      have to edit addPlayerToGame and addGameToPlayer to update if the game exists already
-
+TODO: Why can you add people that don't exist LOL
 
 
 
@@ -26,7 +24,7 @@ TODO: change what page the invitation navigates to
     Main: #a02f58
     Secondary: #FBF4F6
     Accent: #82267E
-
+    Light: #dbbfd9
     Color for review page: #a02f58
                            #D3D3D3
 

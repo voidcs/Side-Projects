@@ -22,13 +22,14 @@ function PlayScreen({ navigation, route }) {
   // should be able to open a board with a data base, so you give the id
   // if the id is in the table, then we read the board in front the data base
   // otherwise we just generate it, and then add it to the database
-  const gameTime = 90;
+  const gameTime = 90000;
   const [timer, setTimer] = useState(gameTime);
 
   const wordsRef = useRef([]);
   const boardLengthRef = useRef(0);
   const preferredBoardSizeRef = useRef(0);
   const bufferRef = useRef(0);
+  const [resetKey, setResetKey] = useState(0);
 
   const [words, setWords] = useState([]);
   const [boardLength, setBoardLength] = useState(0);
@@ -664,16 +665,21 @@ function PlayScreen({ navigation, route }) {
         }
 
         // Reset everything when we let go
-        setWord("");
-        wordRef.current = "";
-        lastActiveRef.current = [-1, -1];
-        setActiveTiles([]);
-        setValidWord(false);
-        validWordRef.current = false;
-        setAlreadyFoundWord(false);
-        alreadyFoundWordRef.current = false;
-        setActiveTilesLoc([]);
-        activeTilesLocRef.current = [];
+        let timeoutAmount = validWordRef.current ? 50 : 0;
+        setTimeout(() => {
+          // Reset everything after 0.2 seconds
+          setWord("");
+          wordRef.current = "";
+          lastActiveRef.current = [-1, -1];
+          setActiveTiles([]);
+          setValidWord(false);
+          validWordRef.current = false;
+          setAlreadyFoundWord(false);
+          alreadyFoundWordRef.current = false;
+          setActiveTilesLoc([]);
+          activeTilesLocRef.current = [];
+          setResetKey((prevKey) => prevKey + 1);
+        }, timeoutAmount); // 200 milliseconds delay
       },
     })
   ).current;
@@ -688,25 +694,26 @@ function PlayScreen({ navigation, route }) {
         width={width}
         viewBox={`0 0 ${width} ${height}`}
       >
-        {activeTilesLocRef.current.map((point, index) => {
-          if (index < activeTilesLocRef.current.length - 1) {
-            const nextPoint = activeTilesLocRef.current[index + 1];
-            return (
-              <Line
-                key={index}
-                x1={point.x}
-                y1={point.y}
-                x2={nextPoint.x}
-                y2={nextPoint.y}
-                stroke={validWordRef.current ? "white" : "red"}
-                strokeWidth="12"
-                strokeLinecap="round"
-                strokeOpacity="0.5"
-              />
-            );
-          }
-          return null;
-        })}
+        {activeTiles.Ref != [] &&
+          activeTilesLocRef.current.map((point, index) => {
+            if (index < activeTilesLocRef.current.length - 1) {
+              const nextPoint = activeTilesLocRef.current[index + 1];
+              return (
+                <Line
+                  key={index}
+                  x1={point.x}
+                  y1={point.y}
+                  x2={nextPoint.x}
+                  y2={nextPoint.y}
+                  stroke={validWordRef.current ? "#a02f58" : "#dbbfd9"}
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                  strokeOpacity={validWordRef.current ? "1" : "0.5"}
+                />
+              );
+            }
+            return null;
+          })}
       </Svg>
       <View style={[styles.scoreContainer]}>
         <Text style={styles.scoreText}>Score: {scoreRef.current}</Text>
@@ -750,7 +757,15 @@ function PlayScreen({ navigation, route }) {
               return (
                 <View
                   key={cellIndex}
-                  style={[styles.cell, ,]}
+                  style={[
+                    styles.cell,
+                    isActive &&
+                      (alreadyFoundWordRef.current
+                        ? styles.borderAlreadyFound
+                        : validWordRef.current
+                        ? styles.borderValidCell
+                        : styles.borderActiveCell),
+                  ]}
                   onLayout={(event) => onLayoutCell(event, rowIndex, cellIndex)}
                 >
                   <Text
@@ -758,10 +773,10 @@ function PlayScreen({ navigation, route }) {
                       styles.cellText,
                       isActive &&
                         (alreadyFoundWordRef.current
-                          ? { color: "#FFD700" }
+                          ? styles.textAlreadyFound
                           : validWordRef.current
-                          ? { color: "#82267E" }
-                          : { color: "#000" }),
+                          ? styles.textValidCell
+                          : styles.textActiveCell),
                     ]}
                   >
                     {cell}
@@ -880,26 +895,39 @@ const createStyles = (boardLength, height) => {
     },
     board: {
       padding: 5,
-      backgroundColor: "#a02f58",
+      // backgroundColor: "#a02f58",
       marginTop: height * 0.02,
       justifyContent: "center",
       alignItems: "center",
       alignSelf: "center",
       borderRadius: 8,
+      borderColor: "#a02f58",
+      borderWidth: 5,
     },
     row: {
       flexDirection: "row",
     },
     cell: {
-      margin: 1.5,
+      margin: 2,
       width: cellSize,
       height: cellSize,
       justifyContent: "center",
       alignItems: "center",
-      borderWidth: 1,
-      borderColor: "#000",
+      // borderWidth: 1,
+      // borderColor: "#000",
       backgroundColor: "#ffffff",
-      borderRadius: 8,
+      // Idk why but this is like the goated sauce for making stuff pop out lol
+
+      borderRadius: 15,
+      elevation: 3, // This adds shadow on Android, similar to box-shadow
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
+      shadowOpacity: 0.05, // Opacity of shadow for iOS
+      shadowRadius: 8, // Blur radius for iOS
+      borderRadius: 10, // Rounded corners
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+      // margin: 3,
     },
     // A680A3 light
     // 82267E dark
@@ -927,6 +955,33 @@ const createStyles = (boardLength, height) => {
       right: 0,
       bottom: 0,
       zIndex: 1, // Ensure the SVG is on top
+    },
+    borderAlreadyFound: {
+      borderColor: "#FFD700",
+      borderWidth: 5,
+      borderRadius: 20,
+    },
+    borderValidCell: {
+      borderColor: "#82267E",
+      borderWidth: 5,
+      borderRadius: 20,
+    },
+    borderActiveCell: {
+      borderColor: "#dbbfd9", // This is a much lighter color I think it's more playable
+      borderWidth: 5,
+      borderRadius: 20,
+    },
+    textAlreadyFound: {
+      color: "#FFD700",
+      // fontSize: cellSize * 0.7,
+    },
+    textValidCell: {
+      color: "#82267E",
+      // fontSize: cellSize * 0.7,
+    },
+    textActiveCell: {
+      color: "#dbbfd9",
+      // fontSize: cellSize * 0.7,
     },
   });
 };
