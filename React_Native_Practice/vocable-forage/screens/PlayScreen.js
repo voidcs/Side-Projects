@@ -12,6 +12,7 @@ import {
 import Svg, { Line } from "react-native-svg";
 import LETTER_DIST from "../data/letter-distribution";
 import POINTS from "../data/point-distribution";
+import COLORS from "../data/color";
 import AhoCorasick from "aho-corasick";
 import createTrie from "trie-prefix-tree";
 import * as Haptics from "expo-haptics";
@@ -705,7 +706,7 @@ function PlayScreen({ navigation, route }) {
                   y1={point.y}
                   x2={nextPoint.x}
                   y2={nextPoint.y}
-                  stroke={validWordRef.current ? "#a02f58" : "#dbbfd9"}
+                  stroke={validWordRef.current ? COLORS.Primary : COLORS.Light}
                   strokeWidth="12"
                   strokeLinecap="round"
                   strokeOpacity={validWordRef.current ? "1" : "0.5"}
@@ -733,7 +734,7 @@ function PlayScreen({ navigation, route }) {
           validWordRef.current
             ? styles.validCell
             : activeTiles.length > 0
-            ? { backgroundColor: "#dbbfd9" }
+            ? { backgroundColor: COLORS.Light }
             : styles.defaultWordContainerColor,
         ]}
       >
@@ -749,10 +750,10 @@ function PlayScreen({ navigation, route }) {
         style={[
           styles.board,
           validWordRef.current
-            ? { borderColor: "#82267E" }
+            ? { borderColor: COLORS.Accent }
             : activeTiles.length > 0
-            ? { borderColor: "#dbbfd9" }
-            : { borderColor: "#a02f58" },
+            ? { borderColor: COLORS.Light }
+            : { borderColor: COLORS.Primary },
         ]}
         {...panResponder.panHandlers}
         onLayout={onLayoutBoard}
@@ -852,24 +853,24 @@ const createStyles = (boardLength, height) => {
     },
     timerText: {
       marginTop: 10,
-      color: "#a02f58",
+      color: COLORS.Primary,
       fontSize: 24,
       fontWeight: "800",
     },
     scoreText: {
-      color: "#a02f58",
+      color: COLORS.Primary,
       fontSize: 36,
       fontWeight: "800",
     },
     scoreWordsText: {
-      color: "#a02f58",
+      color: COLORS.Primary,
       fontSize: 24,
       fontWeight: "800",
     },
     background: {
       flex: 1,
       resizeMode: "cover",
-      backgroundColor: "#FBF4F6",
+      backgroundColor: COLORS.Secondary,
       position: "relative",
     },
     container: {
@@ -895,16 +896,15 @@ const createStyles = (boardLength, height) => {
       alignSelf: "center",
     },
     defaultWordContainerColor: {
-      backgroundColor: "#a02f58",
+      backgroundColor: COLORS.Primary,
     },
     wordText: {
       fontSize: 24,
       fontWeight: "bold",
-      color: "#FBF4F6",
+      color: COLORS.Secondary,
     },
     board: {
       padding: 5,
-      // backgroundColor: "#a02f58",
       marginTop: height * 0.02,
       justifyContent: "center",
       alignItems: "center",
@@ -916,7 +916,7 @@ const createStyles = (boardLength, height) => {
       shadowOpacity: 0.05, // Opacity of shadow for iOS
       shadowRadius: 8, // Blur radius for iOS
       borderRadius: 10, // Rounded corners
-      borderColor: "#a02f58",
+      borderColor: COLORS.Primary,
       borderWidth: 5,
       borderRadius: 20,
     },
@@ -948,15 +948,13 @@ const createStyles = (boardLength, height) => {
     // A680A3 light
     // 82267E dark
     activeCell: {
-      backgroundColor: "#A680A3",
-      backgroundColor: "#dbbfd9", // This is a much lighter color I think it's more playable
+      backgroundColor: COLORS.Light, // This is a much lighter color I think it's more playable
     },
     validCell: {
-      backgroundColor: "#82267E",
+      backgroundColor: COLORS.Accent,
     },
     alreadyFound: {
-      backgroundColor: "#660000",
-      backgroundColor: "#FFD700",
+      backgroundColor: COLORS.AlreadyFound,
     },
     cellText: {
       // 0.65
@@ -973,17 +971,17 @@ const createStyles = (boardLength, height) => {
       zIndex: 1, // Ensure the SVG is on top
     },
     borderAlreadyFound: {
-      borderColor: "#FFD700",
+      borderColor: COLORS.AlreadyFound,
       borderWidth: 5,
       borderRadius: 20,
     },
     borderValidCell: {
-      borderColor: "#82267E",
+      borderColor: COLORS.Accent,
       borderWidth: 5,
       borderRadius: 20,
     },
     borderActiveCell: {
-      borderColor: "#dbbfd9", // This is a much lighter color I think it's more playable
+      borderColor: COLORS.Light, // This is a much lighter color I think it's more playable
       borderWidth: 5,
       borderRadius: 20,
     },
@@ -992,11 +990,11 @@ const createStyles = (boardLength, height) => {
       // fontSize: cellSize * 0.7,
     },
     textValidCell: {
-      color: "#82267E",
+      color: COLORS.Accent,
       // fontSize: cellSize * 0.7,
     },
     textActiveCell: {
-      color: "#dbbfd9",
+      color: COLORS.Light,
       // fontSize: cellSize * 0.7,
     },
   });
