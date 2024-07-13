@@ -750,18 +750,22 @@ function PlayScreen({ navigation, route }) {
               return (
                 <View
                   key={cellIndex}
-                  style={[
-                    styles.cell,
-                    isActive &&
-                      (alreadyFoundWordRef.current
-                        ? styles.alreadyFound
-                        : validWordRef.current
-                        ? styles.validCell
-                        : styles.activeCell),
-                  ]}
+                  style={[styles.cell, ,]}
                   onLayout={(event) => onLayoutCell(event, rowIndex, cellIndex)}
                 >
-                  <Text style={styles.cellText}>{cell}</Text>
+                  <Text
+                    style={[
+                      styles.cellText,
+                      isActive &&
+                        (alreadyFoundWordRef.current
+                          ? { color: "#FFD700" }
+                          : validWordRef.current
+                          ? { color: "#82267E" }
+                          : { color: "#000" }),
+                    ]}
+                  >
+                    {cell}
+                  </Text>
                 </View>
               );
             })}
