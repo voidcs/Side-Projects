@@ -666,7 +666,7 @@ function PlayScreen({ navigation, route }) {
         }
 
         // Reset everything when we let go
-        let timeoutAmount = validWordRef.current ? 50 : 0;
+        let timeoutAmount = validWordRef.current ? 30 : 0;
         setTimeout(() => {
           // Reset everything after 0.2 seconds
           setWord("");
@@ -707,7 +707,7 @@ function PlayScreen({ navigation, route }) {
                   x2={nextPoint.x}
                   y2={nextPoint.y}
                   stroke={validWordRef.current ? COLORS.Primary : COLORS.Light}
-                  strokeWidth="12"
+                  strokeWidth="10"
                   strokeLinecap="round"
                   strokeOpacity={validWordRef.current ? "1" : "0.5"}
                 />
@@ -728,16 +728,7 @@ function PlayScreen({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
-      <View
-        style={[
-          styles.wordContainer,
-          validWordRef.current
-            ? styles.validCell
-            : activeTiles.length > 0
-            ? { backgroundColor: COLORS.Light }
-            : styles.defaultWordContainerColor,
-        ]}
-      >
+      <View style={[styles.wordContainer, styles.defaultWordContainerColor]}>
         <Text style={styles.wordText}>
           {word}
           {alreadyFoundWordRef.current === false &&
@@ -747,14 +738,7 @@ function PlayScreen({ navigation, route }) {
         </Text>
       </View>
       <View
-        style={[
-          styles.board,
-          validWordRef.current
-            ? { borderColor: COLORS.Accent }
-            : activeTiles.length > 0
-            ? { borderColor: COLORS.Light }
-            : { borderColor: COLORS.Primary },
-        ]}
+        style={styles.board}
         {...panResponder.panHandlers}
         onLayout={onLayoutBoard}
       >
@@ -918,7 +902,7 @@ const createStyles = (boardLength, height) => {
       borderRadius: 10, // Rounded corners
       borderColor: COLORS.Primary,
       borderWidth: 5,
-      borderRadius: 20,
+      borderRadius: 15,
     },
     row: {
       flexDirection: "row",
@@ -986,7 +970,7 @@ const createStyles = (boardLength, height) => {
       borderRadius: 20,
     },
     textAlreadyFound: {
-      color: "#FFD700",
+      color: COLORS.AlreadyFound,
       // fontSize: cellSize * 0.7,
     },
     textValidCell: {

@@ -2,6 +2,7 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { v4 as uuidv4 } from "uuid";
+import COLORS from "../data/color";
 
 const Button = ({ navigation, title, preferredBoardSize, user }) => {
   function nextPage() {
@@ -30,7 +31,7 @@ const Button = ({ navigation, title, preferredBoardSize, user }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#a02f58",
+    backgroundColor: COLORS.Primary,
     padding: 20,
     borderRadius: 8,
     alignItems: "center",
@@ -38,7 +39,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   buttonText: {
-    color: "#FBF4F6",
+    color: COLORS.Secondary,
     fontSize: 32,
     fontWeight: "bold",
   },

@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import COLORS from "../data/color";
 import BottomNavBar from "../components/BottomNavBar";
 import FriendsList from "../components/FriendsList";
 
@@ -241,17 +242,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FBF4F6",
+    backgroundColor: COLORS.Secondary,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#a02f58",
+    color: COLORS.Primary,
   },
   input: {
     height: 50,
-    borderColor: "#a02f58",
+    borderColor: COLORS.Primary,
     borderWidth: 1,
     borderRadius: 10,
     width: "70%",
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: "#a02f58",
+    backgroundColor: COLORS.Primary,
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 40,
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   toggleText: {
-    color: "#a02f58",
+    color: COLORS.Primary,
     marginTop: 20,
     fontSize: 16,
     // textDecorationLine: "underline",

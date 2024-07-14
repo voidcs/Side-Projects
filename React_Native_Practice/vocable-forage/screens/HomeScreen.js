@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import Button from "../components/Button";
 import BottomNavBar from "../components/BottomNavBar";
+import COLORS from "../data/color";
 function HomeScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
   return (
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FBF4F6",
+    backgroundColor: COLORS.Secondary,
   },
   buttonContainer: {
     width: "80%",

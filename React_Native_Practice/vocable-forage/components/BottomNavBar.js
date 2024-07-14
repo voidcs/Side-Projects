@@ -9,6 +9,7 @@ import {
 import { Icon } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import COLORS from "../data/color";
 import { v4 as uuidv4 } from "uuid";
 
 const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
@@ -17,10 +18,10 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
   const route = useRoute();
   const getColor = (screenName) => {
     if (route.name === screenName) {
-      return "#a02f58";
+      return COLORS.Primary;
     }
     if (screenName === "PlayScreen" && route.name === "EndGameScreen") {
-      return "#a02f58";
+      return COLORS.Primary;
     }
     return "gray";
   };
@@ -116,7 +117,7 @@ const createStyles = (height, width) => {
       justifyContent: "space-around",
       height: height * 0.1,
 
-      backgroundColor: "#FBF4F6",
+      backgroundColor: COLORS.Secondary,
       paddingTop: 10,
       borderTopWidth: 0,
       elevation: 0,

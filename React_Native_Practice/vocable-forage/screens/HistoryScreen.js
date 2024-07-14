@@ -12,6 +12,7 @@ import { parse } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 import { useFonts } from "expo-font";
+import COLORS from "../data/color";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -212,14 +213,14 @@ function HistoryScreen({ navigation, route }) {
           title="Back"
           onPress={handlePreviousPage}
           disabled={currentPage === 0}
-          color="#a02f58" // Set button color
+          color={COLORS.Primary} // Set button color
         />
         <Text style={styles.pageText}>Page {currentPage + 1}</Text>
         <Button
           title="Next"
           onPress={handleNextPage}
           disabled={endIndex >= games.length}
-          color="#a02f58" // Set button color
+          color={COLORS.Primary} // Set button color
         />
       </View>
       <View style={styles.navContainer}>
@@ -258,7 +259,7 @@ const createStyles = (height, width) => {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#FBF4F6",
+      backgroundColor: COLORS.Secondary,
     },
     listContainer: {
       marginTop: height * 0.12,
@@ -309,7 +310,7 @@ const createStyles = (height, width) => {
     },
     boxSizeText: {
       fontSize: 24,
-      color: "#a02f58",
+      color: COLORS.Primary,
       fontFamily: "San Francisco",
     },
     gameInfoContainer: {
