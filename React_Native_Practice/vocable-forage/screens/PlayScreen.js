@@ -804,7 +804,7 @@ function PlayScreen({ navigation, route }) {
 export default PlayScreen;
 
 const createStyles = (boardLength, height) => {
-  const cellSize = (height * 0.4) / boardLength;
+  const cellSize = (height * 0.38) / boardLength;
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -888,7 +888,7 @@ const createStyles = (boardLength, height) => {
       color: COLORS.Secondary,
     },
     board: {
-      padding: 5,
+      padding: 10,
       marginTop: height * 0.02,
       justifyContent: "center",
       alignItems: "center",
