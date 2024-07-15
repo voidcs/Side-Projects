@@ -23,7 +23,7 @@ function PlayScreen({ navigation, route }) {
   // should be able to open a board with a data base, so you give the id
   // if the id is in the table, then we read the board in front the data base
   // otherwise we just generate it, and then add it to the database
-  const gameTime = 90000;
+  const gameTime = 1000;
   const [timer, setTimer] = useState(gameTime);
 
   const wordsRef = useRef([]);
@@ -684,7 +684,7 @@ function PlayScreen({ navigation, route }) {
       },
     })
   ).current;
-  const styles = createStyles(boardLengthRef.current, height);
+  const styles = createStyles(boardLengthRef.current, height, width);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
   return boardRef.current.length > 0 ? (
@@ -706,7 +706,7 @@ function PlayScreen({ navigation, route }) {
                   y1={point.y}
                   x2={nextPoint.x}
                   y2={nextPoint.y}
-                  stroke={validWordRef.current ? COLORS.Primary : COLORS.Light}
+                  stroke={validWordRef.current ? COLORS.Accent : COLORS.Light}
                   strokeWidth="10"
                   strokeLinecap="round"
                   strokeOpacity={validWordRef.current ? "1" : "0.5"}
@@ -728,7 +728,18 @@ function PlayScreen({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={[styles.wordContainer, styles.defaultWordContainerColor]}>
+      <View
+        style={
+          word.length === 0
+            ? styles.nothingWordContainer
+            : [
+                styles.wordContainer,
+                validWordRef.current
+                  ? { backgroundColor: COLORS.Accent }
+                  : { backgroundColor: COLORS.Primary },
+              ]
+        }
+      >
         <Text style={styles.wordText}>
           {word}
           {alreadyFoundWordRef.current === false &&
@@ -803,8 +814,8 @@ function PlayScreen({ navigation, route }) {
 }
 export default PlayScreen;
 
-const createStyles = (boardLength, height) => {
-  const cellSize = (height * 0.38) / boardLength;
+const createStyles = (boardLength, height, width) => {
+  const cellSize = (height * 0.36) / boardLength;
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -826,30 +837,54 @@ const createStyles = (boardLength, height) => {
       pointerEvents: "none",
     },
     scoreContainer: {
-      marginTop: height * 0.12,
-      height: 50,
-      // width: "80%", Originally had length of word container as 80% of screen
-      width: "80%",
-      borderRadius: 10,
-      alignItems: "center",
+      marginTop: height * 0.15,
+      width: "75%",
       justifyContent: "center",
       alignSelf: "center",
+      borderWidth: 1, // Consistent border width
+      borderColor: "#e0e0e0", // Matching the border color
+      backgroundColor: "#f9f9f9", // Background color similar to gameItemContainer
+      borderColor: COLORS.Primary,
+      borderRadius: 10, // Rounded corners
+      elevation: 10, // Shadow for Android
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 6 }, // Shadow offset for iOS
+      shadowOpacity: 0.2, // Opacity of shadow for iOS
+      shadowRadius: 10, // Blur radius for iOS
+      padding: 6, // Internal spacing
+
+      // justifyContent: "top",
+      // borderWidth: 1, // Consistent border width
+      // borderColor: "#e0e0e0", // Matching the border color
+      // backgroundColor: "#f9f9f9", // Background color similar to gameItemContainer
+      // borderRadius: 10, // Rounded corners
+      // elevation: 3, // Shadow for Android
+      // shadowColor: "#000000", // Shadow color for iOS
+      // shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS
+      // shadowOpacity: 0.05, // Opacity of shadow for iOS
+      // shadowRadius: 8, // Blur radius for iOS
+      // padding: 10, // Internal spacing
+      borderWidth: 3,
     },
     timerText: {
-      marginTop: 10,
-      color: COLORS.Primary,
-      fontSize: 24,
+      color: "gray", // Match the text color
+      // fontFamily: "SF-Thin",
       fontWeight: "800",
+      fontSize: 14,
+      textAlign: "right",
     },
     scoreText: {
       color: COLORS.Primary,
-      fontSize: 36,
+      fontSize: 30,
       fontWeight: "800",
+      textAlign: "center",
     },
     scoreWordsText: {
       color: COLORS.Primary,
-      fontSize: 24,
+      color: "gray",
+      fontSize: 18,
       fontWeight: "800",
+      textAlign: "center",
     },
     background: {
       flex: 1,
@@ -869,27 +904,48 @@ const createStyles = (boardLength, height) => {
       marginBottom: 20,
     },
     wordContainer: {
-      marginTop: height * 0.08,
-      marginBottom: height * 0.02,
+      marginTop: height * 0.02,
       height: 50,
       // width: "80%", Originally had length of word container as 80% of screen
-      width: "80%",
+      // width: "80%",
       borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
       alignSelf: "center",
+      borderWidth: 1, // Consistent border width
+      borderColor: "#e0e0e0", // Matching the border color
+      backgroundColor: "#f9f9f9", // Background color similar to gameItemContainer
+      borderRadius: 10, // Rounded corners
+      elevation: 3, // Shadow for Android
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS
+      shadowOpacity: 0.05, // Opacity of shadow for iOS
+      shadowRadius: 8, // Blur radius for iOS
+      padding: 10, // Internal spacing
+    },
+    nothingWordContainer: {
+      marginTop: height * 0.02,
+      height: 50,
+      // width: "80%", Originally had length of word container as 80% of screen
+      // width: "80%",
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+      backgroundColor: COLORS.Secondary, // Background color similar to gameItemContainer
+      padding: 10, // Internal spacing
     },
     defaultWordContainerColor: {
       backgroundColor: COLORS.Primary,
     },
     wordText: {
+      paddingHorizontal: width * 0.02,
       fontSize: 24,
       fontWeight: "bold",
       color: COLORS.Secondary,
     },
     board: {
       padding: 10,
-      marginTop: height * 0.02,
+      marginTop: height * 0.01,
       justifyContent: "center",
       alignItems: "center",
       alignSelf: "center",

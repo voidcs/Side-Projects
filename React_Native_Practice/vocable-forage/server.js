@@ -251,7 +251,7 @@ app.post("/addFriend", async (req, res) => {
   const getParams = {
     TableName: USER_TABLE_NAME,
     Key: {
-      userId: username.toLowerCase(),
+      userId: friendname.toLowerCase(),
       dataType: "userAccount",
     },
   };
