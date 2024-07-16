@@ -26,6 +26,7 @@ function HistoryScreen({ navigation, route }) {
   const styles = createStyles(height, width);
 
   const [userData, setUserData] = useState(null);
+  const [makeAccount, setMakeAccount] = useState(false);
   const [games, setGames] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [render, setRender] = useState(false);
@@ -71,6 +72,9 @@ function HistoryScreen({ navigation, route }) {
       }
     };
     if (user != null) getUser();
+    else {
+      setMakeAccount(true);
+    }
   }, [user]);
 
   const fetchPlayerGames = async (gameIds) => {
@@ -201,7 +205,7 @@ function HistoryScreen({ navigation, route }) {
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentGames = games.slice(startIndex, endIndex);
-  if (!userData) {
+  if (!userData && makeAccount) {
     return (
       <View style={styles.container}>
         <Text style={styles.infoText}>You don't have any history yet.</Text>
@@ -211,7 +215,7 @@ function HistoryScreen({ navigation, route }) {
               preferredBoardSize: preferredBoardSize,
               user: null,
             })
-          } // Adjust the screen name if different
+          }
         >
           <Text style={styles.linkText}>Create an account</Text>
         </TouchableOpacity>

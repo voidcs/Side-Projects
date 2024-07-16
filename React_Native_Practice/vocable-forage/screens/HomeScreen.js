@@ -63,6 +63,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "80%",
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    // flexDirection: "row",
+    // alignItems: "center",
+    elevation: 3, // This adds shadow on Android, similar to box-shadow
+    shadowColor: "#000000", // Shadow color for iOS
+    shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
+    shadowOpacity: 0.05, // Opacity of shadow for iOS
+    shadowRadius: 8, // Blur radius for iOS
+    borderRadius: 10, // Rounded corners
+    padding: 10, // Internal spacing
   },
   title: {
     paddingBottom: 150,
