@@ -23,7 +23,7 @@ function PlayScreen({ navigation, route }) {
   // should be able to open a board with a data base, so you give the id
   // if the id is in the table, then we read the board in front the data base
   // otherwise we just generate it, and then add it to the database
-  const gameTime = 1000;
+  const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
 
   const wordsRef = useRef([]);
