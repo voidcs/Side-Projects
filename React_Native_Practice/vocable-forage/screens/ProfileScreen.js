@@ -12,12 +12,21 @@ import {
 import COLORS from "../data/color";
 import BottomNavBar from "../components/BottomNavBar";
 import FriendsList from "../components/FriendsList";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function ProfileScreen({ navigation, route }) {
+  const storeUserToken = async (token) => {
+    try {
+      await AsyncStorage.setItem("player", token);
+    } catch (e) {
+      // saving error
+      console.error("Failed to save the token", e);
+    }
+  };
   const { preferredBoardSize, user } = route.params;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState(null);
   useEffect(() => {
     if (user) {
@@ -82,6 +91,7 @@ function ProfileScreen({ navigation, route }) {
         if (data.success) {
           console.log("Login successful");
           setUserData(data.user);
+          storeUserToken(JSON.stringify(data.user));
         } else {
           throw new Error(data.message || "Network response was not ok");
         }
@@ -153,7 +163,10 @@ function ProfileScreen({ navigation, route }) {
         </Text>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => setUserData(null)} // Log out button to clear userData
+          onPress={() => {
+            setUserData(null);
+            storeUserToken(JSON.stringify(null));
+          }} // Log out button to clear userData
         >
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>

@@ -151,6 +151,9 @@ function PlayScreen({ navigation, route }) {
       gameId: routeGameId,
     } = route.params;
     setUser(user);
+    if (user == null) {
+      return;
+    }
     setWords(routeWords);
     setBoardLength(routeBoardLength);
     setPreferredBoardSize(routePreferredBoardSize);
@@ -687,6 +690,33 @@ function PlayScreen({ navigation, route }) {
   const styles = createStyles(boardLengthRef.current, height, width);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
+
+  if (!user) {
+    return (
+      <View style={styles.noUserContainer}>
+        <Text style={styles.noUserInfoText}>
+          Create an account to start playing.
+        </Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.replace("ProfileScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: null,
+            })
+          } // Adjust the screen name if different
+        >
+          <Text style={styles.noUserLinkText}>Create an account</Text>
+        </TouchableOpacity>
+        <View style={styles.noUserNavContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={user}
+          />
+        </View>
+      </View>
+    );
+  }
   return boardRef.current.length > 0 ? (
     <View style={styles.background}>
       <Svg
@@ -1036,6 +1066,35 @@ const createStyles = (boardLength, height, width) => {
     textActiveCell: {
       color: COLORS.Light,
       // fontSize: cellSize * 0.7,
+    },
+    noUserContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: COLORS.Secondary,
+    },
+    noUserInfoText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: "black", // Match the text color
+      fontFamily: "SF-Pro",
+      fontWeight: "600", // Semi-bold weight
+      letterSpacing: -0.5, // Reducing letter spacing
+      lineHeight: 20, // You might need to adjust this based on your font size
+      color: "#333", // Dark gray color for the text
+    },
+    noUserLinkText: {
+      fontSize: 16,
+      color: COLORS.Primary, // Use your primary color for the link
+      textDecorationLine: "underline",
+      fontFamily: "SF-Pro",
+      marginTop: 10,
+    },
+    noUserNavContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
     },
   });
 };

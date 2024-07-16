@@ -10,6 +10,7 @@ import EndGameScreen from "./screens/EndGameScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import Trie from "trie-prefix-tree";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export default function App() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [trie, setTrie] = useState(null);
+  const [player, setPlayer] = useState(null);
 
   useEffect(() => {
     const fetchWordList = async () => {
@@ -31,7 +33,6 @@ export default function App() {
         const result = await response.text(); // Use response.text() to handle plain text
         const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
         setWords(wordsArray);
-        console.log("size: ", wordsArray.length);
       } catch (error) {
         console.error("Error fetching word list", error);
       } finally {
@@ -40,6 +41,27 @@ export default function App() {
     };
 
     fetchWordList();
+    const getPlayer = async () => {
+      try {
+        // Try to get the "player" key
+        const player = await AsyncStorage.getItem("player");
+        if (player !== null) {
+          // If "player" exists, return it
+          return JSON.parse(player);
+        }
+        return null;
+      } catch (e) {
+        console.error("Failed to retrieve or create player", e);
+        return null;
+      }
+    };
+
+    const initializePlayer = async () => {
+      const playerData = await getPlayer();
+      setPlayer(playerData);
+    };
+    // Example usage
+    initializePlayer();
   }, []);
 
   if (loading) {
@@ -68,7 +90,7 @@ export default function App() {
             options={{
               title: "",
             }}
-            initialParams={{ preferredBoardSize: 5, user: null }}
+            initialParams={{ preferredBoardSize: 5, user: player }}
           />
           <Stack.Screen
             name="PlayScreen"

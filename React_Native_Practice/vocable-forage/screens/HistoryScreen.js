@@ -70,8 +70,8 @@ function HistoryScreen({ navigation, route }) {
         console.error("Caught error", error.message);
       }
     };
-    getUser();
-  }, [user.username]);
+    if (user != null) getUser();
+  }, [user]);
 
   const fetchPlayerGames = async (gameIds) => {
     try {
@@ -201,6 +201,30 @@ function HistoryScreen({ navigation, route }) {
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentGames = games.slice(startIndex, endIndex);
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.infoText}>You don't have any history yet.</Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.replace("ProfileScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: null,
+            })
+          } // Adjust the screen name if different
+        >
+          <Text style={styles.linkText}>Create an account</Text>
+        </TouchableOpacity>
+        <View style={styles.navContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={user}
+          />
+        </View>
+      </View>
+    );
+  }
 
   return userData && render ? (
     <View style={styles.container}>
@@ -347,6 +371,13 @@ const createStyles = (height, width) => {
       fontSize: 20,
       fontFamily: "SF-Thin",
       color: "black", // Match the text color
+    },
+    linkText: {
+      fontSize: 16,
+      color: COLORS.Primary, // Use your primary color for the link
+      textDecorationLine: "underline",
+      fontFamily: "SF-Pro",
+      marginTop: 10,
     },
   });
 };

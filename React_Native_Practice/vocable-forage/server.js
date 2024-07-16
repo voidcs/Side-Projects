@@ -228,9 +228,6 @@ app.post("/createAccount", async (req, res) => {
 
 app.post("/addFriend", async (req, res) => {
   const { username, friendname } = req.body;
-
-  console.log("in add friend", username, friendname);
-
   const validUsernameRegex = /^[a-zA-Z0-9_-💀]{3,24}$/;
   if (!validUsernameRegex.test(friendname)) {
     return res
@@ -258,8 +255,6 @@ app.post("/addFriend", async (req, res) => {
 
   try {
     const user = await dynamoDB.get(getParams).promise();
-    console.log("user: ", user);
-    console.log("item: ", user.Item);
     if (!user.Item) {
       console.log("User does not exist");
       return res
