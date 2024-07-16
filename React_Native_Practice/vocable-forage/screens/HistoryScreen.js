@@ -125,6 +125,7 @@ function HistoryScreen({ navigation, route }) {
           const dateB = parseDate(b.dateAndTimePlayedAt);
           return dateB - dateA;
         });
+        newGames.reverse();
         setGames(newGames);
       } else {
         throw new Error(data.message || "Network response was not ok");
