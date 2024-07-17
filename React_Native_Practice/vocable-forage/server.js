@@ -262,9 +262,18 @@ app.post("/addFriend", async (req, res) => {
         .json({ success: false, message: "User does not exist." });
     }
 
+    const myParams = {
+      TableName: USER_TABLE_NAME,
+      Key: {
+        userId: username(),
+        dataType: "userAccount",
+      },
+    };
+    const me = await dynamoDB.get(myParams).promise();
+
     // Check if the friend is already added
-    console.log("in server: ", user.Item.friends);
-    if (user.Item.friends && user.Item.friends.includes(normalizedFriendName)) {
+    console.log("in server: ", me.Item.friends);
+    if (me.Item.friends && me.Item.friends.includes(normalizedFriendName)) {
       return res.status(409).json({
         success: false,
         message: "Friend already added.",
