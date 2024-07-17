@@ -63,10 +63,11 @@ function ProfileScreen({ navigation, route }) {
         }
       };
       getUser();
-      storeUserToken(JSON.stringify(user));
+      storeUserToken(JSON.stringify(data.user));
       setUserData(user);
     }
   }, []);
+  console.log(user.friends);
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {

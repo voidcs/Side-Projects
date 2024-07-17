@@ -263,6 +263,7 @@ app.post("/addFriend", async (req, res) => {
     }
 
     // Check if the friend is already added
+    console.log("in server: ", user.Item.friends);
     if (user.Item.friends && user.Item.friends.includes(normalizedFriendName)) {
       return res.status(409).json({
         success: false,
