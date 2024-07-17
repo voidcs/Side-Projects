@@ -1,4 +1,3 @@
-// components/CustomButton.js
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { v4 as uuidv4 } from "uuid";
@@ -18,6 +17,7 @@ const Button = ({ navigation, title, preferredBoardSize, user }) => {
       });
     }
   }
+
   return (
     <TouchableOpacity
       style={styles.button}

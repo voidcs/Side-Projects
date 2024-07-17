@@ -8,6 +8,13 @@ TODO: Why can you add people that don't exist LOL
     - nvm use 14
     - use nvm 16 for the expo go server on EC2 lol
 
+Biggest Lesson
+- Sometimes you just have to accept that you can sit there for an entire day to learn to design something else
+- I didn't want to create the trie on the user page, so I thought we could return queries if words were in the trie
+    from the REST API endpoint on the server
+- This gave like a 202.95ms delay which is unacceptable
+
+
 - Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76 calls
 - Using fetch requests from server took about 202.95 ms on average
 - Building Trie takes 425.399 ms on average
