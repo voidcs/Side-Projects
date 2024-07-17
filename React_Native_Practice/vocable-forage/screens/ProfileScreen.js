@@ -63,7 +63,7 @@ function ProfileScreen({ navigation, route }) {
         }
       };
       getUser();
-      storeUserToken(JSON.stringify(data.user));
+      storeUserToken(JSON.stringify(user));
       setUserData(user);
     }
   }, []);
