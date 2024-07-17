@@ -7,9 +7,7 @@ function HomeScreen({ navigation, route }) {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.title}>
-          The app will NO LONGER crash if you don't sign into an account LOL
-        </Text>
+        <Text style={styles.title}>This is my laptop version</Text>
         <View style={styles.buttonContainer}>
           <Button
             title={"2x2"}

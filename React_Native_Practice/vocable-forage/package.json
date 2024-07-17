@@ -44,7 +44,8 @@
     "react-native-svg": "^15.2.0",
     "react-native-vector-icons": "^10.1.0",
     "trie-prefix-tree": "^1.5.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "lottie-react-native": "6.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

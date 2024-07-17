@@ -63,9 +63,10 @@ function ProfileScreen({ navigation, route }) {
         }
       };
       getUser();
+      storeUserToken(JSON.stringify(user));
       setUserData(user);
     }
-  }, [user]);
+  }, []);
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {

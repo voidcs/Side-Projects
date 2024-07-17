@@ -150,6 +150,7 @@ function PlayScreen({ navigation, route }) {
       user: user,
       gameId: routeGameId,
     } = route.params;
+    console.log("gameId: ", routeGameId);
     setUser(user);
     if (user == null) {
       return;

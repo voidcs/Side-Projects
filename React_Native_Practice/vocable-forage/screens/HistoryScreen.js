@@ -13,6 +13,7 @@ import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 import { useFonts } from "expo-font";
 import COLORS from "../data/color";
+import LoadingScreen from "./LoadingScreen";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -25,6 +26,7 @@ function HistoryScreen({ navigation, route }) {
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
 
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [makeAccount, setMakeAccount] = useState(false);
   const [games, setGames] = useState([]);
@@ -71,6 +73,7 @@ function HistoryScreen({ navigation, route }) {
         console.error("Caught error", error.message);
       }
     };
+    setLoading(false);
     if (user != null) getUser();
     else {
       setMakeAccount(true);
@@ -262,6 +265,8 @@ function HistoryScreen({ navigation, route }) {
     </View>
   ) : (
     <View style={styles.container}>
+      <LoadingScreen />
+
       <View style={styles.navContainer}>
         <BottomNavBar
           navigation={navigation}
@@ -276,7 +281,7 @@ function HistoryScreen({ navigation, route }) {
 export default HistoryScreen;
 
 const createStyles = (height, width) => {
-  const circleDiameter = height * 0.07; // This can be adjusted to fit your design preferences
+  const circleDiameter = height * 0.07;
   return StyleSheet.create({
     navContainer: {
       position: "absolute",
@@ -295,16 +300,16 @@ const createStyles = (height, width) => {
       height: "57%",
       width: "80%",
       justifyContent: "top",
-      borderWidth: 1, // Consistent border width
-      borderColor: "#e0e0e0", // Matching the border color
-      backgroundColor: "#f9f9f9", // Background color similar to gameItemContainer
-      borderRadius: 10, // Rounded corners
-      elevation: 3, // Shadow for Android
-      shadowColor: "#000000", // Shadow color for iOS
-      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS
-      shadowOpacity: 0.05, // Opacity of shadow for iOS
-      shadowRadius: 8, // Blur radius for iOS
-      padding: 10, // Internal spacing
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+      backgroundColor: "#f9f9f9",
+      borderRadius: 10,
+      elevation: 3,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      padding: 10,
     },
     button: {
       backgroundColor: "#f7f7f7",
@@ -321,21 +326,21 @@ const createStyles = (height, width) => {
       flexDirection: "row",
       alignItems: "center",
       height: height * 0.1,
-      elevation: 3, // This adds shadow on Android, similar to box-shadow
-      shadowColor: "#000000", // Shadow color for iOS
-      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
-      shadowOpacity: 0.05, // Opacity of shadow for iOS
-      shadowRadius: 8, // Blur radius for iOS
-      borderRadius: 10, // Rounded corners
-      padding: 10, // Internal spacing
+      elevation: 3,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      borderRadius: 10,
+      padding: 10,
     },
     boxSizeContainer: {
       width: circleDiameter,
-      height: circleDiameter, // Make the height equal to the width
+      height: circleDiameter,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: "#f0f0f0",
-      borderRadius: 15, // This will make it a perfect circle
+      borderRadius: 15,
     },
     boxSizeText: {
       fontSize: 24,
@@ -358,28 +363,28 @@ const createStyles = (height, width) => {
     infoText: {
       fontSize: 16,
       textAlign: "center",
-      color: "black", // Match the text color
+      color: "black",
       fontFamily: "SF-Pro",
-      fontWeight: "600", // Semi-bold weight
+      fontWeight: "600",
       letterSpacing: -0.5, // Reducing letter spacing
-      lineHeight: 20, // You might need to adjust this based on your font size
-      color: "#333", // Dark gray color for the text
+      lineHeight: 20,
+      color: "#333",
     },
     dateText: {
       marginTop: height * 0.006,
       fontSize: 12,
       textAlign: "center",
-      color: "black", // Match the text color
+      color: "black",
       fontFamily: "SF-Thin",
     },
     pageText: {
       fontSize: 20,
       fontFamily: "SF-Thin",
-      color: "black", // Match the text color
+      color: "black",
     },
     linkText: {
       fontSize: 16,
-      color: COLORS.Primary, // Use your primary color for the link
+      color: COLORS.Primary,
       textDecorationLine: "underline",
       fontFamily: "SF-Pro",
       marginTop: 10,
