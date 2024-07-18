@@ -1,6 +1,12 @@
 import "react-native-get-random-values"; // Add this import
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  View,
+  Text,
+  Performance,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
@@ -97,11 +103,7 @@ export default function App() {
             component={PlayScreen}
             options={{
               title: "",
-              headerBackTitleVisible: false,
-              headerBackTitle: "back",
-              gestureEnabled: false,
             }}
-            initialParams={{ words }}
           />
           <Stack.Screen
             name="EndGameScreen"

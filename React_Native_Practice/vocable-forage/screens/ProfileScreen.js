@@ -67,7 +67,6 @@ function ProfileScreen({ navigation, route }) {
       setUserData(user);
     }
   }, []);
-  console.log(user.friends);
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {

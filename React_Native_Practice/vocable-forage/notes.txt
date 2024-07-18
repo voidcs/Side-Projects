@@ -17,6 +17,7 @@ Biggest Lesson
 
 - Early Trie Pruning changed 5.4 million recursive calls to average of 2368.76 calls
 - Using fetch requests from server took about 202.95 ms on average
+- Reading the word list is 457.62 ms, I can just put that on the play screen
 - Building Trie takes 425.399 ms on average
 - Flatlist is significantly faster, it speed up the all words list tab in the results page
 

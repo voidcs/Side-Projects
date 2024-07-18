@@ -7,26 +7,6 @@ import COLORS from "../data/color";
 
 function HomeScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLoadingState = (loading) => {
-    setIsLoading(loading);
-  };
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <LoadingScreen />
-        <View style={styles.navContainer}>
-          <BottomNavBar
-            navigation={navigation}
-            preferredBoardSize={preferredBoardSize}
-            user={user}
-          />
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -37,23 +17,20 @@ function HomeScreen({ navigation, route }) {
           navigation={navigation}
           preferredBoardSize={2}
           user={user}
-          setLoading={handleLoadingState}
         />
         <Button
           title={"4x4"}
           navigation={navigation}
           preferredBoardSize={4}
           user={user}
-          setLoading={handleLoadingState}
         />
         <Button
           title={"5x5"}
           navigation={navigation}
           preferredBoardSize={5}
           user={user}
-          setLoading={handleLoadingState}
         />
-        <Button title={"Stats"} setLoading={handleLoadingState} />
+        <Button title={"Stats"} />
       </View>
       <View style={styles.navContainer}>
         <BottomNavBar

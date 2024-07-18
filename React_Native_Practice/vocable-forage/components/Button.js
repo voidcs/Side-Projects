@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 import COLORS from "../data/color";
+import LoadingScreen from "../screens/LoadingScreen";
 
 const Button = ({ navigation, title, preferredBoardSize, user }) => {
   function nextPage() {
@@ -9,6 +10,7 @@ const Button = ({ navigation, title, preferredBoardSize, user }) => {
       const boardLength = parseInt(title[0]);
       const gameId = uuidv4(); // Generate a 128-bit UUID string
 
+      // Use a short delay to allow LoadingScreen to render
       navigation.replace("PlayScreen", {
         boardLength,
         preferredBoardSize,
