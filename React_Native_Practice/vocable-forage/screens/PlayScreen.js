@@ -737,7 +737,6 @@ function PlayScreen({ navigation, route }) {
       </View>
     );
   }
-  // console.log("board: ", boardRef.current.length);
   if (boardRef.current.length == 0) {
     return (
       <View style={styles.container}>
