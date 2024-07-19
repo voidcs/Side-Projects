@@ -7,7 +7,6 @@ import os
 load_dotenv()
 
 rtsp_url = os.getenv("rtsp_url")
-print(rtsp_url)
 app = Flask(__name__)
 
 @app.route('/random_number', methods=['GET'])
@@ -17,7 +16,6 @@ def get_random_number():
     return jsonify({"random_number": frame_hash})
 
 def capture_rtsp_stream(rtsp_url):
-    print("in capture: ", rtsp_url)
     cap = cv2.VideoCapture(rtsp_url)
 
     if not cap.isOpened():
