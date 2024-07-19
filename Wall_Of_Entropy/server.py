@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 @app.route('/random_number', methods=['GET'])
 def get_random_number():
+    print("request received")
     frame_hash = capture_rtsp_stream(rtsp_url)
     return jsonify({"random_number": frame_hash})
 
