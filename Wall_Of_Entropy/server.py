@@ -49,3 +49,4 @@ def process_frame(frame):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001)
+    capture_rtsp_stream(rtsp_url)
