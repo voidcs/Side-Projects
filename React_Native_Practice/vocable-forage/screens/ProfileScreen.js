@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useFonts } from "expo-font";
+
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Alert,
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
@@ -15,11 +16,14 @@ import FriendsList from "../components/FriendsList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function ProfileScreen({ navigation, route }) {
+  useFonts({
+    "SF-Thin": require("../assets/fonts/SF-Pro-Text-Thin.otf"),
+    "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
+  });
   const storeUserToken = async (token) => {
     try {
       await AsyncStorage.setItem("player", token);
     } catch (e) {
-      // saving error
       console.error("Failed to save the token", e);
     }
   };
@@ -28,10 +32,10 @@ function ProfileScreen({ navigation, route }) {
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState(null);
+
   useEffect(() => {
     if (user) {
       const getUser = async () => {
-        const start = performance.now();
         try {
           const response = await fetch(
             "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
@@ -52,9 +56,7 @@ function ProfileScreen({ navigation, route }) {
           }
 
           if (data.success) {
-            const end = performance.now();
-            const elapsedTime = end - start;
-            // console.log(`Elapsed time: ${elapsedTime} milliseconds`);
+            console.log("User data fetched successfully");
           } else {
             throw new Error(data.message || "Network response was not ok");
           }
@@ -67,6 +69,7 @@ function ProfileScreen({ navigation, route }) {
       setUserData(user);
     }
   }, []);
+
   const passwordInputRef = useRef(null);
 
   const handleUsernameSubmit = () => {
@@ -75,14 +78,14 @@ function ProfileScreen({ navigation, route }) {
         const response = await fetch(
           "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/attemptLogin",
           {
-            method: "POST", // Use POST method
+            method: "POST",
             headers: {
-              "Content-Type": "application/json", // Set the content type to JSON
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
+            body: JSON.stringify({ username, password }),
           }
         );
-        const data = await response.json(); // Parse the JSON response
+        const data = await response.json();
 
         if (!response.ok) {
           const message = data.message || "Network response was not ok";
@@ -106,14 +109,14 @@ function ProfileScreen({ navigation, route }) {
         const response = await fetch(
           "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/createAccount",
           {
-            method: "POST", // Use POST method
+            method: "POST",
             headers: {
-              "Content-Type": "application/json", // Set the content type to JSON
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password }), // Convert the username and password to a JSON string
+            body: JSON.stringify({ username, password }),
           }
         );
-        const data = await response.json(); // Parse the JSON response
+        const data = await response.json();
         console.log("Data: ", data);
         if (data.success) {
           console.log("Added account");
@@ -142,7 +145,6 @@ function ProfileScreen({ navigation, route }) {
   };
 
   if (userData) {
-    // userData.friends = ["JJ", "Becca", "Alan"];
     const addFriend = (newFriend) => {
       userData.friends.push(newFriend);
       setUserData(userData);
@@ -159,15 +161,12 @@ function ProfileScreen({ navigation, route }) {
           addFriend={addFriend}
           user={userData}
         />
-        <Text style={styles.subtitle}>
-          {/* Game IDs: {userData.gameIds.join(", ")} */}
-        </Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
             setUserData(null);
             storeUserToken(JSON.stringify(null));
-          }} // Log out button to clear userData
+          }}
         >
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>
@@ -188,39 +187,44 @@ function ProfileScreen({ navigation, route }) {
         <Text style={[styles.title, { fontSize: 14 }]}>
           Dw bro the password is hashed, I can't see it 💀
         </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your username"
-          value={username}
-          onChangeText={setUsername}
-          autoCorrect={false}
-          spellCheck={false}
-          autoComplete="off" // Explicitly turn off autocomplete
-          textContentType="none" // Ensure no content type association for autofill
-          keyboardType="default" // Use default keyboard without any smart suggestions
-          placeholderTextColor="#999"
-          autoCapitalize="none"
-          returnKeyType="next" // Sets the return key to 'Next'
-          onSubmitEditing={() => passwordInputRef.current.focus()} // Focus the password input on submit
-          clearButtonMode="while-editing"
-        />
-
-        <TextInput
-          ref={passwordInputRef}
-          style={styles.input}
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry // Ensures the text entry is obscured
-          autoCorrect={false} // Turn off autocorrect
-          spellCheck={false} // Disable spell checking
-          autoComplete="off" // Explicitly turn off autocomplete
-          textContentType="none" // Ensure no content type association for autofill
-          keyboardType="default" // Use default keyboard which does not adapt to context
-          placeholderTextColor="#999"
-          returnKeyType="done" // Sets the return key to 'Done'
-          clearButtonMode="while-editing"
-        />
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your username"
+            value={username}
+            onChangeText={setUsername}
+            autoCorrect={false}
+            spellCheck={false}
+            autoComplete="off"
+            textContentType="none"
+            keyboardType="default"
+            placeholderTextColor="#999"
+            autoCapitalize="none"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordInputRef.current.focus()}
+            clearButtonMode="while-editing"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            ref={passwordInputRef}
+            style={styles.input}
+            placeholder="Enter your password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCorrect={false}
+            spellCheck={false}
+            autoComplete="off"
+            textContentType="none"
+            keyboardType="default"
+            placeholderTextColor="#999"
+            returnKeyType="done"
+            clearButtonMode="while-editing"
+          />
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleUsernameSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
@@ -264,16 +268,38 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: COLORS.Primary,
   },
+  inputContainer: {
+    width: "70%",
+    marginBottom: 20,
+  },
+  label: {
+    color: COLORS.Primary,
+    fontSize: 16,
+    marginBottom: 5,
+  },
   input: {
     height: 50,
     borderColor: COLORS.Primary,
     borderWidth: 1,
     borderRadius: 10,
-    width: "70%",
     paddingHorizontal: 15,
-    marginBottom: 20,
     backgroundColor: "#fff",
     fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  infoText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "black",
+    fontFamily: "SF-Pro",
+    fontWeight: "600",
+    letterSpacing: -0.5, // Reducing letter spacing
+    lineHeight: 20,
+    color: "#333",
   },
   button: {
     backgroundColor: COLORS.Primary,
@@ -292,6 +318,5 @@ const styles = StyleSheet.create({
     color: COLORS.Primary,
     marginTop: 20,
     fontSize: 16,
-    // textDecorationLine: "underline",
   },
 });

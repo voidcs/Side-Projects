@@ -11,17 +11,12 @@ import {
 import { parse } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
-import { useFonts } from "expo-font";
 import COLORS from "../data/color";
 import LoadingScreen from "./LoadingScreen";
 
 const ITEMS_PER_PAGE = 5;
 
 function HistoryScreen({ navigation, route }) {
-  useFonts({
-    "SF-Thin": require("../assets/fonts/SF-Pro-Text-Thin.otf"),
-    "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
-  });
   const { preferredBoardSize, user } = route.params;
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);

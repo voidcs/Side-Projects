@@ -487,7 +487,7 @@ function EndGameScreen({ navigation, route }) {
 export default EndGameScreen;
 
 const createStyles = (boardLength, height, width) => {
-  const cellSize = (height * 0.4) / boardLength;
+  const cellSize = (height * 0.36) / boardLength;
   return StyleSheet.create({
     scoreContainer: {
       height: 30,
@@ -644,26 +644,45 @@ const createStyles = (boardLength, height, width) => {
     board: {
       position: "absolute",
       bottom: 100, // navBar height is 80 btw
-      padding: 5,
-      backgroundColor: "#a02f58",
+      padding: 10,
       justifyContent: "center",
       alignItems: "center",
       alignSelf: "center",
       borderRadius: 8,
+
+      elevation: 3, // This adds shadow on Android, similar to box-shadow
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
+      shadowOpacity: 0.05, // Opacity of shadow for iOS
+      shadowRadius: 8, // Blur radius for iOS
+      borderColor: COLORS.Primary,
+      borderWidth: 5,
+      borderRadius: 15,
     },
     row: {
       flexDirection: "row",
     },
     cell: {
-      margin: 1.5,
+      margin: 2,
       width: cellSize,
       height: cellSize,
       justifyContent: "center",
       alignItems: "center",
-      borderWidth: 1,
-      borderColor: "#000",
+      // borderWidth: 1,
+      // borderColor: "#000",
       backgroundColor: "#ffffff",
-      borderRadius: 8,
+      // Idk why but this is like the goated sauce for making stuff pop out lol
+
+      borderRadius: 15,
+      elevation: 3, // This adds shadow on Android, similar to box-shadow
+      shadowColor: "#000000", // Shadow color for iOS
+      shadowOffset: { width: 0, height: 4 }, // Shadow offset for iOS, similar to the horizontal and vertical offsets in CSS
+      shadowOpacity: 0.05, // Opacity of shadow for iOS
+      shadowRadius: 8, // Blur radius for iOS
+      borderRadius: 10, // Rounded corners
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+      // margin: 3,
     },
     validCell: {
       backgroundColor: "#82267E", // Green background for valid words

@@ -26,6 +26,7 @@ function PlayScreen({ navigation, route }) {
   // otherwise we just generate it, and then add it to the database
   const gameTime = 90;
   const [timer, setTimer] = useState(gameTime);
+  const marginSize = 10;
 
   const wordsRef = useRef([]);
   const boardLengthRef = useRef(0);
@@ -180,7 +181,7 @@ function PlayScreen({ navigation, route }) {
       boardLengthRef.current = routeBoardLength;
       preferredBoardSizeRef.current = routePreferredBoardSize;
       const { height, width } = Dimensions.get("window");
-      bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.1;
+      bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.25;
 
       const getGameData = async () => {
         try {
@@ -575,12 +576,28 @@ function PlayScreen({ navigation, route }) {
         // );
         if (layout) {
           if (
-            touchX - bufferRef.current >= layout.x &&
-            touchX + bufferRef.current <= layout.x + layout.width &&
-            touchY - bufferRef.current >= layout.y &&
-            touchY + bufferRef.current <= layout.y + layout.height
+            touchY >= layout.y - marginSize &&
+            touchY <= layout.y + layout.height + marginSize
           ) {
-            return { x, y };
+            // If we're in the long strip of the plus
+            if (
+              touchY >= layout.y + bufferRef.current &&
+              touchY <= layout.y + layout.height - bufferRef.current
+            ) {
+              if (
+                touchX >= layout.x - marginSize &&
+                touchX <= layout.x + layout.width + marginSize
+              ) {
+                return { x, y };
+              }
+            } else {
+              if (
+                touchX >= layout.x + bufferRef.current &&
+                touchX <= layout.x + layout.width - bufferRef.current
+              ) {
+                return { x, y };
+              }
+            }
           }
         }
       }
@@ -707,7 +724,12 @@ function PlayScreen({ navigation, route }) {
       },
     })
   ).current;
-  const styles = createStyles(boardLengthRef.current, height, width);
+  const styles = createStyles(
+    boardLengthRef.current,
+    height,
+    width,
+    marginSize
+  );
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
 
@@ -880,7 +902,7 @@ function PlayScreen({ navigation, route }) {
 }
 export default PlayScreen;
 
-const createStyles = (boardLength, height, width) => {
+const createStyles = (boardLength, height, width, marginSize) => {
   const cellSize = (height * 0.36) / boardLength;
   return StyleSheet.create({
     container: {
@@ -1078,17 +1100,17 @@ const createStyles = (boardLength, height, width) => {
     },
     borderAlreadyFound: {
       borderColor: COLORS.AlreadyFound,
-      borderWidth: 5,
+      borderWidth: 7,
       borderRadius: 20,
     },
     borderValidCell: {
       borderColor: COLORS.Accent,
-      borderWidth: 5,
+      borderWidth: 7,
       borderRadius: 20,
     },
     borderActiveCell: {
       borderColor: COLORS.Light, // This is a much lighter color I think it's more playable
-      borderWidth: 5,
+      borderWidth: 7,
       borderRadius: 20,
     },
     textAlreadyFound: {
