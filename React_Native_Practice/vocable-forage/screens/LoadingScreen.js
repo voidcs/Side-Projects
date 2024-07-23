@@ -28,6 +28,8 @@ const LoadingScreen = () => {
     "The best revenge is massive success. – Frank Sinatra",
     "Don’t let the noise of others’ opinions drown out your own inner voice. – Steve Jobs",
     "Sometimes you will never know the value of a moment, until it becomes a memory. – Dr. Seuss",
+    "School is the tool to brainwash the youth. - Jaden Smith",
+    "Why Nobody Talking About How Aliens Are Real And The Government Knows. - Jaden Smith",
   ];
   const [quote, setQuote] = useState("");
 

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
 import COLORS from "../data/color";
 import BottomNavBar from "../components/BottomNavBar";
@@ -32,6 +33,8 @@ function ProfileScreen({ navigation, route }) {
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState(null);
+  const { height, width } = Dimensions.get("window");
+  const styles = createStyles(height, width);
 
   useEffect(() => {
     if (user) {
@@ -183,50 +186,70 @@ function ProfileScreen({ navigation, route }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Text style={styles.title}>{isLogin ? "Login" : "Create Account"}</Text>
-        <Text style={[styles.title, { fontSize: 14 }]}>
-          Dw bro the password is hashed, I can't see it 💀
-        </Text>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your username"
-            value={username}
-            onChangeText={setUsername}
-            autoCorrect={false}
-            spellCheck={false}
-            autoComplete="off"
-            textContentType="none"
-            keyboardType="default"
-            placeholderTextColor="#999"
-            autoCapitalize="none"
-            returnKeyType="next"
-            onSubmitEditing={() => passwordInputRef.current.focus()}
-            clearButtonMode="while-editing"
-          />
+        <View style={styles.headerBox}>
+          <Text style={styles.title}>
+            {isLogin ? "Login" : "Create Account"}
+          </Text>
+          <Text style={styles.subheaderText}>
+            Dw bro I can't read your password 💀
+          </Text>
         </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            ref={passwordInputRef}
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCorrect={false}
-            spellCheck={false}
-            autoComplete="off"
-            textContentType="none"
-            keyboardType="default"
-            placeholderTextColor="#999"
-            returnKeyType="done"
-            clearButtonMode="while-editing"
-          />
+        <View style={styles.entireInputContainer}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={
+                isLogin ? "Enter your username" : "Create your username"
+              }
+              value={username}
+              onChangeText={setUsername}
+              autoCorrect={false}
+              spellCheck={false}
+              autoComplete="off"
+              textContentType="none"
+              keyboardType="default"
+              placeholderTextColor="#999"
+              autoCapitalize="none"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current.focus()}
+              clearButtonMode="while-editing"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              ref={passwordInputRef}
+              style={styles.input}
+              placeholder={
+                isLogin ? "Enter your password" : "Create your password"
+              }
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCorrect={false}
+              spellCheck={false}
+              autoComplete="off"
+              textContentType="none"
+              keyboardType="default"
+              placeholderTextColor="#999"
+              returnKeyType="done"
+              clearButtonMode="while-editing"
+            />
+            <TouchableOpacity
+              style={styles.forgotPasswordButton}
+              onPress={() => {
+                // Handle forgot password action here
+              }}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleUsernameSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={styles.buttonText}>
+            {isLogin ? "Log in" : "Sign up"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={toggleForm}>
           <Text style={styles.toggleText}>
@@ -249,74 +272,104 @@ function ProfileScreen({ navigation, route }) {
 
 export default ProfileScreen;
 
-const styles = StyleSheet.create({
-  navContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.Secondary,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: COLORS.Primary,
-  },
-  inputContainer: {
-    width: "70%",
-    marginBottom: 20,
-  },
-  label: {
-    color: COLORS.Primary,
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  input: {
-    height: 50,
-    borderColor: COLORS.Primary,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    fontSize: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  infoText: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "black",
-    fontFamily: "SF-Pro",
-    fontWeight: "600",
-    letterSpacing: -0.5, // Reducing letter spacing
-    lineHeight: 20,
-    color: "#333",
-  },
-  button: {
-    backgroundColor: COLORS.Primary,
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  toggleText: {
-    color: COLORS.Primary,
-    marginTop: 20,
-    fontSize: 16,
-  },
-});
+const createStyles = (height, width) => {
+  return StyleSheet.create({
+    navContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
+    container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: COLORS.Secondary,
+    },
+    title: {
+      fontSize: 28,
+      // fontWeight: "bold",
+      // marginBottom: 20,
+      color: "black",
+    },
+    subheaderText: {
+      marginTop: 10,
+      fontSize: 14,
+      color: "black",
+      fontFamily: "SF-Thin",
+    },
+    inputContainer: {
+      width: "85%",
+      marginBottom: 20,
+    },
+    label: {
+      color: "black",
+      fontSize: 14,
+      marginBottom: 5,
+    },
+    input: {
+      height: 50,
+      borderColor: "#f2f2f2",
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 15,
+      backgroundColor: "#fff",
+      fontSize: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+      elevation: 3,
+    },
+    infoText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: "black",
+      fontFamily: "SF-Pro",
+      fontWeight: "600",
+      letterSpacing: -0.5, // Reducing letter spacing
+      lineHeight: 20,
+      color: "#333",
+    },
+    button: {
+      width: "85%",
+      backgroundColor: COLORS.Primary,
+      borderRadius: 30,
+      paddingVertical: 15,
+      paddingHorizontal: 40,
+      alignItems: "center",
+      marginTop: height * 0.01,
+      marginBottom: 20,
+    },
+    buttonText: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
+    toggleText: {
+      color: COLORS.Primary,
+      marginTop: height * 0.03,
+      fontSize: 16,
+    },
+    headerBox: {
+      marginTop: height * -0.05,
+      marginBottom: height * 0.07,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    entireInputContainer: {
+      width: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    forgotPasswordButton: {
+      alignSelf: "flex-end",
+      marginTop: height * 0.02,
+    },
+    forgotPasswordText: {
+      color: COLORS.Primary,
+      fontSize: 14,
+      textDecorationLine: "underline",
+    },
+  });
+};
