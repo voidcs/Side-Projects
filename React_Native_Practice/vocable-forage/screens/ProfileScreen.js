@@ -15,6 +15,7 @@ import COLORS from "../data/color";
 import BottomNavBar from "../components/BottomNavBar";
 import FriendsList from "../components/FriendsList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Header from "../components/Header"; // Adjust the path to where your Header component is located
 
 function ProfileScreen({ navigation, route }) {
   useFonts({
@@ -155,6 +156,7 @@ function ProfileScreen({ navigation, route }) {
     };
     return (
       <View style={styles.container}>
+        <Header />
         <Text style={styles.title}>
           Oi bruv, you're logged in {userData.username}
         </Text>
@@ -339,7 +341,7 @@ const createStyles = (height, width) => {
       paddingHorizontal: 40,
       alignItems: "center",
       marginTop: height * 0.01,
-      marginBottom: 20,
+      marginBottom: height * 0.02,
     },
     buttonText: {
       color: "#fff",
@@ -348,7 +350,7 @@ const createStyles = (height, width) => {
     },
     toggleText: {
       color: COLORS.Primary,
-      marginTop: height * 0.03,
+      marginTop: height * 0,
       fontSize: 16,
     },
     headerBox: {

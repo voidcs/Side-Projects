@@ -116,14 +116,10 @@ const createStyles = (height, width) => {
       flexDirection: "row",
       justifyContent: "space-around",
       height: height * 0.1,
-
       backgroundColor: COLORS.Secondary,
       paddingTop: 10,
       borderTopWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      // backgroundColor: "#f0f0f0",
-      // borderRadius: 20,
+      zIndex: 1000, // Ensure the navbar is on top
     },
     navItem: {
       flex: 1,
