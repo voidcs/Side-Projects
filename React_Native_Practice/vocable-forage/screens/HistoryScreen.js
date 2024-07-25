@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,16 @@ import {
   TouchableOpacity,
   Button,
   Dimensions,
+  Pressable,
 } from "react-native";
-import { parse } from "date-fns";
+import { parse, set } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 import COLORS from "../data/color";
 import LoadingScreen from "./LoadingScreen";
+import ToggleSwitch from "../components/ToggleSwitch";
+import { FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -27,7 +31,10 @@ function HistoryScreen({ navigation, route }) {
   const [games, setGames] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [render, setRender] = useState(false);
-  const fetchedGameIdsRef = useRef(new Set()); // Maintain a set of fetched game IDs
+  const [bookmarkedGames, setBookmarkedGames] = useState([]);
+  const [selected, setSelected] = useState("All Games");
+  const [selectedGames, setSelectedGames] = useState([]);
+  const fetchedGameIdsRef = useRef(new Set());
 
   useEffect(() => {
     const getUser = async () => {
@@ -73,6 +80,23 @@ function HistoryScreen({ navigation, route }) {
     else {
       setMakeAccount(true);
     }
+    const getBookmarkedGames = async () => {
+      try {
+        const bookmarkedGames = await AsyncStorage.getItem("bookmarkedGames");
+        if (bookmarkedGames !== null) {
+          return JSON.parse(bookmarkedGames);
+        } else {
+          await AsyncStorage.setItem("bookmarkedGames", JSON.stringify([]));
+          return [];
+        }
+      } catch (e) {
+        console.error("Failed to retrieve or create bookmarkedGames", e);
+        return [];
+      }
+    };
+    getBookmarkedGames().then((bookmarks) => {
+      setBookmarkedGames(bookmarks);
+    });
   }, [user]);
 
   const fetchPlayerGames = async (gameIds) => {
@@ -125,6 +149,7 @@ function HistoryScreen({ navigation, route }) {
         });
         newGames.reverse();
         setGames(newGames);
+        setSelectedGames(newGames);
       } else {
         throw new Error(data.message || "Network response was not ok");
       }
@@ -141,7 +166,29 @@ function HistoryScreen({ navigation, route }) {
     setCurrentPage((prev) => Math.max(prev - 1, 0));
   };
 
+  const editBookmark = async (gameId) => {
+    console.log("gameId in bookmark: ", gameId);
+    console.log("my bookmarked: ", bookmarkedGames);
+
+    let updatedBookmarks = [...bookmarkedGames];
+    const index = updatedBookmarks.indexOf(gameId);
+
+    if (index > -1) {
+      updatedBookmarks.splice(index, 1);
+    } else {
+      updatedBookmarks.push(gameId);
+    }
+
+    await AsyncStorage.setItem(
+      "bookmarkedGames",
+      JSON.stringify(updatedBookmarks)
+    );
+    setBookmarkedGames(updatedBookmarks);
+  };
+
   const renderGameItem = (item) => {
+    const isBookmarked = bookmarkedGames.includes(item.gameId);
+    const bookmarkIcon = isBookmarked ? "heart" : "heart-o";
     if (item.hasPlayed) {
       return (
         <TouchableOpacity
@@ -162,6 +209,16 @@ function HistoryScreen({ navigation, route }) {
               </Text>
             </View>
             <View style={styles.gameInfoContainer}>
+              <Pressable
+                style={styles.bookmarkIcon}
+                onPress={() => editBookmark(item.gameId)}
+              >
+                <FontAwesome
+                  name={bookmarkIcon}
+                  size={20}
+                  color={COLORS.Primary}
+                />
+              </Pressable>
               <Text style={styles.infoText}>{item.points} points</Text>
               <Text style={styles.infoText}>
                 {item.wordsFoundForThisPlay.length} word
@@ -201,9 +258,25 @@ function HistoryScreen({ navigation, route }) {
     }
   };
 
+  const setSelectedHandler = (selection) => {
+    setCurrentPage(0);
+    if (selection === "Favorites") {
+      console.log("book: ", bookmarkedGames);
+      const bookmarkedGamesSet = new Set(bookmarkedGames);
+      const filteredGames = games.filter((game) =>
+        bookmarkedGamesSet.has(game.gameId)
+      );
+      setSelectedGames(filteredGames);
+    } else {
+      console.log("working: ", games[0]);
+      setSelectedGames(games);
+    }
+    console.log("current page: ", currentPage);
+    setSelected(selection);
+  };
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentGames = games.slice(startIndex, endIndex);
+  const currentGames = selectedGames.slice(startIndex, endIndex);
   if (!userData && makeAccount) {
     return (
       <View style={styles.container}>
@@ -231,7 +304,15 @@ function HistoryScreen({ navigation, route }) {
 
   return userData && render ? (
     <View style={styles.container}>
-      <Text>I should probably put stuff up here</Text>
+      <View style={styles.toggleSwitch}>
+        <ToggleSwitch
+          bookmarkedGames={bookmarkedGames}
+          setGames={setGames}
+          selected={selected}
+          setSelectedHandler={setSelectedHandler}
+        />
+      </View>
+
       <View style={styles.listContainer}>
         {currentGames.map((game) => renderGameItem(game))}
       </View>
@@ -246,7 +327,7 @@ function HistoryScreen({ navigation, route }) {
         <Button
           title="Next"
           onPress={handleNextPage}
-          disabled={endIndex >= games.length}
+          disabled={endIndex >= selectedGames.length}
           color={COLORS.Primary} // Set button color
         />
       </View>
@@ -291,7 +372,8 @@ const createStyles = (height, width) => {
       backgroundColor: COLORS.Secondary,
     },
     listContainer: {
-      marginTop: height * 0.12,
+      // marginTop: height * 0.12,
+      marginTop: height * 0.02,
       height: "57%",
       width: "80%",
       justifyContent: "top",
@@ -383,6 +465,18 @@ const createStyles = (height, width) => {
       textDecorationLine: "underline",
       fontFamily: "SF-Pro",
       marginTop: 10,
+    },
+    bookmarkIcon: {
+      paddingRight: 8,
+      paddingTop: 15,
+      position: "absolute",
+      top: 0,
+      right: 0,
+    },
+    toggleSwitch: {
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
     },
   });
 };

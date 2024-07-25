@@ -15,7 +15,7 @@ import COLORS from "../data/color";
 import BottomNavBar from "../components/BottomNavBar";
 import FriendsList from "../components/FriendsList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Header from "../components/Header"; // Adjust the path to where your Header component is located
+import Header from "../components/Header";
 
 function ProfileScreen({ navigation, route }) {
   useFonts({
@@ -152,6 +152,7 @@ function ProfileScreen({ navigation, route }) {
     const addFriend = (newFriend) => {
       userData.friends.push(newFriend);
       setUserData(userData);
+      storeUserToken(JSON.stringify(userData));
       console.log("friends: ", userData.friends);
     };
     return (
