@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     borderRadius: 25,
     overflow: "hidden",
+    padding: 4, // Add padding to the container
   },
   button: {
     flex: 1,
@@ -58,6 +59,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
+    borderRadius: 20, // Add border radius for the selected button
+    margin: 2, // Adjust margin to create padding effect
   },
   text: {
     color: "gray",

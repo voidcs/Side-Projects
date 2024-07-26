@@ -17,6 +17,7 @@ import LoadingScreen from "./LoadingScreen";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Font from "expo-font";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -37,6 +38,15 @@ function HistoryScreen({ navigation, route }) {
   const fetchedGameIdsRef = useRef(new Set());
 
   useEffect(() => {
+    // const loadFonts = async () => {
+    //   await Font.loadAsync({
+    //     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
+    //     "SF-Thin": require("../assets/fonts/SF-Thin.ttf"),
+    //   });
+    //   setFontsLoaded(true);
+    // };
+
+    // loadFonts();
     const getUser = async () => {
       const start = performance.now();
       try {
@@ -249,7 +259,10 @@ function HistoryScreen({ navigation, route }) {
               </Text>
             </View>
             <View style={styles.gameInfoContainer}>
-              <Text style={styles.infoText}>Invited by {item.inviter}</Text>
+              <Text style={styles.infoText}>
+                Invited by{" "}
+                <Text style={styles.inviterText}>{item.inviter}</Text>
+              </Text>
               <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
             </View>
           </View>
@@ -261,17 +274,17 @@ function HistoryScreen({ navigation, route }) {
   const setSelectedHandler = (selection) => {
     setCurrentPage(0);
     if (selection === "Favorites") {
-      console.log("book: ", bookmarkedGames);
+      // console.log("book: ", bookmarkedGames);
       const bookmarkedGamesSet = new Set(bookmarkedGames);
       const filteredGames = games.filter((game) =>
         bookmarkedGamesSet.has(game.gameId)
       );
       setSelectedGames(filteredGames);
     } else {
-      console.log("working: ", games[0]);
+      // console.log("working: ", games[0]);
       setSelectedGames(games);
     }
-    console.log("current page: ", currentPage);
+    // console.log("current page: ", currentPage);
     setSelected(selection);
   };
   const startIndex = currentPage * ITEMS_PER_PAGE;
@@ -446,6 +459,17 @@ const createStyles = (height, width) => {
       letterSpacing: -0.5, // Reducing letter spacing
       lineHeight: 20,
       color: "#333",
+    },
+    inviterText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: "black",
+      fontFamily: "SF-Pro",
+      fontWeight: "600",
+      letterSpacing: -0.5, // Reducing letter spacing
+      lineHeight: 20,
+      color: COLORS.Primary,
+      // textDecorationLine: "underline",
     },
     dateText: {
       marginTop: height * 0.006,
