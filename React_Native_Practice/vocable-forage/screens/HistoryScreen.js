@@ -435,7 +435,7 @@ const createStyles = (height, width) => {
     boxSizeText: {
       fontSize: 24,
       color: COLORS.Primary,
-      fontFamily: "San Francisco",
+      fontFamily: "SF-Pro",
     },
     gameInfoContainer: {
       flex: 3,
@@ -456,7 +456,7 @@ const createStyles = (height, width) => {
       color: "black",
       fontFamily: "SF-Pro",
       fontWeight: "600",
-      letterSpacing: -0.5, // Reducing letter spacing
+      letterSpacing: -0.5,
       lineHeight: 20,
       color: "#333",
     },
@@ -466,7 +466,7 @@ const createStyles = (height, width) => {
       color: "black",
       fontFamily: "SF-Pro",
       fontWeight: "600",
-      letterSpacing: -0.5, // Reducing letter spacing
+      letterSpacing: -0.5,
       lineHeight: 20,
       color: COLORS.Primary,
       // textDecorationLine: "underline",
