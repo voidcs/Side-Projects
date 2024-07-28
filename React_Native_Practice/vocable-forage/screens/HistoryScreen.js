@@ -334,14 +334,14 @@ function HistoryScreen({ navigation, route }) {
           title="Back"
           onPress={handlePreviousPage}
           disabled={currentPage === 0}
-          color={COLORS.Primary} // Set button color
+          color={COLORS.Primary}
         />
         <Text style={styles.pageText}>Page {currentPage + 1}</Text>
         <Button
           title="Next"
           onPress={handleNextPage}
           disabled={endIndex >= selectedGames.length}
-          color={COLORS.Primary} // Set button color
+          color={COLORS.Primary}
         />
       </View>
       <View style={styles.navContainer}>
