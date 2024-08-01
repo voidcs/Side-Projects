@@ -5,16 +5,14 @@ from object_detection.utils import dataset_util
 from PIL import Image
 import io
 
-# Define paths
-label_studio_annotations = 'label_studio/result.json'  # Path to your Label Studio results.json file
-images_dir = 'label_studio/images'  # Directory containing your images
+coco_annotations = 'label_studio/result.json'  
+images_dir = 'label_studio'  
 output_path = 'label_studio/output.tfrecord'  # Path where the TFRecord file will be saved
 label_map_path = 'label_map.pbtxt'  # Path to save the label map file
 
-# Create label map
 def create_label_map():
     label_map = {
-        'lamp': 1  # Update this dictionary based on your labels
+        'lamp': 1  
     }
     with open(label_map_path, 'w') as f:
         for key, val in label_map.items():
@@ -22,7 +20,10 @@ def create_label_map():
     return label_map
 
 # Create TFRecord example
-def create_tf_example(image_path, annotations, label_map):
+def create_tf_example(image_info, annotations, label_map):
+    # Normalize path to use forward slashes
+    image_path = os.path.join(images_dir, image_info['file_name'].replace("\\", "/"))
+
     with tf.io.gfile.GFile(image_path, 'rb') as fid:
         encoded_image = fid.read()
 
@@ -40,12 +41,13 @@ def create_tf_example(image_path, annotations, label_map):
     classes = []
 
     for annotation in annotations:
-        xmins.append(annotation['bbox']['left'] / width)
-        xmaxs.append((annotation['bbox']['left'] + annotation['bbox']['width']) / width)
-        ymins.append(annotation['bbox']['top'] / height)
-        ymaxs.append((annotation['bbox']['top'] + annotation['bbox']['height']) / height)
-        classes_text.append(annotation['label'].encode('utf8'))
-        classes.append(label_map[annotation['label']])
+        x, y, w, h = annotation['bbox']
+        xmins.append(x / width)
+        xmaxs.append((x + w) / width)
+        ymins.append(y / height)
+        ymaxs.append((y + h) / height)
+        classes_text.append("lamp".encode('utf8'))
+        classes.append(label_map["lamp"])
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
@@ -63,18 +65,25 @@ def create_tf_example(image_path, annotations, label_map):
     }))
     return tf_example
 
-# Load annotations
-with open(label_studio_annotations, 'r') as f:
-    data = json.load(f)
+with open(coco_annotations, 'r') as f:
+    coco_data = json.load(f)
 
-# Create label map
 label_map = create_label_map()
+
+# Organize annotations by image_id
+annotations_by_image = {}
+for annotation in coco_data['annotations']:
+    image_id = annotation['image_id']
+    if image_id not in annotations_by_image:
+        annotations_by_image[image_id] = []
+    annotations_by_image[image_id].append(annotation)
 
 # Write TFRecord file
 with tf.io.TFRecordWriter(output_path) as writer:
-    for item in data:
-        image_path = os.path.join(images_dir, os.path.basename(item['image']))
-        tf_example = create_tf_example(image_path, item['annotations'], label_map)
-        writer.write(tf_example.SerializeToString())
+    for image_info in coco_data['images']:
+        image_id = image_info['id']
+        if image_id in annotations_by_image:
+            tf_example = create_tf_example(image_info, annotations_by_image[image_id], label_map)
+            writer.write(tf_example.SerializeToString())
 
 print("TFRecord file created successfully.")
