@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useFonts } from "expo-font";
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 
 import {
   View,
@@ -21,6 +27,12 @@ function ProfileScreen({ navigation, route }) {
   useFonts({
     "SF-Thin": require("../assets/fonts/SF-Pro-Text-Thin.otf"),
     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
+  });
+  let [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
   });
   const storeUserToken = async (token) => {
     try {
@@ -293,6 +305,7 @@ const createStyles = (height, width) => {
       fontSize: 28,
       // fontWeight: "bold",
       // marginBottom: 20,
+      fontFamily: "Inter_400Regular",
       color: "black",
     },
     subheaderText: {

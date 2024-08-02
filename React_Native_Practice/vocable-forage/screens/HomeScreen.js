@@ -50,7 +50,7 @@ const HomeScreen = ({ navigation, route }) => {
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.contentContainerStyle}
-          showsHorizontalScrollIndicator={false} // Optional: to hide the horizontal scroll indicator
+          showsHorizontalScrollIndicator={false}
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -100,10 +100,10 @@ const createStyles = (height, width) => {
       backgroundColor: COLORS.Primary,
       alignItems: "center",
       justifyContent: "flex-start",
-      paddingTop: height * 0.05, // Optional: to add some padding at the top
+      paddingTop: height * 0.05,
     },
     flatListContainer: {
-      height: height * 0.3, // Fixed height for the FlatList container
+      height: height * 0.3,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
@@ -112,7 +112,7 @@ const createStyles = (height, width) => {
       alignItems: "center",
     },
     item: {
-      width: width * 0.7, // Set item width to 70% of the screen width
+      width: width * 0.7,
       height: height * 0.2,
       padding: 20,
       marginHorizontal: width * 0.05,
@@ -146,7 +146,7 @@ const createStyles = (height, width) => {
       shadowOpacity: 0.05,
       shadowRadius: 8,
       padding: 10,
-      marginBottom: height * 0.02, // Adjust this value to add space between buttonContainer and BottomNavBar
+      marginBottom: height * 0.02,
     },
     navContainer: {
       position: "absolute",

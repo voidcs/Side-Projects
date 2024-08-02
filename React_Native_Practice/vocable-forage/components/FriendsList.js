@@ -10,12 +10,26 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 
 const FriendsList = ({ friends, addFriend, user }) => {
   const { height, width } = Dimensions.get("window");
   const styles = createStyles(height, width);
   const [newFriend, setNewFriend] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+
+  let [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
 
   const handleAddFriend = async () => {
     if (newFriend.trim()) {
@@ -151,6 +165,7 @@ const createStyles = (height, width) =>
     },
     friendText: {
       fontSize: 16,
+      fontFamily: "Inter_400Regular",
     },
     emptyText: {
       fontSize: 16,
