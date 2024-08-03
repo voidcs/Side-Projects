@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList } from "react-native";
 import Button from "../components/Button";
 import BottomNavBar from "../components/BottomNavBar";
 import { LinearGradient } from "expo-linear-gradient";
 import COLORS from "../data/color";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 const HomeScreen = ({ navigation, route }) => {
   const { preferredBoardSize, user } = route.params;
   const { height, width } = Dimensions.get("window");
 
+  const translateX = useSharedValue(-50); // Start from a small offset to the left
+
+  // Animated style
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+  useEffect(() => {
+    translateX.value = withTiming(0, { duration: 1000 }); // Animate to the intended position
+  }, [translateX]);
   const styles = createStyles(height, width);
 
   const data = [
@@ -53,7 +69,7 @@ const HomeScreen = ({ navigation, route }) => {
           showsHorizontalScrollIndicator={false}
         />
       </View>
-      <View style={styles.buttonContainer}>
+      <Animated.View style={[styles.buttonContainer, animatedStyle]}>
         <Button
           title={"2x2"}
           navigation={navigation}
@@ -79,7 +95,7 @@ const HomeScreen = ({ navigation, route }) => {
           width={width}
         />
         <Button title={"Stats"} height={height} width={width} />
-      </View>
+      </Animated.View>
       <View style={styles.navContainer}>
         <BottomNavBar
           navigation={navigation}
