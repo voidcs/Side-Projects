@@ -116,7 +116,7 @@ const createStyles = (height, width) => {
       flexDirection: "row",
       justifyContent: "space-around",
       height: height * 0.1,
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: "transparent",
       paddingTop: 10,
       borderTopWidth: 0,
       zIndex: 1000, // Ensure the navbar is on top

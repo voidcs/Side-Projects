@@ -8,23 +8,45 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withDelay,
 } from "react-native-reanimated";
 
 const HomeScreen = ({ navigation, route }) => {
   const { preferredBoardSize, user } = route.params;
   const { height, width } = Dimensions.get("window");
 
-  const translateX = useSharedValue(-50); // Start from a small offset to the left
+  const buttonsBoxTranslateY = useSharedValue(height); // Start from off-screen at the bottom
 
-  // Animated style
-  const animatedStyle = useAnimatedStyle(() => {
+  // Animated style for buttonsBox
+  const buttonsBoxStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
+      transform: [{ translateY: buttonsBoxTranslateY.value }],
     };
   });
+
+  // Trigger the buttonsBox animation on mount
   useEffect(() => {
-    translateX.value = withTiming(0, { duration: 1000 }); // Animate to the intended position
-  }, [translateX]);
+    buttonsBoxTranslateY.value = withDelay(0, withTiming(0, { duration: 500 })); // Animate upwards
+  }, [buttonsBoxTranslateY]);
+
+  const createAnimatedStyle = (initialOffset, delay) => {
+    const translateX = useSharedValue(initialOffset); // Start from the specified offset
+
+    // Animated style for buttons
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: translateX.value }],
+      };
+    });
+
+    // Trigger the button animation on mount with a delay
+    useEffect(() => {
+      translateX.value = withDelay(delay, withTiming(0, { duration: 500 })); // Delay before animating to the intended position
+    }, [translateX]);
+
+    return animatedStyle;
+  };
+
   const styles = createStyles(height, width);
 
   const data = [
@@ -69,33 +91,50 @@ const HomeScreen = ({ navigation, route }) => {
           showsHorizontalScrollIndicator={false}
         />
       </View>
-      <Animated.View style={[styles.buttonContainer, animatedStyle]}>
-        <Button
-          title={"2x2"}
-          navigation={navigation}
-          preferredBoardSize={2}
-          user={user}
-          height={height}
-          width={width}
-        />
-        <Button
-          title={"4x4"}
-          navigation={navigation}
-          preferredBoardSize={4}
-          user={user}
-          height={height}
-          width={width}
-        />
-        <Button
-          title={"5x5"}
-          navigation={navigation}
-          preferredBoardSize={5}
-          user={user}
-          height={height}
-          width={width}
-        />
-        <Button title={"Stats"} height={height} width={width} />
-      </Animated.View>
+      {/* <Animated.View style={[styles.buttonsBox, buttonsBoxStyle]} /> */}
+      <View style={styles.buttonContainer}>
+        <Animated.View
+          style={[styles.animateBox, createAnimatedStyle(-200, 200)]}
+        >
+          <Button
+            title={"2x2"}
+            navigation={navigation}
+            preferredBoardSize={2}
+            user={user}
+            height={height}
+            width={width}
+          />
+        </Animated.View>
+        <Animated.View
+          style={[styles.animateBox, createAnimatedStyle(-200, 300)]}
+        >
+          <Button
+            title={"4x4"}
+            navigation={navigation}
+            preferredBoardSize={4}
+            user={user}
+            height={height}
+            width={width}
+          />
+        </Animated.View>
+        <Animated.View
+          style={[styles.animateBox, createAnimatedStyle(-200, 400)]}
+        >
+          <Button
+            title={"5x5"}
+            navigation={navigation}
+            preferredBoardSize={5}
+            user={user}
+            height={height}
+            width={width}
+          />
+        </Animated.View>
+        <Animated.View
+          style={[styles.animateBox, createAnimatedStyle(-200, 500)]}
+        >
+          <Button title={"Stats"} height={height} width={width} />
+        </Animated.View>
+      </View>
       <View style={styles.navContainer}>
         <BottomNavBar
           navigation={navigation}
@@ -146,16 +185,17 @@ const createStyles = (height, width) => {
       fontSize: 18,
       color: "black",
     },
-    buttonContainer: {
-      height: height * 0.54,
-      marginTop: height * 0.01,
+    buttonsBox: {
+      position: "absolute",
+      bottom: 0,
+      height: height * 0.64,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
       borderColor: "#e0e0e0",
       backgroundColor: COLORS.Secondary,
-      borderTopLeftRadius: 30,
-      borderTopRightRadius: 30,
+      borderTopLeftRadius: 65,
+      borderTopRightRadius: 65,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
@@ -163,6 +203,15 @@ const createStyles = (height, width) => {
       shadowRadius: 8,
       padding: 10,
       marginBottom: height * 0.02,
+    },
+    buttonContainer: {
+      height: height * 0.54,
+      marginTop: height * 0.01,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderColor: "#e0e0e0",
+      backgroundColor: "transparent",
     },
     navContainer: {
       position: "absolute",
@@ -173,6 +222,11 @@ const createStyles = (height, width) => {
     title: {
       fontSize: 24,
       color: "black",
+    },
+    animateBox: {
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
     },
   });
 };
