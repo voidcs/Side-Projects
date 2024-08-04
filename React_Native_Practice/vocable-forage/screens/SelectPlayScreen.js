@@ -11,7 +11,7 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 
-const HomeScreen = ({ navigation, route }) => {
+const SelectPlayScreen = ({ navigation, route }) => {
   const { preferredBoardSize, user } = route.params;
   const { height, width } = Dimensions.get("window");
 
@@ -146,7 +146,7 @@ const HomeScreen = ({ navigation, route }) => {
   );
 };
 
-export default HomeScreen;
+export default SelectPlayScreen;
 
 const createStyles = (height, width) => {
   return StyleSheet.create({

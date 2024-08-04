@@ -44,26 +44,20 @@ const BottomNavBar = ({ navigation, preferredBoardSize, user }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => {
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: "PlayScreen",
-                params: {
-                  boardLength: preferredBoardSize,
-                  preferredBoardSize: preferredBoardSize,
-                  user: user,
-                  gameId,
-                },
-              },
-            ],
-          });
-        }}
+        onPress={() =>
+          navigation.replace("SelectPlayScreen", {
+            preferredBoardSize: preferredBoardSize,
+            user: user,
+          })
+        }
       >
-        <Icon name="play-arrow" size={28} color={getColor("PlayScreen")} />
+        <Icon
+          name="play-arrow"
+          size={28}
+          color={getColor("SelectPlayScreen")}
+        />
         <Text
-          style={[styles.navText, { color: getColor("PlayScreen") }]}
+          style={[styles.navText, { color: getColor("SelectPlayScreen") }]}
         ></Text>
       </TouchableOpacity>
       <TouchableOpacity

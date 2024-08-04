@@ -15,6 +15,7 @@ import PlayScreen from "./screens/PlayScreen";
 import EndGameScreen from "./screens/EndGameScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import HistoryScreen from "./screens/HistoryScreen";
+import SelectPlayScreen from "./screens/SelectPlayScreen";
 import Trie from "trie-prefix-tree";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -101,6 +102,13 @@ export default function App() {
           <Stack.Screen
             name="PlayScreen"
             component={PlayScreen}
+            options={{
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="SelectPlayScreen"
+            component={SelectPlayScreen}
             options={{
               title: "",
             }}
