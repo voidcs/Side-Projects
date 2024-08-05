@@ -439,7 +439,7 @@ const createStyles = (height, width) => {
     },
     gameInfoContainer: {
       flex: 3,
-      alignItems: "flex-start",
+      alignItems: "flex-start", // Align items to the left of the container
       paddingLeft: width * 0.08,
     },
     pagination: {

@@ -109,7 +109,7 @@ const createStyles = (height, width) => {
       right: 0,
       flexDirection: "row",
       justifyContent: "space-around",
-      height: height * 0.1,
+      height: height * 0.09,
       backgroundColor: "transparent",
       paddingTop: 10,
       borderTopWidth: 0,

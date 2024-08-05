@@ -20,7 +20,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Font from "expo-font";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 8;
 
 function HomeScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
@@ -345,37 +345,41 @@ function HomeScreen({ navigation, route }) {
 
   return userData && render ? (
     <View style={styles.outerContainer}>
-      <View style={styles.flatListContainer}>
-        <FlatList
-          horizontal={true}
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.contentContainerStyle}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
       <ScrollView
-        style={styles.container}
+        style={styles.scrollable}
         contentContainerStyle={{
           alignItems: "center",
           justifyContent: "center",
+          paddingBottom: height * 0.15,
         }}
       >
-        <Text>Test</Text>
-        <View style={styles.toggleSwitch}>
-          <ToggleSwitch
-            bookmarkedGames={bookmarkedGames}
-            setGames={setGames}
-            selected={selected}
-            setSelectedHandler={setSelectedHandler}
+        <View style={styles.flatListContainer}>
+          <FlatList
+            horizontal={true}
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style={styles.listContainer}>
+
+        <View style={styles.outerListContainer}>
+          <View style={styles.toggleSwitch}>
+            <ToggleSwitch
+              bookmarkedGames={bookmarkedGames}
+              setGames={setGames}
+              selected={selected}
+              setSelectedHandler={setSelectedHandler}
+            />
+          </View>
           <View style={styles.listContainer}>
             {currentGames.map((game) => renderGameItem(game))}
           </View>
-          <View style={styles.pagination}>
+          {/* <View style={styles.pagination}>
             <Button
               title="Back"
               onPress={handlePreviousPage}
@@ -389,7 +393,7 @@ function HomeScreen({ navigation, route }) {
               disabled={endIndex >= selectedGames.length}
               color={COLORS.Primary}
             />
-          </View>
+          </View> */}
         </View>
       </ScrollView>
       <View style={styles.navContainer}>
@@ -421,59 +425,76 @@ const createStyles = (height, width) => {
   const circleDiameter = height * 0.07;
   return StyleSheet.create({
     navContainer: {
+      height: "10%", // 10% of the screen height
       position: "absolute",
       bottom: 0,
       left: 0,
       right: 0,
+      backgroundColor: COLORS.Secondary, // Ensure the background color matches
     },
     outerContainer: {
       flex: 1,
+      width: "100%",
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       backgroundColor: COLORS.Secondary,
+      position: "relative",
+    },
+    scrollable: {
+      flex: 1, // Use flex to take up the remaining space
+      width: "100%",
     },
     container: {
+      flex: 1,
       width: "100%",
-      height: "100%",
-      borderWidth: 5,
       backgroundColor: COLORS.Secondary,
     },
-    listContainer: {
-      // marginTop: height * 0.12,
-      marginTop: height * 0.02,
-      height: "45%",
-      width: "90%",
-      justifyContent: "top",
-      borderWidth: 1,
-      borderColor: "#e0e0e0",
+    outerListContainer: {
+      marginTop: height * 0.03,
+      width: "85%",
+      justifyContent: "flex-start",
       backgroundColor: "#f9f9f9",
-      borderRadius: 10,
+      borderRadius: 30,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.05,
       shadowRadius: 8,
+      borderWidth: 5,
+      borderColor: "purple",
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+    },
+    listContainer: {
+      width: "100%",
+      justifyContent: "flex-start",
+
+      backgroundColor: "transparent",
+
       padding: 10,
+      marginBottom: 20, // Ensure some space below the list container for pagination
     },
     button: {
       backgroundColor: "#f7f7f7",
+      padding: 2,
+      marginVertical: 2,
       borderRadius: 5,
       justifyContent: "center",
       alignItems: "center",
     },
     gameItemContainer: {
       backgroundColor: "#f9f9f9",
+      borderWidth: 1,
       borderColor: "#e0e0e0",
       flexDirection: "row",
       alignItems: "center",
-      height: height * 0.09,
+      height: height * 0.1,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.05,
       shadowRadius: 8,
-      borderRadius: 10,
-      // borderColor: "green",
+      borderRadius: 20,
       padding: 10,
     },
     boxSizeContainer: {
@@ -498,6 +519,7 @@ const createStyles = (height, width) => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      flex: 1,
       width: "80%",
       marginTop: height * 0.02,
       alignSelf: "center",
@@ -521,7 +543,6 @@ const createStyles = (height, width) => {
       letterSpacing: -0.5,
       lineHeight: 20,
       color: COLORS.Primary,
-      // textDecorationLine: "underline",
     },
     dateText: {
       marginTop: height * 0.006,
@@ -550,12 +571,14 @@ const createStyles = (height, width) => {
       right: 0,
     },
     toggleSwitch: {
+      marginTop: height * 0.02,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
     },
     flatListContainer: {
-      height: height * 0.3,
+      height: height * 0.22, // Adjust height for the horizontal list
+      marginTop: height * 0.1,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",

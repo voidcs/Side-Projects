@@ -39,7 +39,7 @@ const ToggleSwitch = ({ selected, setSelectedHandler }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "80%",
+    width: "90%",
     flexDirection: "row",
     backgroundColor: "#f0f0f0",
     borderRadius: 25,
