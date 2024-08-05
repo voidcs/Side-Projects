@@ -9,7 +9,7 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
-import { parse, set } from "date-fns";
+import { parse } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 import COLORS from "../data/color";
@@ -38,15 +38,6 @@ function HistoryScreen({ navigation, route }) {
   const fetchedGameIdsRef = useRef(new Set());
 
   useEffect(() => {
-    // const loadFonts = async () => {
-    //   await Font.loadAsync({
-    //     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
-    //     "SF-Thin": require("../assets/fonts/SF-Thin.ttf"),
-    //   });
-    //   setFontsLoaded(true);
-    // };
-
-    // loadFonts();
     const getUser = async () => {
       const start = performance.now();
       try {
@@ -177,9 +168,6 @@ function HistoryScreen({ navigation, route }) {
   };
 
   const editBookmark = async (gameId) => {
-    console.log("gameId in bookmark: ", gameId);
-    console.log("my bookmarked: ", bookmarkedGames);
-
     let updatedBookmarks = [...bookmarkedGames];
     const index = updatedBookmarks.indexOf(gameId);
 
@@ -274,17 +262,14 @@ function HistoryScreen({ navigation, route }) {
   const setSelectedHandler = (selection) => {
     setCurrentPage(0);
     if (selection === "Favorites") {
-      // console.log("book: ", bookmarkedGames);
       const bookmarkedGamesSet = new Set(bookmarkedGames);
       const filteredGames = games.filter((game) =>
         bookmarkedGamesSet.has(game.gameId)
       );
       setSelectedGames(filteredGames);
     } else {
-      // console.log("working: ", games[0]);
       setSelectedGames(games);
     }
-    // console.log("current page: ", currentPage);
     setSelected(selection);
   };
   const startIndex = currentPage * ITEMS_PER_PAGE;
@@ -382,17 +367,16 @@ const createStyles = (height, width) => {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: "#121212", // Dark background
     },
     listContainer: {
-      // marginTop: height * 0.12,
       marginTop: height * 0.02,
       height: "57%",
       width: "80%",
       justifyContent: "top",
       borderWidth: 1,
-      borderColor: "#e0e0e0",
-      backgroundColor: "#f9f9f9",
+      borderColor: "#1f1f1f", // Darker border
+      backgroundColor: "#1e1e1e", // Dark background for the list
       borderRadius: 10,
       elevation: 3,
       shadowColor: "#000000",
@@ -402,7 +386,7 @@ const createStyles = (height, width) => {
       padding: 10,
     },
     button: {
-      backgroundColor: "#f7f7f7",
+      backgroundColor: "#2a2a2a", // Dark button background
       padding: 2,
       marginVertical: 2,
       borderRadius: 5,
@@ -410,9 +394,9 @@ const createStyles = (height, width) => {
       alignItems: "center",
     },
     gameItemContainer: {
-      backgroundColor: "#f9f9f9",
+      backgroundColor: "#1e1e1e", // Dark background for game item
       borderWidth: 1,
-      borderColor: "#e0e0e0",
+      borderColor: "#1f1f1f", // Darker border
       flexDirection: "row",
       alignItems: "center",
       height: height * 0.1,
@@ -429,7 +413,7 @@ const createStyles = (height, width) => {
       height: circleDiameter,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#f0f0f0",
+      backgroundColor: "#2e2e2e", // Darker background
       borderRadius: 15,
     },
     boxSizeText: {
@@ -453,35 +437,32 @@ const createStyles = (height, width) => {
     infoText: {
       fontSize: 16,
       textAlign: "center",
-      color: "black",
       fontFamily: "SF-Pro",
       fontWeight: "600",
       letterSpacing: -0.5,
       lineHeight: 20,
-      color: "#333",
+      color: "#e0e0e0", // Light text color
     },
     inviterText: {
       fontSize: 16,
       textAlign: "center",
-      color: "black",
       fontFamily: "SF-Pro",
       fontWeight: "600",
       letterSpacing: -0.5,
       lineHeight: 20,
       color: COLORS.Primary,
-      // textDecorationLine: "underline",
     },
     dateText: {
       marginTop: height * 0.006,
       fontSize: 12,
       textAlign: "center",
-      color: "black",
+      color: "#b0b0b0", // Lighter text for date
       fontFamily: "SF-Thin",
     },
     pageText: {
       fontSize: 20,
       fontFamily: "SF-Thin",
-      color: "black",
+      color: "#e0e0e0", // Light text color
     },
     linkText: {
       fontSize: 16,

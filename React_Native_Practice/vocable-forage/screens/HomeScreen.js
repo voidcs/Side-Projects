@@ -1,53 +1,296 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, FlatList } from "react-native";
-import Button from "../components/Button";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Button,
+  Dimensions,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import { parse, set } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
-import { LinearGradient } from "expo-linear-gradient";
+import POINTS from "../data/point-distribution";
 import COLORS from "../data/color";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from "react-native-reanimated";
+import LoadingScreen from "./LoadingScreen";
+import ToggleSwitch from "../components/ToggleSwitch";
+import { FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Font from "expo-font";
 
-const HomeScreen = ({ navigation, route }) => {
+const ITEMS_PER_PAGE = 5;
+
+function HomeScreen({ navigation, route }) {
   const { preferredBoardSize, user } = route.params;
   const { height, width } = Dimensions.get("window");
+  const styles = createStyles(height, width);
 
-  const buttonsBoxTranslateY = useSharedValue(height); // Start from off-screen at the bottom
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [makeAccount, setMakeAccount] = useState(false);
+  const [games, setGames] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [render, setRender] = useState(false);
+  const [bookmarkedGames, setBookmarkedGames] = useState([]);
+  const [selected, setSelected] = useState("All Games");
+  const [selectedGames, setSelectedGames] = useState([]);
+  const fetchedGameIdsRef = useRef(new Set());
 
-  // Animated style for buttonsBox
-  const buttonsBoxStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: buttonsBoxTranslateY.value }],
-    };
-  });
-
-  // Trigger the buttonsBox animation on mount
   useEffect(() => {
-    buttonsBoxTranslateY.value = withDelay(0, withTiming(0, { duration: 500 })); // Animate upwards
-  }, [buttonsBoxTranslateY]);
+    // const loadFonts = async () => {
+    //   await Font.loadAsync({
+    //     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
+    //     "SF-Thin": require("../assets/fonts/SF-Thin.ttf"),
+    //   });
+    //   setFontsLoaded(true);
+    // };
 
-  const createAnimatedStyle = (initialOffset, delay) => {
-    const translateX = useSharedValue(initialOffset); // Start from the specified offset
+    // loadFonts();
+    const getUser = async () => {
+      const start = performance.now();
+      try {
+        setGames([]);
+        fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
+        const response = await fetch(
+          "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getUser",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: user.username }),
+          }
+        );
+        const data = await response.json();
 
-    // Animated style for buttons
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: translateX.value }],
-      };
+        if (!response.ok) {
+          const message =
+            data.message || "Could not find the username in the database";
+          throw new Error(message);
+        }
+
+        if (data.success) {
+          setUserData(data.user);
+          await fetchPlayerGames(data.user.gameIds);
+          setRender(true);
+
+          const end = performance.now();
+          const elapsedTime = end - start;
+          console.log(`Elapsed time: ${elapsedTime} milliseconds`);
+        } else {
+          throw new Error(data.message || "Network response was not ok");
+        }
+      } catch (error) {
+        console.error("Caught error", error.message);
+      }
+    };
+    setLoading(false);
+    if (user != null) getUser();
+    else {
+      setMakeAccount(true);
+    }
+    const getBookmarkedGames = async () => {
+      try {
+        const bookmarkedGames = await AsyncStorage.getItem("bookmarkedGames");
+        if (bookmarkedGames !== null) {
+          return JSON.parse(bookmarkedGames);
+        } else {
+          await AsyncStorage.setItem("bookmarkedGames", JSON.stringify([]));
+          return [];
+        }
+      } catch (e) {
+        console.error("Failed to retrieve or create bookmarkedGames", e);
+        return [];
+      }
+    };
+    getBookmarkedGames().then((bookmarks) => {
+      setBookmarkedGames(bookmarks);
     });
+  }, [user]);
 
-    // Trigger the button animation on mount with a delay
-    useEffect(() => {
-      translateX.value = withDelay(delay, withTiming(0, { duration: 500 })); // Delay before animating to the intended position
-    }, [translateX]);
+  const fetchPlayerGames = async (gameIds) => {
+    try {
+      setGames([]);
+      fetchedGameIdsRef.current.clear(); // Clear the fetched game IDs set
+      const response = await fetch(
+        "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/getPlayerGames",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: user.username,
+            gameIds: gameIds,
+          }),
+        }
+      );
+      const data = await response.json();
 
-    return animatedStyle;
+      if (!response.ok) {
+        const message =
+          data.message || "Could not find the username in the database";
+        throw new Error(message);
+      }
+
+      if (data.success) {
+        const calculatePoints = (words) => {
+          let totalPoints = 0;
+          words.forEach((word) => {
+            const points = POINTS[word.length] || 0;
+            totalPoints += points;
+          });
+          return totalPoints;
+        };
+
+        const newGames = data.games.map((game) => ({
+          ...game,
+          points: calculatePoints(game.wordsFoundForThisPlay),
+        }));
+        const parseDate = (dateString) => {
+          return parse(dateString, "MMMM d, yyyy, h:mm a", new Date());
+        };
+
+        newGames.sort((a, b) => {
+          const dateA = parseDate(a.dateAndTimePlayedAt);
+          const dateB = parseDate(b.dateAndTimePlayedAt);
+          return dateB - dateA;
+        });
+        newGames.reverse();
+        setGames(newGames);
+        setSelectedGames(newGames);
+      } else {
+        throw new Error(data.message || "Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Caught error", error.message);
+    }
   };
 
-  const styles = createStyles(height, width);
+  const handleNextPage = () => {
+    setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
+  };
+
+  const editBookmark = async (gameId) => {
+    console.log("gameId in bookmark: ", gameId);
+    console.log("my bookmarked: ", bookmarkedGames);
+
+    let updatedBookmarks = [...bookmarkedGames];
+    const index = updatedBookmarks.indexOf(gameId);
+
+    if (index > -1) {
+      updatedBookmarks.splice(index, 1);
+    } else {
+      updatedBookmarks.push(gameId);
+    }
+
+    await AsyncStorage.setItem(
+      "bookmarkedGames",
+      JSON.stringify(updatedBookmarks)
+    );
+    setBookmarkedGames(updatedBookmarks);
+  };
+
+  const renderGameItem = (item) => {
+    const isBookmarked = bookmarkedGames.includes(item.gameId);
+    const bookmarkIcon = isBookmarked ? "heart" : "heart-o";
+    if (item.hasPlayed) {
+      return (
+        <TouchableOpacity
+          key={item.gameId}
+          style={styles.button}
+          onPress={() => {
+            navigation.replace("EndGameScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: user,
+              gameId: item.gameId,
+            });
+          }}
+        >
+          <View style={styles.gameItemContainer}>
+            <View style={styles.boxSizeContainer}>
+              <Text style={styles.boxSizeText}>
+                {item.boardLength}x{item.boardLength}
+              </Text>
+            </View>
+            <View style={styles.gameInfoContainer}>
+              <Pressable
+                style={styles.bookmarkIcon}
+                onPress={() => editBookmark(item.gameId)}
+              >
+                <FontAwesome
+                  name={bookmarkIcon}
+                  size={20}
+                  color={COLORS.Primary}
+                />
+              </Pressable>
+              <Text style={styles.infoText}>{item.points} points</Text>
+              <Text style={styles.infoText}>
+                {item.wordsFoundForThisPlay.length} word
+                {item.wordsFoundForThisPlay.length !== 1 ? "s" : ""}
+              </Text>
+              <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
+    } else {
+      return (
+        <TouchableOpacity
+          key={item.gameId}
+          style={styles.button}
+          onPress={() => {
+            navigation.replace("PlayScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: user,
+              gameId: item.gameId,
+            });
+          }}
+        >
+          <View style={styles.gameItemContainer}>
+            <View style={styles.boxSizeContainer}>
+              <Text style={styles.boxSizeText}>
+                {item.boardLength}x{item.boardLength}
+              </Text>
+            </View>
+            <View style={styles.gameInfoContainer}>
+              <Text style={styles.infoText}>
+                Invited by{" "}
+                <Text style={styles.inviterText}>{item.inviter}</Text>
+              </Text>
+              <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+  };
+
+  const setSelectedHandler = (selection) => {
+    setCurrentPage(0);
+    if (selection === "Favorites") {
+      // console.log("book: ", bookmarkedGames);
+      const bookmarkedGamesSet = new Set(bookmarkedGames);
+      const filteredGames = games.filter((game) =>
+        bookmarkedGamesSet.has(game.gameId)
+      );
+      setSelectedGames(filteredGames);
+    } else {
+      // console.log("working: ", games[0]);
+      setSelectedGames(games);
+    }
+    // console.log("current page: ", currentPage);
+    setSelected(selection);
+  };
+  const startIndex = currentPage * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentGames = selectedGames.slice(startIndex, endIndex);
 
   const data = [
     { id: "1", text: "Game 1" },
@@ -75,12 +318,33 @@ const HomeScreen = ({ navigation, route }) => {
       <Text style={styles.itemText}>{item.text}</Text>
     </View>
   );
+  if (!userData && makeAccount) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.infoText}>You don't have any history yet.</Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.replace("ProfileScreen", {
+              preferredBoardSize: preferredBoardSize,
+              user: null,
+            })
+          }
+        >
+          <Text style={styles.linkText}>Create an account</Text>
+        </TouchableOpacity>
+        <View style={styles.navContainer}>
+          <BottomNavBar
+            navigation={navigation}
+            preferredBoardSize={preferredBoardSize}
+            user={user}
+          />
+        </View>
+      </View>
+    );
+  }
 
-  return (
-    <LinearGradient
-      colors={[COLORS.Primary, COLORS.Secondary]}
-      style={styles.container}
-    >
+  return userData && render ? (
+    <View style={styles.outerContainer}>
       <View style={styles.flatListContainer}>
         <FlatList
           horizontal={true}
@@ -91,50 +355,43 @@ const HomeScreen = ({ navigation, route }) => {
           showsHorizontalScrollIndicator={false}
         />
       </View>
-      <Animated.View style={[styles.buttonsBox, buttonsBoxStyle]} />
-      <View style={styles.buttonContainer}>
-        <Animated.View
-          style={[styles.animateBox, createAnimatedStyle(-200, 50)]}
-        >
-          <Button
-            title={"2x2"}
-            navigation={navigation}
-            preferredBoardSize={2}
-            user={user}
-            height={height}
-            width={width}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text>Test</Text>
+        <View style={styles.toggleSwitch}>
+          <ToggleSwitch
+            bookmarkedGames={bookmarkedGames}
+            setGames={setGames}
+            selected={selected}
+            setSelectedHandler={setSelectedHandler}
           />
-        </Animated.View>
-        <Animated.View
-          style={[styles.animateBox, createAnimatedStyle(-200, 100)]}
-        >
-          <Button
-            title={"4x4"}
-            navigation={navigation}
-            preferredBoardSize={4}
-            user={user}
-            height={height}
-            width={width}
-          />
-        </Animated.View>
-        <Animated.View
-          style={[styles.animateBox, createAnimatedStyle(-200, 150)]}
-        >
-          <Button
-            title={"5x5"}
-            navigation={navigation}
-            preferredBoardSize={5}
-            user={user}
-            height={height}
-            width={width}
-          />
-        </Animated.View>
-        <Animated.View
-          style={[styles.animateBox, createAnimatedStyle(-200, 200)]}
-        >
-          <Button title={"Stats"} height={height} width={width} />
-        </Animated.View>
-      </View>
+        </View>
+        <View style={styles.listContainer}>
+          <View style={styles.listContainer}>
+            {currentGames.map((game) => renderGameItem(game))}
+          </View>
+          <View style={styles.pagination}>
+            <Button
+              title="Back"
+              onPress={handlePreviousPage}
+              disabled={currentPage === 0}
+              color={COLORS.Primary}
+            />
+            <Text style={styles.pageText}>Page {currentPage + 1}</Text>
+            <Button
+              title="Next"
+              onPress={handleNextPage}
+              disabled={endIndex >= selectedGames.length}
+              color={COLORS.Primary}
+            />
+          </View>
+        </View>
+      </ScrollView>
       <View style={styles.navContainer}>
         <BottomNavBar
           navigation={navigation}
@@ -142,28 +399,165 @@ const HomeScreen = ({ navigation, route }) => {
           user={user}
         />
       </View>
-    </LinearGradient>
+    </View>
+  ) : (
+    <View style={styles.container}>
+      <LoadingScreen />
+
+      <View style={styles.navContainer}>
+        <BottomNavBar
+          navigation={navigation}
+          preferredBoardSize={preferredBoardSize}
+          user={user}
+        />
+      </View>
+    </View>
   );
-};
+}
 
 export default HomeScreen;
 
 const createStyles = (height, width) => {
+  const circleDiameter = height * 0.07;
   return StyleSheet.create({
-    container: {
+    navContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
+    outerContainer: {
       flex: 1,
-      backgroundColor: COLORS.Primary,
       alignItems: "center",
-      justifyContent: "flex-start",
-      paddingTop: height * 0.05,
+      justifyContent: "center",
+      backgroundColor: COLORS.Secondary,
+    },
+    container: {
+      width: "100%",
+      height: "100%",
+      borderWidth: 5,
+      backgroundColor: COLORS.Secondary,
+    },
+    listContainer: {
+      // marginTop: height * 0.12,
+      marginTop: height * 0.02,
+      height: "45%",
+      width: "90%",
+      justifyContent: "top",
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+      backgroundColor: "#f9f9f9",
+      borderRadius: 10,
+      elevation: 3,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      padding: 10,
+    },
+    button: {
+      backgroundColor: "#f7f7f7",
+      borderRadius: 5,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    gameItemContainer: {
+      backgroundColor: "#f9f9f9",
+      borderColor: "#e0e0e0",
+      flexDirection: "row",
+      alignItems: "center",
+      height: height * 0.09,
+      elevation: 3,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      borderRadius: 10,
+      // borderColor: "green",
+      padding: 10,
+    },
+    boxSizeContainer: {
+      width: circleDiameter,
+      height: circleDiameter,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#f0f0f0",
+      borderRadius: 15,
+    },
+    boxSizeText: {
+      fontSize: 24,
+      color: COLORS.Primary,
+      fontFamily: "SF-Pro",
+    },
+    gameInfoContainer: {
+      flex: 3,
+      alignItems: "flex-start",
+      paddingLeft: width * 0.08,
+    },
+    pagination: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "80%",
+      marginTop: height * 0.02,
+      alignSelf: "center",
+    },
+    infoText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: "black",
+      fontFamily: "SF-Pro",
+      fontWeight: "600",
+      letterSpacing: -0.5,
+      lineHeight: 20,
+      color: "#333",
+    },
+    inviterText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: "black",
+      fontFamily: "SF-Pro",
+      fontWeight: "600",
+      letterSpacing: -0.5,
+      lineHeight: 20,
+      color: COLORS.Primary,
+      // textDecorationLine: "underline",
+    },
+    dateText: {
+      marginTop: height * 0.006,
+      fontSize: 12,
+      textAlign: "center",
+      color: "black",
+      fontFamily: "SF-Thin",
+    },
+    pageText: {
+      fontSize: 20,
+      fontFamily: "SF-Thin",
+      color: "black",
+    },
+    linkText: {
+      fontSize: 16,
+      color: COLORS.Primary,
+      textDecorationLine: "underline",
+      fontFamily: "SF-Pro",
+      marginTop: 10,
+    },
+    bookmarkIcon: {
+      paddingRight: 8,
+      paddingTop: 15,
+      position: "absolute",
+      top: 0,
+      right: 0,
+    },
+    toggleSwitch: {
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
     },
     flatListContainer: {
       height: height * 0.3,
       width: "100%",
       justifyContent: "center",
-      alignItems: "center",
-    },
-    contentContainerStyle: {
       alignItems: "center",
     },
     item: {
@@ -184,49 +578,6 @@ const createStyles = (height, width) => {
     itemText: {
       fontSize: 18,
       color: "black",
-    },
-    buttonsBox: {
-      position: "absolute",
-      bottom: 0,
-      height: height * 0.64,
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      borderColor: "#e0e0e0",
-      backgroundColor: COLORS.Secondary,
-      borderTopLeftRadius: 65,
-      borderTopRightRadius: 65,
-      elevation: 3,
-      shadowColor: "#000000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      padding: 10,
-      marginBottom: height * 0.02,
-    },
-    buttonContainer: {
-      height: height * 0.54,
-      marginTop: height * 0.01,
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      borderColor: "#e0e0e0",
-      backgroundColor: "transparent",
-    },
-    navContainer: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-    },
-    title: {
-      fontSize: 24,
-      color: "black",
-    },
-    animateBox: {
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100%",
     },
   });
 };
