@@ -37,17 +37,9 @@ function HomeScreen({ navigation, route }) {
   const [selected, setSelected] = useState("All Games");
   const [selectedGames, setSelectedGames] = useState([]);
   const fetchedGameIdsRef = useRef(new Set());
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    // const loadFonts = async () => {
-    //   await Font.loadAsync({
-    //     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
-    //     "SF-Thin": require("../assets/fonts/SF-Thin.ttf"),
-    //   });
-    //   setFontsLoaded(true);
-    // };
-
-    // loadFonts();
     const getUser = async () => {
       const start = performance.now();
       try {
@@ -296,13 +288,6 @@ function HomeScreen({ navigation, route }) {
     { id: "1", text: "Game 1" },
     { id: "2", text: "Game 2" },
     { id: "3", text: "Game 3" },
-    { id: "4", text: "Game 4" },
-    { id: "5", text: "Game 5" },
-    { id: "6", text: "Game 6" },
-    { id: "7", text: "Game 7" },
-    { id: "8", text: "Game 8" },
-    { id: "9", text: "Game 9" },
-    { id: "10", text: "Game 10" },
   ];
 
   const renderItem = ({ item, index }) => (
@@ -312,12 +297,19 @@ function HomeScreen({ navigation, route }) {
         index === 0 ? { marginLeft: (width - width * 0.7) / 2 } : {},
         index === data.length - 1
           ? { marginRight: (width - width * 0.7) / 2 }
-          : {},
+          : { marginHorizontal: (width - width * 0.7) / 2 },
       ]}
     >
       <Text style={styles.itemText}>{item.text}</Text>
     </View>
   );
+
+  const handleScroll = (event) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffsetX / (width * 0.7 + width * 0.1));
+    setActiveIndex(index);
+  };
+
   if (!userData && makeAccount) {
     return (
       <View style={styles.container}>
@@ -364,7 +356,17 @@ function HomeScreen({ navigation, route }) {
               justifyContent: "center",
             }}
             showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            pagingEnabled
           />
+          <View style={styles.paginationDots}>
+            {data.map((_, index) => (
+              <View
+                key={index}
+                style={index === activeIndex ? styles.activeDot : styles.dot}
+              />
+            ))}
+          </View>
         </View>
 
         <View style={styles.outerListContainer}>
@@ -379,7 +381,7 @@ function HomeScreen({ navigation, route }) {
           <View style={styles.listContainer}>
             {currentGames.map((game) => renderGameItem(game))}
           </View>
-          {/* <View style={styles.pagination}>
+          <View style={styles.pagination}>
             <Button
               title="Back"
               onPress={handlePreviousPage}
@@ -393,7 +395,7 @@ function HomeScreen({ navigation, route }) {
               disabled={endIndex >= selectedGames.length}
               color={COLORS.Primary}
             />
-          </View> */}
+          </View>
         </View>
       </ScrollView>
       <View style={styles.navContainer}>
@@ -468,9 +470,7 @@ const createStyles = (height, width) => {
     listContainer: {
       width: "100%",
       justifyContent: "flex-start",
-
       backgroundColor: "transparent",
-
       padding: 10,
       marginBottom: 20, // Ensure some space below the list container for pagination
     },
@@ -523,6 +523,25 @@ const createStyles = (height, width) => {
       width: "80%",
       marginTop: height * 0.02,
       alignSelf: "center",
+    },
+    paginationDots: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    dot: {
+      width: 6,
+      height: 6,
+      borderRadius: 4,
+      marginHorizontal: 6,
+      backgroundColor: "#e0e0e0",
+    },
+    activeDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginHorizontal: 6,
+      backgroundColor: COLORS.Primary,
     },
     infoText: {
       fontSize: 16,
@@ -577,7 +596,7 @@ const createStyles = (height, width) => {
       alignItems: "center",
     },
     flatListContainer: {
-      height: height * 0.22, // Adjust height for the horizontal list
+      height: height * 0.25, // Adjust height for the horizontal list
       marginTop: height * 0.1,
       width: "100%",
       justifyContent: "center",
@@ -587,7 +606,6 @@ const createStyles = (height, width) => {
       width: width * 0.7,
       height: height * 0.2,
       padding: 20,
-      marginHorizontal: width * 0.05,
       backgroundColor: COLORS.Secondary,
       borderRadius: 10,
       shadowColor: "#000",
@@ -597,6 +615,7 @@ const createStyles = (height, width) => {
       elevation: 3,
       justifyContent: "center",
       alignItems: "center",
+      marginHorizontal: (width - width * 0.7) / 4,
     },
     itemText: {
       fontSize: 18,
