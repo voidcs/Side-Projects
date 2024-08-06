@@ -218,7 +218,7 @@ function HomeScreen({ navigation, route }) {
               >
                 <FontAwesome
                   name={bookmarkIcon}
-                  size={20}
+                  size={24}
                   color={COLORS.Primary}
                 />
               </Pressable>
@@ -370,31 +370,18 @@ function HomeScreen({ navigation, route }) {
         </View>
 
         <View style={styles.outerListContainer}>
-          <View style={styles.toggleSwitch}>
-            <ToggleSwitch
-              bookmarkedGames={bookmarkedGames}
-              setGames={setGames}
-              selected={selected}
-              setSelectedHandler={setSelectedHandler}
-            />
+          <View style={styles.gamesHeader}>
+            <Text style={styles.historyText}>Recent Games</Text>
+            <TouchableOpacity
+              onPress={() => {
+                /* handle see all action */
+              }}
+            >
+              <Text style={styles.seeAllText}>See all</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.listContainer}>
             {currentGames.map((game) => renderGameItem(game))}
-          </View>
-          <View style={styles.pagination}>
-            <Button
-              title="Back"
-              onPress={handlePreviousPage}
-              disabled={currentPage === 0}
-              color={COLORS.Primary}
-            />
-            <Text style={styles.pageText}>Page {currentPage + 1}</Text>
-            <Button
-              title="Next"
-              onPress={handleNextPage}
-              disabled={endIndex >= selectedGames.length}
-              color={COLORS.Primary}
-            />
           </View>
         </View>
       </ScrollView>
@@ -453,19 +440,20 @@ const createStyles = (height, width) => {
     },
     outerListContainer: {
       marginTop: height * 0.03,
-      width: "85%",
+      width: "90%",
       justifyContent: "flex-start",
       backgroundColor: "#f9f9f9",
-      borderRadius: 30,
-      elevation: 3,
-      shadowColor: "#000000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      borderWidth: 5,
-      borderColor: "purple",
-      borderWidth: 1,
-      borderColor: "#e0e0e0",
+      backgroundColor: "transparent",
+      // borderRadius: 30,
+      // elevation: 3,
+      // shadowColor: "#000000",
+      // shadowOffset: { width: 0, height: 4 },
+      // shadowOpacity: 0.05,
+      // shadowRadius: 8,
+      // borderWidth: 5,
+      // borderColor: "purple",
+      // borderWidth: 1,
+      // borderColor: "#e0e0e0",
     },
     listContainer: {
       width: "100%",
@@ -475,20 +463,22 @@ const createStyles = (height, width) => {
       marginBottom: 20, // Ensure some space below the list container for pagination
     },
     button: {
-      backgroundColor: "#f7f7f7",
+      backgroundColor: "transparent",
       padding: 2,
-      marginVertical: 2,
+      marginVertical: 3,
       borderRadius: 5,
       justifyContent: "center",
       alignItems: "center",
+      width: "100%",
     },
     gameItemContainer: {
+      width: "100%",
       backgroundColor: "#f9f9f9",
-      borderWidth: 1,
+      // borderWidth: 1,
       borderColor: "#e0e0e0",
       flexDirection: "row",
       alignItems: "center",
-      height: height * 0.1,
+      height: height * 0.11,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
@@ -589,11 +579,13 @@ const createStyles = (height, width) => {
       top: 0,
       right: 0,
     },
-    toggleSwitch: {
+    gamesHeader: {
+      height: height * 0.06,
       marginTop: height * 0.02,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
+      borderWidth: 1,
     },
     flatListContainer: {
       height: height * 0.25, // Adjust height for the horizontal list
@@ -620,6 +612,25 @@ const createStyles = (height, width) => {
     itemText: {
       fontSize: 18,
       color: "black",
+    },
+    gamesHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 10, // Adjust this value as needed
+    },
+    historyText: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: "black", // Adjust this color as needed
+      fontWeight: "600",
+      letterSpacing: -0.5,
+    },
+    seeAllText: {
+      fontSize: 16,
+      color: COLORS.Primary,
     },
   });
 };
