@@ -1,0 +1,13 @@
+.Header {
+    background-color: #282c34;
+    padding: 20px;
+    color: white;
+    text-align: center;
+  }
+  
+  .Header nav a {
+    color: #61dafb;
+    margin: 0 10px;
+    text-decoration: none;
+  }
+  
