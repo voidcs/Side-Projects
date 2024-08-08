@@ -10,7 +10,7 @@ int main()
     freopen("prefix_sum_giant_input.txt", "r", stdin);
     int n;
     cin >> n;
-    vector<int> p(n + 1);
+    vector<long long> p(n + 1);
     vector<int> v(n);
     for (int &x : v)
     {
