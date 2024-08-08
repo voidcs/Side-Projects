@@ -52,15 +52,14 @@ vector<long long> parallel_prefix_sum(const vector<int> &input)
             }
         }
     }
-
-    prefix_sum.resize(n);
+    prefix_sum.resize(n + 1);
 
     return prefix_sum;
 }
 
 int main()
 {
-    freopen("giant_input.txt", "r", stdin);
+    freopen("small_input.txt", "r", stdin);
     int n;
     cin >> n;
     vector<int> v(n);
