@@ -7,7 +7,7 @@ const ll mod = 1e9 + 7;
 
 int main()
 {
-    freopen("prefix_sum_giant_input.txt", "r", stdin);
+    freopen("giant_input.txt", "r", stdin);
     int n;
     cin >> n;
     vector<long long> p(n + 1);

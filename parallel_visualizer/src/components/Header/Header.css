@@ -1,13 +1,31 @@
 .Header {
-    background-color: #282c34;
-    padding: 20px;
-    color: white;
-    text-align: center;
-  }
-  
-  .Header nav a {
-    color: #61dafb;
-    margin: 0 10px;
-    text-decoration: none;
-  }
-  
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1); /* Transparent background */
+  backdrop-filter: blur(10px); /* Adds a blur effect to the background */
+  color: black; /* Text color */
+  z-index: 1000;
+  font-family: 'Arial', sans-serif; /* Adjust the font if needed */
+}
+
+.Header-logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.Header-nav a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: black;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.Header-nav a:hover {
+  color: gray; /* Change color on hover */
+}

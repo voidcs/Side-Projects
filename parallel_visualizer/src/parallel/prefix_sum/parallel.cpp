@@ -59,7 +59,10 @@ vector<long long> parallel_prefix_sum(const vector<int> &input)
 
 int main()
 {
-    freopen("small_input.txt", "r", stdin);
+    // clang++ -fopenmp -o a parallel.cpp
+    // ios::sync_with_stdio(0);
+    // cin.tie(0);
+    freopen("giant_input.txt", "r", stdin);
     int n;
     cin >> n;
     vector<int> v(n);
