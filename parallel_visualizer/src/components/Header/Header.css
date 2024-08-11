@@ -1,16 +1,17 @@
 .Header {
   position: fixed;
   top: 0;
-  width: 100%;
+  width: calc(100% - 40px);
   padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.1); /* Transparent background */
   backdrop-filter: blur(10px); /* Adds a blur effect to the background */
-  color: black; /* Text color */
+  color: black; 
   z-index: 1000;
-  font-family: 'Arial', sans-serif; /* Adjust the font if needed */
+  font-family: 'Arial', sans-serif; 
+  box-sizing: border-box; 
 }
 
 .Header-logo {
@@ -19,7 +20,7 @@
 }
 
 .Header-nav a {
-  margin: 0 15px;
+  padding: 0 15px;
   text-decoration: none;
   color: black;
   font-weight: 600;
@@ -27,5 +28,5 @@
 }
 
 .Header-nav a:hover {
-  color: gray; /* Change color on hover */
+  color: gray; 
 }
