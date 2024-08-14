@@ -16,16 +16,18 @@ const App: React.FC = () => {
     <Router>
       <div className="App">
         <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/wall-of-entropy" element={<WallOfEntropy />} />
-          <Route path="/projects/vocable-forage" element={<VocableForage />} />
-          <Route path="/projects/parallel-visualizer" element={<ParallelVisualizer />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<NotFound />} /> {/* This handles 404 pages */}
-        </Routes>
+        <div style={{ paddingTop: '100px' }}> {/* Adjusted padding to push content below header */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/wall-of-entropy" element={<WallOfEntropy />} />
+            <Route path="/projects/vocable-forage" element={<VocableForage />} />
+            <Route path="/projects/parallel-visualizer" element={<ParallelVisualizer />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} /> {/* This handles 404 pages */}
+          </Routes>
+        </div>
       </div>
     </Router>
   );
