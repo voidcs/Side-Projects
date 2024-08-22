@@ -18,6 +18,7 @@ import HistoryScreen from "./screens/HistoryScreen";
 import SelectPlayScreen from "./screens/SelectPlayScreen";
 import Trie from "trie-prefix-tree";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createNativeStackNavigator();
 
@@ -30,15 +31,14 @@ export default function App() {
   useEffect(() => {
     const fetchWordList = async () => {
       try {
-        //http://172.16.102.180:3000
         const response = await fetch(
           "http://ec2-3-145-75-212.us-east-2.compute.amazonaws.com:3000/words"
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const result = await response.text(); // Use response.text() to handle plain text
-        const wordsArray = result.split(/\r?\n/).filter((word) => word); // Split the response into an array of words
+        const result = await response.text();
+        const wordsArray = result.split(/\r?\n/).filter((word) => word);
         setWords(wordsArray);
       } catch (error) {
         console.error("Error fetching word list", error);
@@ -50,10 +50,8 @@ export default function App() {
     fetchWordList();
     const getPlayer = async () => {
       try {
-        // Try to get the "player" key
         const player = await AsyncStorage.getItem("player");
         if (player !== null) {
-          // If "player" exists, return it
           return JSON.parse(player);
         }
         return null;
@@ -67,7 +65,7 @@ export default function App() {
       const playerData = await getPlayer();
       setPlayer(playerData);
     };
-    // Example usage
+
     initializePlayer();
   }, []);
 
@@ -80,7 +78,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="dark" />
       <NavigationContainer>
         <Stack.Navigator
@@ -136,7 +134,7 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </>
+    </GestureHandlerRootView>
   );
 }
 

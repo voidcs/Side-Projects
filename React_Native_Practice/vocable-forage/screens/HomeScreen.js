@@ -5,10 +5,10 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Button,
   Dimensions,
   Pressable,
   ScrollView,
+  Animated,
 } from "react-native";
 import { parse, set } from "date-fns";
 import BottomNavBar from "../components/BottomNavBar";
@@ -18,6 +18,7 @@ import LoadingScreen from "./LoadingScreen";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import * as Font from "expo-font";
 
 const ITEMS_PER_PAGE = 8;
@@ -161,14 +162,6 @@ function HomeScreen({ navigation, route }) {
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prev) => prev + 1);
-  };
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 0));
-  };
-
   const editBookmark = async (gameId) => {
     console.log("gameId in bookmark: ", gameId);
     console.log("my bookmarked: ", bookmarkedGames);
@@ -189,48 +182,78 @@ function HomeScreen({ navigation, route }) {
     setBookmarkedGames(updatedBookmarks);
   };
 
+  const rightSwipe = (progress, dragX) => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0], // Adjust inputRange to match right swipe
+      outputRange: [1, 0], // Reversed outputRange for right swipe
+      extrapolate: "clamp",
+    });
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          console.log("Right swipe action triggered");
+        }}
+        activeOpacity={0.6}
+      >
+        <View style={styles.deleteBox}>
+          <Animated.Text style={{ transform: [{ scale: scale }] }}>
+            Delete
+          </Animated.Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   const renderGameItem = (item) => {
     const isBookmarked = bookmarkedGames.includes(item.gameId);
     const bookmarkIcon = isBookmarked ? "heart" : "heart-o";
+
     if (item.hasPlayed) {
       return (
-        <TouchableOpacity
+        <Swipeable
           key={item.gameId}
-          style={styles.button}
-          onPress={() => {
-            navigation.replace("EndGameScreen", {
-              preferredBoardSize: preferredBoardSize,
-              user: user,
-              gameId: item.gameId,
-            });
-          }}
+          renderRightActions={rightSwipe}
+          overshootLeft={false}
         >
-          <View style={styles.gameItemContainer}>
-            <View style={styles.boxSizeContainer}>
-              <Text style={styles.boxSizeText}>
-                {item.boardLength}x{item.boardLength}
-              </Text>
+          <TouchableOpacity
+            key={item.gameId}
+            style={styles.button}
+            onPress={() => {
+              navigation.replace("EndGameScreen", {
+                preferredBoardSize: preferredBoardSize,
+                user: user,
+                gameId: item.gameId,
+              });
+            }}
+          >
+            <View style={styles.gameItemContainer}>
+              <View style={styles.boxSizeContainer}>
+                <Text style={styles.boxSizeText}>
+                  {item.boardLength}x{item.boardLength}
+                </Text>
+              </View>
+              <View style={styles.gameInfoContainer}>
+                <Pressable
+                  style={styles.bookmarkIcon}
+                  onPress={() => editBookmark(item.gameId)}
+                >
+                  <FontAwesome
+                    name={bookmarkIcon}
+                    size={24}
+                    color={COLORS.Primary}
+                  />
+                </Pressable>
+                <Text style={styles.infoText}>{item.points} points</Text>
+                <Text style={styles.infoText}>
+                  {item.wordsFoundForThisPlay.length} word
+                  {item.wordsFoundForThisPlay.length !== 1 ? "s" : ""}
+                </Text>
+                <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
+              </View>
             </View>
-            <View style={styles.gameInfoContainer}>
-              <Pressable
-                style={styles.bookmarkIcon}
-                onPress={() => editBookmark(item.gameId)}
-              >
-                <FontAwesome
-                  name={bookmarkIcon}
-                  size={24}
-                  color={COLORS.Primary}
-                />
-              </Pressable>
-              <Text style={styles.infoText}>{item.points} points</Text>
-              <Text style={styles.infoText}>
-                {item.wordsFoundForThisPlay.length} word
-                {item.wordsFoundForThisPlay.length !== 1 ? "s" : ""}
-              </Text>
-              <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </Swipeable>
       );
     } else {
       return (
@@ -264,22 +287,6 @@ function HomeScreen({ navigation, route }) {
     }
   };
 
-  const setSelectedHandler = (selection) => {
-    setCurrentPage(0);
-    if (selection === "Favorites") {
-      // console.log("book: ", bookmarkedGames);
-      const bookmarkedGamesSet = new Set(bookmarkedGames);
-      const filteredGames = games.filter((game) =>
-        bookmarkedGamesSet.has(game.gameId)
-      );
-      setSelectedGames(filteredGames);
-    } else {
-      // console.log("working: ", games[0]);
-      setSelectedGames(games);
-    }
-    // console.log("current page: ", currentPage);
-    setSelected(selection);
-  };
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentGames = selectedGames.slice(startIndex, endIndex);
@@ -342,7 +349,7 @@ function HomeScreen({ navigation, route }) {
         contentContainerStyle={{
           alignItems: "center",
           justifyContent: "center",
-          paddingBottom: height * 0.15,
+          paddingBottom: height * 0.12,
         }}
       >
         <View style={styles.flatListContainer}>
@@ -371,11 +378,18 @@ function HomeScreen({ navigation, route }) {
 
         <View style={styles.outerListContainer}>
           <View style={styles.gamesHeader}>
+            <Text style={styles.historyText}>Play</Text>
+          </View>
+
+          <View style={styles.gamesHeader}>
             <Text style={styles.historyText}>Recent Games</Text>
             <TouchableOpacity
-              onPress={() => {
-                /* handle see all action */
-              }}
+              onPress={() =>
+                navigation.replace("HistoryScreen", {
+                  preferredBoardSize: preferredBoardSize,
+                  user: user,
+                })
+              }
             >
               <Text style={styles.seeAllText}>See all</Text>
             </TouchableOpacity>
@@ -430,7 +444,7 @@ const createStyles = (height, width) => {
       position: "relative",
     },
     scrollable: {
-      flex: 1, // Use flex to take up the remaining space
+      flex: 1,
       width: "100%",
     },
     container: {
@@ -460,7 +474,6 @@ const createStyles = (height, width) => {
       justifyContent: "flex-start",
       backgroundColor: "transparent",
       padding: 10,
-      marginBottom: 20, // Ensure some space below the list container for pagination
     },
     button: {
       backgroundColor: "transparent",
@@ -505,15 +518,6 @@ const createStyles = (height, width) => {
       flex: 3,
       alignItems: "flex-start",
       paddingLeft: width * 0.08,
-    },
-    pagination: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      flex: 1,
-      width: "80%",
-      marginTop: height * 0.02,
-      alignSelf: "center",
     },
     paginationDots: {
       flexDirection: "row",
