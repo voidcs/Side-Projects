@@ -185,7 +185,7 @@ function HomeScreen({ navigation, route }) {
   const rightSwipe = (progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [-100, 0], // Adjust inputRange to match right swipe
-      outputRange: [1, 0], // Reversed outputRange for right swipe
+      outputRange: [1, 0.5], // Reversed outputRange for right swipe
       extrapolate: "clamp",
     });
 
@@ -197,9 +197,9 @@ function HomeScreen({ navigation, route }) {
         activeOpacity={0.6}
       >
         <View style={styles.deleteBox}>
-          <Animated.Text style={{ transform: [{ scale: scale }] }}>
-            Delete
-          </Animated.Text>
+          <Animated.View style={{ transform: [{ scale: scale }] }}>
+            <FontAwesome name="trash" size={28} color="white" />
+          </Animated.View>
         </View>
       </TouchableOpacity>
     );
@@ -215,6 +215,7 @@ function HomeScreen({ navigation, route }) {
           key={item.gameId}
           renderRightActions={rightSwipe}
           overshootLeft={false}
+          closeOnScroll={true} // Automatically close on scroll
         >
           <TouchableOpacity
             key={item.gameId}
@@ -234,16 +235,18 @@ function HomeScreen({ navigation, route }) {
                 </Text>
               </View>
               <View style={styles.gameInfoContainer}>
-                <Pressable
-                  style={styles.bookmarkIcon}
-                  onPress={() => editBookmark(item.gameId)}
-                >
-                  <FontAwesome
-                    name={bookmarkIcon}
-                    size={24}
-                    color={COLORS.Primary}
-                  />
-                </Pressable>
+                <View style={styles.bookmarkIconContainer}>
+                  <Pressable
+                    style={styles.bookmarkIcon}
+                    onPress={() => editBookmark(item.gameId)}
+                  >
+                    <FontAwesome
+                      name={bookmarkIcon}
+                      size={24}
+                      color={COLORS.Primary}
+                    />
+                  </Pressable>
+                </View>
                 <Text style={styles.infoText}>{item.points} points</Text>
                 <Text style={styles.infoText}>
                   {item.wordsFoundForThisPlay.length} word
@@ -483,6 +486,7 @@ const createStyles = (height, width) => {
       justifyContent: "center",
       alignItems: "center",
       width: "100%",
+      // borderWidth: 1,
     },
     gameItemContainer: {
       width: "100%",
@@ -518,6 +522,7 @@ const createStyles = (height, width) => {
       flex: 3,
       alignItems: "flex-start",
       paddingLeft: width * 0.08,
+      // borderWidth: 1,
     },
     paginationDots: {
       flexDirection: "row",
@@ -561,6 +566,7 @@ const createStyles = (height, width) => {
     dateText: {
       marginTop: height * 0.006,
       fontSize: 12,
+      lineHeight: 14,
       textAlign: "center",
       color: "#808080",
       fontFamily: "SF-Thin",
@@ -578,11 +584,7 @@ const createStyles = (height, width) => {
       marginTop: 10,
     },
     bookmarkIcon: {
-      paddingRight: 8,
-      paddingTop: 15,
-      position: "absolute",
-      top: 0,
-      right: 0,
+      paddingRight: 20,
     },
     gamesHeader: {
       height: height * 0.06,
@@ -593,7 +595,7 @@ const createStyles = (height, width) => {
       borderWidth: 1,
     },
     flatListContainer: {
-      height: height * 0.25, // Adjust height for the horizontal list
+      height: height * 0.25,
       marginTop: height * 0.1,
       width: "100%",
       justifyContent: "center",
@@ -624,18 +626,35 @@ const createStyles = (height, width) => {
       alignItems: "center",
       paddingVertical: 10,
       paddingHorizontal: 15,
-      borderRadius: 10, // Adjust this value as needed
+      borderRadius: 10,
     },
     historyText: {
       fontSize: 24,
       fontWeight: "bold",
-      color: "black", // Adjust this color as needed
+      color: "black",
       fontWeight: "600",
       letterSpacing: -0.5,
     },
     seeAllText: {
       fontSize: 16,
       color: COLORS.Primary,
+    },
+    deleteBox: {
+      backgroundColor: "red",
+      justifyContent: "center",
+      alignItems: "center",
+      width: 70,
+      height: "75%",
+      borderRadius: 8,
+      marginTop: 10,
+    },
+    bookmarkIconContainer: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
     },
   });
 };
