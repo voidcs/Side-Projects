@@ -299,7 +299,7 @@ const createStyles = (height, width) => {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: COLORS.Neutral,
     },
     title: {
       fontSize: 28,

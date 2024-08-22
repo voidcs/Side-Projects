@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     marginTop: -100,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.Secondary,
+    backgroundColor: COLORS.Neutral,
     padding: 20,
   },
   quote: {
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.Secondary,
+    backgroundColor: COLORS.Neutral,
   },
   lottie: {
     width: 500,

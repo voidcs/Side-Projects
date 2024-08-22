@@ -419,14 +419,14 @@ const createStyles = (height, width) => {
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: COLORS.Secondary, // Ensure the background color matches
+      backgroundColor: COLORS.Neutral, // Ensure the background color matches
     },
     outerContainer: {
       flex: 1,
       width: "100%",
       alignItems: "center",
       justifyContent: "flex-start",
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: COLORS.Neutral,
       position: "relative",
     },
     scrollable: {
@@ -436,7 +436,7 @@ const createStyles = (height, width) => {
     container: {
       flex: 1,
       width: "100%",
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: COLORS.Neutral,
     },
     outerListContainer: {
       marginTop: height * 0.03,
@@ -465,7 +465,7 @@ const createStyles = (height, width) => {
     button: {
       backgroundColor: "transparent",
       padding: 2,
-      marginVertical: 3,
+      // marginVertical: 3,
       borderRadius: 5,
       justifyContent: "center",
       alignItems: "center",
@@ -473,26 +473,27 @@ const createStyles = (height, width) => {
     },
     gameItemContainer: {
       width: "100%",
-      backgroundColor: "#f9f9f9",
+      backgroundColor: "transparent",
       // borderWidth: 1,
       borderColor: "#e0e0e0",
       flexDirection: "row",
       alignItems: "center",
-      height: height * 0.11,
+      height: height * 0.1,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.05,
       shadowRadius: 8,
       borderRadius: 20,
-      padding: 10,
+      // padding: 10,
+      // borderWidth: 1,
     },
     boxSizeContainer: {
       width: circleDiameter,
       height: circleDiameter,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#f0f0f0",
+      backgroundColor: "#DADADA",
       borderRadius: 15,
     },
     boxSizeText: {
@@ -557,7 +558,7 @@ const createStyles = (height, width) => {
       marginTop: height * 0.006,
       fontSize: 12,
       textAlign: "center",
-      color: "black",
+      color: "#808080",
       fontFamily: "SF-Thin",
     },
     pageText: {
@@ -598,7 +599,7 @@ const createStyles = (height, width) => {
       width: width * 0.7,
       height: height * 0.2,
       padding: 20,
-      backgroundColor: COLORS.Secondary,
+      backgroundColor: COLORS.Neutral,
       borderRadius: 10,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
