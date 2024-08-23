@@ -184,48 +184,13 @@ function HomeScreen({ navigation, route }) {
     setBookmarkedGames(updatedBookmarks);
   };
 
-  const rightSwipe = (progress, dragX, item) => {
-    const scale = dragX.interpolate({
-      inputRange: [-100, 0], // Adjust inputRange to match right swipe
-      outputRange: [1, 0.5], // Reversed outputRange for right swipe
-      extrapolate: "clamp",
-    });
-
-    const removeGameWithAnimation = (gameId) => {
-      Animated.timing(animationValues[gameId], {
-        toValue: 0, // Fade out
-        duration: 300, // Duration of animation
-        useNativeDriver: true,
-      }).start(() => {
-        const updatedGames = games.filter((game) => game.gameId !== gameId);
-        setGames(updatedGames);
-        setSelectedGames(updatedGames);
-      });
-    };
-
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          removeGameWithAnimation(item.gameId);
-        }}
-        activeOpacity={0.6}
-      >
-        <View style={styles.deleteBox}>
-          <Animated.View style={{ transform: [{ scale: scale }] }}>
-            <FontAwesome name="trash" size={32} color="red" />
-          </Animated.View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   const renderGameItem = (item) => {
     const isBookmarked = bookmarkedGames.includes(item.gameId);
     const bookmarkIcon = isBookmarked ? "heart" : "heart-o";
 
     // Initialize animation value for each game item if not already initialized
     if (!animationValues[item.gameId]) {
-      animationValues[item.gameId] = new Animated.Value(1);
+      animationValues[item.gameId] = new Animated.Value(height * 0.11); // initial height
     }
 
     const rightSwipe = (progress, dragX) => {
@@ -238,8 +203,8 @@ function HomeScreen({ navigation, route }) {
       const removeGameWithAnimation = (gameId) => {
         Animated.timing(animationValues[gameId], {
           toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
+          duration: 200, // Animation duration (0.2 seconds)
+          useNativeDriver: false,
         }).start(() => {
           const updatedGames = games.filter((game) => game.gameId !== gameId);
           setGames(updatedGames);
@@ -266,18 +231,25 @@ function HomeScreen({ navigation, route }) {
     return (
       <Animated.View
         key={item.gameId}
-        style={{ opacity: animationValues[item.gameId] }}
+        style={{
+          height: animationValues[item.gameId],
+          marginBottom: animationValues[item.gameId].interpolate({
+            inputRange: [0, height * 0.11],
+            outputRange: [0, 10],
+          }),
+          overflow: "hidden", // Ensures content inside is hidden as height decreases
+        }}
       >
         <Swipeable
-          key={item.gameId}
+          key={`swipeable-${item.gameId}`} // Unique key for Swipeable
           renderRightActions={(progress, dragX) =>
             rightSwipe(progress, dragX, item)
           }
           overshootLeft={false}
-          closeOnScroll={true}
+          closeOnScroll={true} // Automatically close on scroll
         >
           <TouchableOpacity
-            key={item.gameId}
+            key={`touchable-${item.gameId}`} // Unique key for TouchableOpacity
             style={styles.button}
             onPress={() => {
               navigation.replace("EndGameScreen", {
@@ -296,6 +268,7 @@ function HomeScreen({ navigation, route }) {
               <View style={styles.gameInfoContainer}>
                 <View style={styles.bookmarkIconContainer}>
                   <Pressable
+                    key={item.gameId}
                     style={styles.bookmarkIcon}
                     onPress={() => editBookmark(item.gameId)}
                   >
