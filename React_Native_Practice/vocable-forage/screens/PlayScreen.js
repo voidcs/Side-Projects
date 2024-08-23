@@ -181,7 +181,8 @@ function PlayScreen({ navigation, route }) {
       boardLengthRef.current = routeBoardLength;
       preferredBoardSizeRef.current = routePreferredBoardSize;
       const { height, width } = Dimensions.get("window");
-      bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.25;
+      // 0.25 is decent but it seems too easy to misswipe, let's see how 0.28 works with animation
+      bufferRef.current = ((height * 0.4) / routePreferredBoardSize) * 0.28;
 
       const getGameData = async () => {
         try {

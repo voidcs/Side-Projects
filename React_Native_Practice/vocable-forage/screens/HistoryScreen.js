@@ -38,15 +38,6 @@ function HistoryScreen({ navigation, route }) {
   const fetchedGameIdsRef = useRef(new Set());
 
   useEffect(() => {
-    // const loadFonts = async () => {
-    //   await Font.loadAsync({
-    //     "SF-Pro": require("../assets/fonts/SF-Pro.ttf"),
-    //     "SF-Thin": require("../assets/fonts/SF-Thin.ttf"),
-    //   });
-    //   setFontsLoaded(true);
-    // };
-
-    // loadFonts();
     const getUser = async () => {
       const start = performance.now();
       try {

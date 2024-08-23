@@ -182,17 +182,23 @@ function HomeScreen({ navigation, route }) {
     setBookmarkedGames(updatedBookmarks);
   };
 
-  const rightSwipe = (progress, dragX) => {
+  const rightSwipe = (progress, dragX, item) => {
     const scale = dragX.interpolate({
       inputRange: [-100, 0], // Adjust inputRange to match right swipe
       outputRange: [1, 0.5], // Reversed outputRange for right swipe
       extrapolate: "clamp",
     });
 
+    const removeGame = (gameId) => {
+      const updatedGames = games.filter((game) => game.gameId !== gameId);
+      setGames(updatedGames);
+      setSelectedGames(updatedGames); // Update the filtered list as well if needed
+    };
+
     return (
       <TouchableOpacity
         onPress={() => {
-          console.log("Right swipe action triggered");
+          removeGame(item.gameId);
         }}
         activeOpacity={0.6}
       >
@@ -213,7 +219,9 @@ function HomeScreen({ navigation, route }) {
       return (
         <Swipeable
           key={item.gameId}
-          renderRightActions={rightSwipe}
+          renderRightActions={(progress, dragX) =>
+            rightSwipe(progress, dragX, item)
+          }
           overshootLeft={false}
           closeOnScroll={true} // Automatically close on scroll
         >
