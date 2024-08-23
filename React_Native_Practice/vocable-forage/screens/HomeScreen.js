@@ -198,7 +198,7 @@ function HomeScreen({ navigation, route }) {
       >
         <View style={styles.deleteBox}>
           <Animated.View style={{ transform: [{ scale: scale }] }}>
-            <FontAwesome name="trash" size={28} color="white" />
+            <FontAwesome name="trash" size={32} color="red" />
           </Animated.View>
         </View>
       </TouchableOpacity>
@@ -486,6 +486,7 @@ const createStyles = (height, width) => {
       justifyContent: "center",
       alignItems: "center",
       width: "100%",
+      // marginVertical: 5,
       // borderWidth: 1,
     },
     gameItemContainer: {
@@ -495,7 +496,7 @@ const createStyles = (height, width) => {
       borderColor: "#e0e0e0",
       flexDirection: "row",
       alignItems: "center",
-      height: height * 0.1,
+      height: height * 0.11,
       elevation: 3,
       shadowColor: "#000000",
       shadowOffset: { width: 0, height: 4 },
@@ -546,17 +547,17 @@ const createStyles = (height, width) => {
     infoText: {
       fontSize: 16,
       textAlign: "center",
-      color: "black",
+      color: COLORS.Darker,
       fontFamily: "SF-Pro",
       fontWeight: "600",
       letterSpacing: -0.5,
       lineHeight: 20,
-      color: "#333",
+      color: COLORS.Darker,
     },
     inviterText: {
       fontSize: 16,
       textAlign: "center",
-      color: "black",
+      color: COLORS.Darker,
       fontFamily: "SF-Pro",
       fontWeight: "600",
       letterSpacing: -0.5,
@@ -564,17 +565,17 @@ const createStyles = (height, width) => {
       color: COLORS.Primary,
     },
     dateText: {
-      marginTop: height * 0.006,
+      marginTop: height * 0.008,
       fontSize: 12,
-      lineHeight: 14,
+      lineHeight: 15,
       textAlign: "center",
-      color: "#808080",
+      color: COLORS.Lighter,
       fontFamily: "SF-Thin",
     },
     pageText: {
       fontSize: 20,
       fontFamily: "SF-Thin",
-      color: "black",
+      color: COLORS.Darker,
     },
     linkText: {
       fontSize: 16,
@@ -618,7 +619,7 @@ const createStyles = (height, width) => {
     },
     itemText: {
       fontSize: 18,
-      color: "black",
+      color: COLORS.Darker,
     },
     gamesHeader: {
       flexDirection: "row",
@@ -631,16 +632,16 @@ const createStyles = (height, width) => {
     historyText: {
       fontSize: 24,
       fontWeight: "bold",
-      color: "black",
+      color: COLORS.Darker,
       fontWeight: "600",
       letterSpacing: -0.5,
     },
     seeAllText: {
       fontSize: 16,
-      color: COLORS.Primary,
+      color: COLORS.Lighter,
     },
     deleteBox: {
-      backgroundColor: "red",
+      backgroundColor: "transparent",
       justifyContent: "center",
       alignItems: "center",
       width: 70,

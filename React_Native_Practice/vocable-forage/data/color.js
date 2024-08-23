@@ -5,6 +5,8 @@ export default COLORS = {
   Light: "#dbbfd9",
   AlreadyFound: "#a69cad",
   Neutral: "#F5F5F5",
+  Lighter: "#808080",
+  Darker: "#4F4F4F",
 
   //   Primary: "#2A4B8D",
   //   Secondary: "#E1E7F2",
