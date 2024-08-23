@@ -40,6 +40,8 @@ function HomeScreen({ navigation, route }) {
   const fetchedGameIdsRef = useRef(new Set());
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const animationValues = useRef({}).current;
+
   useEffect(() => {
     const getUser = async () => {
       const start = performance.now();
@@ -189,16 +191,22 @@ function HomeScreen({ navigation, route }) {
       extrapolate: "clamp",
     });
 
-    const removeGame = (gameId) => {
-      const updatedGames = games.filter((game) => game.gameId !== gameId);
-      setGames(updatedGames);
-      setSelectedGames(updatedGames); // Update the filtered list as well if needed
+    const removeGameWithAnimation = (gameId) => {
+      Animated.timing(animationValues[gameId], {
+        toValue: 0, // Fade out
+        duration: 300, // Duration of animation
+        useNativeDriver: true,
+      }).start(() => {
+        const updatedGames = games.filter((game) => game.gameId !== gameId);
+        setGames(updatedGames);
+        setSelectedGames(updatedGames);
+      });
     };
 
     return (
       <TouchableOpacity
         onPress={() => {
-          removeGame(item.gameId);
+          removeGameWithAnimation(item.gameId);
         }}
         activeOpacity={0.6}
       >
@@ -215,15 +223,58 @@ function HomeScreen({ navigation, route }) {
     const isBookmarked = bookmarkedGames.includes(item.gameId);
     const bookmarkIcon = isBookmarked ? "heart" : "heart-o";
 
-    if (item.hasPlayed) {
+    // Initialize animation value for each game item if not already initialized
+    if (!animationValues[item.gameId]) {
+      animationValues[item.gameId] = new Animated.Value(1);
+    }
+
+    const rightSwipe = (progress, dragX) => {
+      const scale = dragX.interpolate({
+        inputRange: [-100, 0],
+        outputRange: [1, 0.5],
+        extrapolate: "clamp",
+      });
+
+      const removeGameWithAnimation = (gameId) => {
+        Animated.timing(animationValues[gameId], {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          const updatedGames = games.filter((game) => game.gameId !== gameId);
+          setGames(updatedGames);
+          setSelectedGames(updatedGames);
+        });
+      };
+
       return (
+        <TouchableOpacity
+          onPress={() => {
+            removeGameWithAnimation(item.gameId);
+          }}
+          activeOpacity={0.6}
+        >
+          <View style={styles.deleteBox}>
+            <Animated.View style={{ transform: [{ scale: scale }] }}>
+              <FontAwesome name="trash" size={32} color="red" />
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      );
+    };
+
+    return (
+      <Animated.View
+        key={item.gameId}
+        style={{ opacity: animationValues[item.gameId] }}
+      >
         <Swipeable
           key={item.gameId}
           renderRightActions={(progress, dragX) =>
             rightSwipe(progress, dragX, item)
           }
           overshootLeft={false}
-          closeOnScroll={true} // Automatically close on scroll
+          closeOnScroll={true}
         >
           <TouchableOpacity
             key={item.gameId}
@@ -265,37 +316,8 @@ function HomeScreen({ navigation, route }) {
             </View>
           </TouchableOpacity>
         </Swipeable>
-      );
-    } else {
-      return (
-        <TouchableOpacity
-          key={item.gameId}
-          style={styles.button}
-          onPress={() => {
-            navigation.replace("PlayScreen", {
-              preferredBoardSize: preferredBoardSize,
-              user: user,
-              gameId: item.gameId,
-            });
-          }}
-        >
-          <View style={styles.gameItemContainer}>
-            <View style={styles.boxSizeContainer}>
-              <Text style={styles.boxSizeText}>
-                {item.boardLength}x{item.boardLength}
-              </Text>
-            </View>
-            <View style={styles.gameInfoContainer}>
-              <Text style={styles.infoText}>
-                Invited by{" "}
-                <Text style={styles.inviterText}>{item.inviter}</Text>
-              </Text>
-              <Text style={styles.dateText}>{item.dateAndTimePlayedAt}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      );
-    }
+      </Animated.View>
+    );
   };
 
   const startIndex = currentPage * ITEMS_PER_PAGE;
