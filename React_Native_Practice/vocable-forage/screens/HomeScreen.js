@@ -317,6 +317,14 @@ function HomeScreen({ navigation, route }) {
     </View>
   );
 
+  const DeviceButton = ({ title }) => {
+    return (
+      <TouchableOpacity style={styles.playButton}>
+        <Text style={styles.playButtonText}>{title}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const handleScroll = (event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / (width * 0.7 + width * 0.1));
@@ -385,6 +393,11 @@ function HomeScreen({ navigation, route }) {
         <View style={styles.outerListContainer}>
           <View style={styles.gamesHeader}>
             <Text style={styles.historyText}>Play</Text>
+          </View>
+          <View style={styles.playButtonContainer}>
+            <DeviceButton title="Word" />
+            <DeviceButton title="5+" />
+            <DeviceButton title="Train" />
           </View>
 
           <View style={styles.gamesHeader}>
@@ -588,7 +601,7 @@ const createStyles = (height, width) => {
       marginTop: 10,
     },
     bookmarkIcon: {
-      paddingRight: 20,
+      paddingRight: 30,
     },
     gamesHeader: {
       height: height * 0.06,
@@ -596,7 +609,7 @@ const createStyles = (height, width) => {
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
-      borderWidth: 1,
+      // borderWidth: 1,
     },
     flatListContainer: {
       height: height * 0.25,
@@ -659,6 +672,34 @@ const createStyles = (height, width) => {
       bottom: 0,
       justifyContent: "center",
       alignItems: "center",
+    },
+    playButton: {
+      width: width * 0.25, // Adjust the width of each button
+      height: height * 0.15, // Adjust the height of each button
+      backgroundColor: COLORS.Primary,
+      borderRadius: 15,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+      elevation: 5,
+    },
+    playButtonText: {
+      fontSize: 16,
+      color: COLORS.Neutral,
+      fontWeight: "bold",
+    },
+    playButtonContainer: {
+      marginTop: 10,
+      paddingHorizontal: 10,
+      // marginTop: 50,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      // width: width * 0.85, // Adjust the width as needed
+      // borderWidth: 1,
+      marginBottom: 30,
     },
   });
 };

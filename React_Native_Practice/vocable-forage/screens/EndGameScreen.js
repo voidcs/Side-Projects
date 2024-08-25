@@ -373,11 +373,13 @@ function EndGameScreen({ navigation, route }) {
                 </View>
               </View>
             </View>
-            <InviteButton
-              friendsList={user.friends}
-              gameId={gameId}
-              invitee={user.username}
-            />
+            <View style={styles.inviteButton}>
+              <InviteButton
+                friendsList={user.friends}
+                gameId={gameId}
+                invitee={user.username}
+              />
+            </View>
           </View>
         )}
         {currentPage === "Review" && (
@@ -777,6 +779,12 @@ const createStyles = (boardLength, height, width) => {
       textAlign: "center",
       marginBottom: 5,
       fontSize: 20,
+    },
+    inviteButton: {
+      width: width,
+      justifyContent: "center",
+      alignItems: "center",
+      // borderWidth: 1,
     },
   });
 };

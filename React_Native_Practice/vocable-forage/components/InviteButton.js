@@ -8,11 +8,14 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
+import COLORS from "../data/color";
+// import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const InviteButton = ({ friendsList, gameId, invitee }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { width } = Dimensions.get("window");
+  const { height, width } = Dimensions.get("window");
 
+  const styles = createStyles(height, width);
   const addPlayerToGame = async (username, invitee) => {
     console.log("asdasd");
     try {
@@ -112,13 +115,15 @@ const InviteButton = ({ friendsList, gameId, invitee }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { width: width * 0.6 }]}>
+          <View style={[styles.modalContent, { width: width * 0.7 }]}>
             <Text style={styles.modalViewWordsText}>Invite Friend</Text>
-            <FlatList
-              data={friendsList}
-              renderItem={renderModalItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
+            <View style={styles.flatList}>
+              <FlatList
+                data={friendsList}
+                renderItem={renderModalItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
               style={styles.closeButton}
@@ -132,74 +137,87 @@ const InviteButton = ({ friendsList, gameId, invitee }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  tabContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tab: {
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#007bff",
-    borderRadius: 5,
-  },
-  tabText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  modalContainer: {
-    flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const createStyles = (height, width) => {
+  return StyleSheet.create({
+    tabContainer: {
+      justifyContent: "center",
+      alignItems: "center",
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "100%",
-  },
-  modalViewWordsText: {
-    fontSize: 18,
-    marginBottom: 15,
-  },
-  dropdownRow: {
-    width: "100%",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginVertical: 5,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#a02f58", // Match the background color
-    borderRadius: 10,
-    // borderWidth: 5,
-  },
-  dropdownRowText: {
-    fontSize: 20,
-    textAlign: "center",
-    color: "#FBF4F6", // Match the text color
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "#ccc",
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  closeButtonText: {
-    color: "#000",
-  },
-});
+    tab: {
+      justifyContent: "center",
+      padding: 10,
+      // backgroundColor: "#007bff",
+      backgroundColor: COLORS.Primary,
+      borderRadius: 5,
+    },
+    tabText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    modalContainer: {
+      flex: 1,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+      backgroundColor: "white",
+      borderRadius: 10,
+      padding: 20,
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+      width: "100%",
+    },
+    modalViewWordsText: {
+      fontSize: 20,
+      marginBottom: 15,
+      color: COLORS.Darker,
+      fontWeight: "500",
+    },
+    dropdownRow: {
+      width: "100%",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      marginVertical: 5,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#a02f58", // Match the background color
+      borderRadius: 10,
+      // borderWidth: 5,
+    },
+    dropdownRowText: {
+      fontSize: 20,
+      textAlign: "center",
+      color: "#FBF4F6", // Match the text color
+    },
+    closeButton: {
+      marginTop: 30,
+      padding: 10,
+      backgroundColor: "#ccc",
+      borderRadius: 10,
+      alignItems: "center",
+      width: "80%",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      marginVertical: 5,
+    },
+    closeButtonText: {
+      fontSize: 20,
+      color: COLORS.Darker,
+    },
+    flatList: {
+      width: "80%",
+    },
+  });
+};
 
 export default InviteButton;
