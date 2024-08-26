@@ -2,14 +2,11 @@ from collections import defaultdict
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Define the scope
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Provide the path to your credentials file
 credentials_path = "/Users/james/keys/bta-matchplay-b2847d95d7e3.json"
 creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
 
-# Authorize the client
 client = gspread.authorize(creds)
 
 sheet_url = "https://docs.google.com/spreadsheets/d/1BiVMg6ESdtII0OjH7hNUyNj5fVcFW1IcoeZYDgCtY_8/edit?gid=0#gid=0"
@@ -81,9 +78,8 @@ for row in all_values:
 stats_sheet = sheet.get_worksheet(3)
 all_values = stats_sheet.get_all_values()
 for index, row in enumerate(all_values, start=1):  # start=1 to match Google Sheets row numbers
-    # Example: Update the value in column B (second column) with the row index
     name = row[1]
-    if name in names:
+    if name in names and index == 14:
         stats_sheet.update_acell("C" + str(index), stats[name]["MP"])
         stats_sheet.update_acell("D" + str(index), stats[name]["W"])
         stats_sheet.update_acell("E" + str(index), stats[name]["L"])
@@ -92,3 +88,4 @@ for index, row in enumerate(all_values, start=1):  # start=1 to match Google She
         stats_sheet.update_acell("H" + str(index), stats[name]["GameDiff"])
         stats_sheet.update_acell("I" + str(index), 100 * stats[name]["GamesWon"] / (stats[name]["GamesWon"] + stats[name]["GamesLost"]))
         stats_sheet.update_acell("J" + str(index), 100 * stats[name]["W"] / stats[name]["MP"])
+        stats_sheet.update_acell("K" + str(index), player_elo[name])
