@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: COLORS.Secondary,
+    backgroundColor: COLORS.Neutral,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
     width: width,

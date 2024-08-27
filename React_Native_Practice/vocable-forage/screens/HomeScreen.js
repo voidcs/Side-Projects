@@ -16,7 +16,7 @@ import POINTS from "../data/point-distribution";
 import COLORS from "../data/color";
 import LoadingScreen from "./LoadingScreen";
 import ToggleSwitch from "../components/ToggleSwitch";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import * as Font from "expo-font";
@@ -317,7 +317,7 @@ function HomeScreen({ navigation, route }) {
     </View>
   );
 
-  const DeviceButton = ({ title }) => {
+  const DeviceButton = ({ title, iconName, delay }) => {
     const rotateAnimation = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -339,26 +339,35 @@ function HomeScreen({ navigation, route }) {
             useNativeDriver: true,
           }),
         ]).start(() => {
-          // Randomly start the rotation again after some time
-          const randomTime = Math.random() * 3000 + 2000; // between 2 to 5 seconds
-          setTimeout(startRotating, randomTime);
+          // Repeat the rotation every 5 seconds
+          setTimeout(startRotating, 5000);
         });
       };
 
-      // Introduce a random delay before starting the first rotation
-      const initialDelay = Math.random() * 3000; // up to 3 second delay
-      setTimeout(startRotating, initialDelay);
-    }, [rotateAnimation]);
+      // Start the rotation with a cascading delay
+      setTimeout(startRotating, delay);
+    }, [rotateAnimation, delay]);
 
     const rotation = rotateAnimation.interpolate({
       inputRange: [-1, 1],
-      outputRange: ["-7deg", "7deg"],
+      outputRange: ["-8deg", "8deg"],
     });
 
     return (
       <Animated.View style={{ transform: [{ rotate: rotation }] }}>
         <TouchableOpacity style={styles.playButton}>
-          <Text style={styles.playButtonText}>{title}</Text>
+          <View style={{ alignItems: "center" }}>
+            {iconName === "user" && (
+              <FontAwesome name="user" size={32} color="white" />
+            )}
+            {iconName === "users" && (
+              <FontAwesome name="users" size={32} color="white" />
+            )}
+            {iconName === "dumbbell" && (
+              <MaterialCommunityIcons name="dumbbell" size={32} color="white" />
+            )}
+            <Text style={styles.playButtonText}>{title}</Text>
+          </View>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -434,9 +443,24 @@ function HomeScreen({ navigation, route }) {
             <Text style={styles.historyText}>Play</Text>
           </View>
           <View style={styles.playButtonContainer}>
-            <DeviceButton title="Word" />
-            <DeviceButton title="5+" />
-            <DeviceButton title="Train" />
+            <DeviceButton
+              title="Solo"
+              iconName="user"
+              iconType="FontAwesome"
+              delay={0}
+            />
+            <DeviceButton
+              title="Versus"
+              iconName="users"
+              iconType="FontAwesome"
+              delay={300}
+            />
+            <DeviceButton
+              title="Train"
+              iconName="dumbbell"
+              iconType="MaterialCommunityIcons"
+              delay={600}
+            />
           </View>
 
           <View style={styles.gamesHeader}>
@@ -731,6 +755,7 @@ const createStyles = (height, width) => {
       fontSize: 16,
       color: COLORS.Neutral,
       fontWeight: "bold",
+      marginTop: 20,
     },
     playButtonContainer: {
       marginTop: 20,
