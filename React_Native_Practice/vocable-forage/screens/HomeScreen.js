@@ -233,23 +233,23 @@ function HomeScreen({ navigation, route }) {
         key={item.gameId}
         style={{
           height: animationValues[item.gameId],
-          marginBottom: animationValues[item.gameId].interpolate({
-            inputRange: [0, height * 0.11],
-            outputRange: [0, 10],
-          }),
+          // marginBottom: animationValues[item.gameId].interpolate({
+          //   inputRange: [0, height * 0.11],
+          //   outputRange: [0, 10],
+          // }),
           overflow: "hidden", // Ensures content inside is hidden as height decreases
         }}
       >
         <Swipeable
-          key={`swipeable-${item.gameId}`} // Unique key for Swipeable
+          key={`swipeable-${item.gameId}`}
           renderRightActions={(progress, dragX) =>
             rightSwipe(progress, dragX, item)
           }
           overshootLeft={false}
-          closeOnScroll={true} // Automatically close on scroll
+          closeOnScroll={true}
         >
           <TouchableOpacity
-            key={`touchable-${item.gameId}`} // Unique key for TouchableOpacity
+            key={`touchable-${item.gameId}`}
             style={styles.button}
             onPress={() => {
               navigation.replace("EndGameScreen", {
@@ -318,10 +318,49 @@ function HomeScreen({ navigation, route }) {
   );
 
   const DeviceButton = ({ title }) => {
+    const rotateAnimation = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+      const startRotating = () => {
+        Animated.sequence([
+          Animated.timing(rotateAnimation, {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(rotateAnimation, {
+            toValue: -1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(rotateAnimation, {
+            toValue: 0,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          // Randomly start the rotation again after some time
+          const randomTime = Math.random() * 3000 + 2000; // between 2 to 5 seconds
+          setTimeout(startRotating, randomTime);
+        });
+      };
+
+      // Introduce a random delay before starting the first rotation
+      const initialDelay = Math.random() * 3000; // up to 3 second delay
+      setTimeout(startRotating, initialDelay);
+    }, [rotateAnimation]);
+
+    const rotation = rotateAnimation.interpolate({
+      inputRange: [-1, 1],
+      outputRange: ["-7deg", "7deg"],
+    });
+
     return (
-      <TouchableOpacity style={styles.playButton}>
-        <Text style={styles.playButtonText}>{title}</Text>
-      </TouchableOpacity>
+      <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+        <TouchableOpacity style={styles.playButton}>
+          <Text style={styles.playButtonText}>{title}</Text>
+        </TouchableOpacity>
+      </Animated.View>
     );
   };
 
@@ -447,12 +486,12 @@ const createStyles = (height, width) => {
   const circleDiameter = height * 0.07;
   return StyleSheet.create({
     navContainer: {
-      height: "10%", // 10% of the screen height
+      height: "10%",
       position: "absolute",
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: COLORS.Neutral, // Ensure the background color matches
+      backgroundColor: COLORS.Neutral,
     },
     outerContainer: {
       flex: 1,
@@ -497,6 +536,7 @@ const createStyles = (height, width) => {
     button: {
       backgroundColor: "transparent",
       padding: 2,
+      height: height * 0.11,
       // marginVertical: 3,
       borderRadius: 5,
       justifyContent: "center",
@@ -605,11 +645,12 @@ const createStyles = (height, width) => {
     },
     gamesHeader: {
       height: height * 0.06,
-      marginTop: height * 0.02,
+      // marginTop: height * 0.02,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
       // borderWidth: 1,
+      // marginBottom: 30,
     },
     flatListContainer: {
       height: height * 0.25,
@@ -641,9 +682,9 @@ const createStyles = (height, width) => {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingVertical: 10,
       paddingHorizontal: 15,
       borderRadius: 10,
+      // borderWidth: 1,
     },
     historyText: {
       fontSize: 24,
@@ -674,8 +715,8 @@ const createStyles = (height, width) => {
       alignItems: "center",
     },
     playButton: {
-      width: width * 0.25, // Adjust the width of each button
-      height: height * 0.15, // Adjust the height of each button
+      width: width * 0.25,
+      height: height * 0.15,
       backgroundColor: COLORS.Primary,
       borderRadius: 15,
       justifyContent: "center",
@@ -692,14 +733,14 @@ const createStyles = (height, width) => {
       fontWeight: "bold",
     },
     playButtonContainer: {
-      marginTop: 10,
+      marginTop: 20,
       paddingHorizontal: 10,
       // marginTop: 50,
       flexDirection: "row",
       justifyContent: "space-between",
-      // width: width * 0.85, // Adjust the width as needed
+      // width: width * 0.85,
       // borderWidth: 1,
-      marginBottom: 30,
+      marginBottom: 50, // Changes how far the game list is below the play buttons
     },
   });
 };

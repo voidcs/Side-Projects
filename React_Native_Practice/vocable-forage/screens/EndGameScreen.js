@@ -15,6 +15,7 @@ import Svg, { Line } from "react-native-svg";
 import BottomNavBar from "../components/BottomNavBar";
 import POINTS from "../data/point-distribution";
 import InviteButton from "../components/InviteButton";
+import COLORS from "../data/color";
 
 function EndGameScreen({ navigation, route }) {
   // if user is null, then we just use this old code
@@ -147,8 +148,10 @@ function EndGameScreen({ navigation, route }) {
     const points = POINTS[item.length] || 0;
     return (
       <View style={[styles.wordContainer]}>
-        <Text style={[styles.wordText, { color: "black" }]}>{item}</Text>
-        <Text style={[styles.pointText, { color: "black" }]}>{points}</Text>
+        <Text style={[styles.wordText, { color: COLORS.Darker }]}>{item}</Text>
+        <Text style={[styles.pointText, { color: COLORS.Darker }]}>
+          {points}
+        </Text>
       </View>
     );
   };
